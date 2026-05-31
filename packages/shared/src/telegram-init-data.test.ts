@@ -39,6 +39,11 @@ describe("validateTelegramInitData", () => {
     const result = validateTelegramInitData(validInitData(), botToken, { now });
 
     assert.equal(result.valid, true);
+
+    if (!result.valid) {
+      throw new Error("Expected valid initData");
+    }
+
     assert.equal(result.identity?.id, 900000001);
     assert.equal(result.identity?.username, "demo_user");
     assert.equal(result.identity?.firstName, "Demo");
