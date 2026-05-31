@@ -6,9 +6,14 @@ prescribe treatment, and does not recommend medication or IV composition.
 
 ## Prototype Boundaries
 
-PR 2 adds the Prisma data model and fake local-development seed data. It does
-not contain authentication, personal data processing logic, clinical data,
-partner matching, request submission workflows, or payments.
+PR 2 adds the Prisma data model and fake local-development seed data. PR 3 adds
+only the Telegram Bot `/start` entry point and Telegram Mini App `initData`
+validation. It does not contain staff authentication, personal data persistence,
+clinical data, partner matching, request submission workflows, or payments.
+
+Telegram `initData` is validated server-side using Telegram's signed payload,
+and stale payloads are rejected. The API returns only a validation boolean. It
+must not log or echo `initData`, bot tokens, or Telegram user data.
 
 The MVP explicitly excludes:
 
