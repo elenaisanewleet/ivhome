@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
 import "./App.css";
+import "./App.mobile.css";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 type CardView = "offers" | "details" | "chat" | "confirmation" | "status" | "price-lock";
@@ -68,10 +69,7 @@ const STEPS: Step[] = [
     id: "location",
     eyebrow: "Шаг 4 из 6",
     title: "Где нужен выезд?",
-    body: [
-      "Достаточно района или округа.",
-      "Точный адрес сейчас не нужен.",
-    ],
+    body: ["Достаточно района или округа.", "Точный адрес сейчас не нужен."],
     iconLabel: "location",
   },
   {
@@ -104,25 +102,9 @@ const PROFILE_OPTIONS = [
   "Уточнить с медслужбой",
 ];
 
-const DISTRICT_OPTIONS = [
-  "ЦАО",
-  "САО",
-  "СВАО",
-  "ВАО",
-  "ЮВАО",
-  "ЮАО",
-  "ЮЗАО",
-  "ЗАО",
-  "СЗАО",
-  "Новая Москва",
-];
+const DISTRICT_OPTIONS = ["ЦАО", "САО", "СВАО", "ВАО", "ЮВАО", "ЮАО", "ЮЗАО", "ЗАО", "СЗАО", "Новая Москва"];
 
-const TIME_OPTIONS = [
-  "Как можно скорее",
-  "Сегодня",
-  "Завтра",
-  "Выбрать время позже",
-];
+const TIME_OPTIONS = ["Как можно скорее", "Сегодня", "Завтра", "Выбрать время позже"];
 
 const OFFERS: Offer[] = [
   {
@@ -167,14 +149,6 @@ function getStep(index: number) {
   return STEPS[index] ?? STEPS[0]!;
 }
 
-function isLikelyMobileRuntime() {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-}
-
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isEmergency = variant === "signal";
   const isOffers = variant === "offers";
@@ -194,10 +168,7 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
   return (
     <div className="progress-dots" aria-label={`Шаг ${currentIndex + 1} из ${STEPS.length}`}>
       {STEPS.map((step, index) => (
-        <span
-          className={`progress-dot ${index <= currentIndex ? "progress-dot--active" : ""}`}
-          key={step.id}
-        />
+        <span className={`progress-dot ${index <= currentIndex ? "progress-dot--active" : ""}`} key={step.id} />
       ))}
     </div>
   );
@@ -235,13 +206,16 @@ function OfferSummary({ offer }: { offer: Offer }) {
   );
 }
 
-function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (offer: Offer) => void }) {
+function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (offer: Offer, view: CardView) => void }) {
   return (
     <article className="offer-card">
       <OfferSummary offer={offer} />
       <p className="offer-note">{offer.note}</p>
+
       <div className="offer-actions">
-        <button className="button button--primary" onClick={() => onOpen(offer)} type="button">Подробнее</button>
+        <button className="button button--secondary" onClick={() => onOpen(offer, "details")} type="button">Смотреть детали</button>
+        <button className="button button--teal" onClick={() => onOpen(offer, "chat")} type="button">Написать специалисту</button>
+        <button className="button button--primary" onClick={() => onOpen(offer, "confirmation")} type="button">Подтвердить заявку</button>
       </div>
     </article>
   );
@@ -347,8 +321,8 @@ function PriceLockPreview({ offer }: { offer: Offer }) {
       <section className="price-lock-card">
         <p className="status-label"><span className="status-dot" />Выезд подтверждён</p>
         <p className="price-lock-card__service">{offer.name}</p>
-        <div className="price-lock-card__amount"><span>Итоговая стоимость</span><strong>8 500 ₽</strong></div>
-        <p className="lock-note">Стоимость зафиксирована выбранной организацией.</p>
+        <div className="price-lock-card__amount"><span>Итоговая стоимость</span><strong>{offer.price.replace("от ", "")}</strong></div>
+        <p className="lock-note">Стоимость зафиксирована выбранной медслужбой.</p>
         <div className="sla-grid sla-grid--flush" aria-label="Подтверждённое время ответа и прибытия">
           <div className="sla-box"><span>Ответ</span><strong>подтверждено</strong></div>
           <div className="sla-box sla-box--eta"><span>Прибытие</span><strong>около 19:40</strong></div>
@@ -364,7 +338,6 @@ export function App() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
   const [cardView, setCardView] = useState<CardView>("offers");
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const step = getStep(stepIndex);
@@ -376,60 +349,28 @@ export function App() {
   const hasLocation = Boolean(selectedDistrict || manualDistrict.trim());
 
   const primaryLabel = useMemo(() => {
-    if (step.id === "welcome") {
-      return "Начать";
-    }
-
-    if (step.id === "consent") {
-      return "Согласен, продолжить";
-    }
-
-    if (step.id === "emergency") {
-      return "Продолжить подбор";
-    }
-
-    if (step.id === "profile") {
-      return selectedProfile ? "Продолжить" : "Выберите вариант";
-    }
-
-    if (step.id === "location") {
-      return hasLocation ? "Продолжить" : "Укажите район";
-    }
-
-    if (step.id === "time") {
-      return selectedTime ? "Показать варианты" : "Выберите время";
-    }
-
+    if (step.id === "welcome") return "Начать";
+    if (step.id === "consent") return "Согласен, продолжить";
+    if (step.id === "emergency") return "Продолжить подбор";
+    if (step.id === "profile") return selectedProfile ? "Продолжить" : "Выберите вариант";
+    if (step.id === "location") return hasLocation ? "Продолжить" : "Укажите район";
+    if (step.id === "time") return selectedTime ? "Показать варианты" : "Выберите время";
     return "Изменить параметры";
   }, [hasLocation, selectedProfile, selectedTime, step.id]);
 
   function canContinue() {
-    if (isProfileStep) {
-      return Boolean(selectedProfile);
-    }
-
-    if (isLocationStep) {
-      return hasLocation;
-    }
-
-    if (isTimeStep) {
-      return Boolean(selectedTime);
-    }
-
+    if (isProfileStep) return Boolean(selectedProfile);
+    if (isLocationStep) return hasLocation;
+    if (isTimeStep) return Boolean(selectedTime);
     return true;
   }
 
   function goNext() {
-    if (!canContinue()) {
-      return;
-    }
-
-    setEmergencyNotice(null);
+    if (!canContinue()) return;
     setStepIndex((current) => Math.min(current + 1, STEPS.length - 1));
   }
 
   function goBack() {
-    setEmergencyNotice(null);
     setStepIndex((current) => Math.max(current - 1, 0));
   }
 
@@ -439,9 +380,9 @@ export function App() {
     setStepIndex(3);
   }
 
-  function openOffer(offer: Offer) {
+  function openOffer(offer: Offer, view: CardView) {
     setSelectedOffer(offer);
-    setCardView("details");
+    setCardView(view);
   }
 
   function goBackInCardFlow() {
@@ -454,7 +395,7 @@ export function App() {
     const previousView: Partial<Record<CardView, CardView>> = {
       chat: "details",
       confirmation: "chat",
-      status: "chat",
+      status: "confirmation",
       "price-lock": "status",
     };
 
@@ -476,7 +417,7 @@ export function App() {
     const labels: Record<Exclude<CardView, "offers">, string> = {
       details: "Написать специалисту",
       chat: "Перейти к подтверждению",
-      confirmation: "Подтвердить заявку",
+      confirmation: "Отправить заявку",
       status: "Показать фиксацию стоимости",
       "price-lock": "Вернуться к вариантам",
     };
@@ -484,18 +425,8 @@ export function App() {
     return cardView === "offers" ? "Изменить параметры" : labels[cardView];
   }
 
-  async function handleEmergencyCall(phoneNumber: "103" | "112") {
-    if (isLikelyMobileRuntime()) {
-      window.location.href = `tel:${phoneNumber}`;
-      return;
-    }
-
-    try {
-      await navigator.clipboard?.writeText(phoneNumber);
-      setEmergencyNotice(`Номер ${phoneNumber} скопирован. Наберите его с телефона.`);
-    } catch {
-      setEmergencyNotice(`Наберите ${phoneNumber} с телефона.`);
-    }
+  function handleEmergencyCall(phoneNumber: "103" | "112") {
+    window.location.href = `tel:${phoneNumber}`;
   }
 
   return (
@@ -522,13 +453,10 @@ export function App() {
           ) : null}
 
           {step.id === "emergency" ? (
-            <>
-              <div className="emergency-actions" aria-label="Экстренная помощь">
-                <button className="emergency-link" onClick={() => void handleEmergencyCall("103")} type="button">Позвонить 103</button>
-                <button className="emergency-link" onClick={() => void handleEmergencyCall("112")} type="button">Позвонить 112</button>
-              </div>
-              {emergencyNotice ? <p className="emergency-copy-note">{emergencyNotice}</p> : null}
-            </>
+            <div className="emergency-actions" aria-label="Экстренная помощь">
+              <button className="emergency-link" onClick={() => handleEmergencyCall("103")} type="button">Позвонить 103</button>
+              <button className="emergency-link" onClick={() => handleEmergencyCall("112")} type="button">Позвонить 112</button>
+            </div>
           ) : null}
 
           {isProfileStep ? (
