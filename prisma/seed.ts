@@ -266,6 +266,22 @@ async function main() {
         contentHash: "demo-sha256-partner-transfer-v1",
         documentUrl: "https://example.invalid/ivhome/demo/partner-transfer-v1",
       },
+      {
+        id: "demo-consent-terms-v1",
+        type: "TERMS_OF_USE" as const,
+        version: "demo-v1",
+        title: "Demo terms of use",
+        contentHash: "demo-sha256-terms-v1",
+        documentUrl: "https://example.invalid/ivhome/demo/terms-v1",
+      },
+      {
+        id: "demo-consent-privacy-policy-v1",
+        type: "PRIVACY_POLICY_ACKNOWLEDGEMENT" as const,
+        version: "demo-v1",
+        title: "Demo privacy policy acknowledgement",
+        contentHash: "demo-sha256-privacy-policy-v1",
+        documentUrl: "https://example.invalid/ivhome/demo/privacy-policy-v1",
+      },
     ];
 
     for (const document of consentDocuments) {
