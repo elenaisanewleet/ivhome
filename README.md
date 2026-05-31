@@ -90,6 +90,21 @@ curl http://localhost:3000/health/ready
 `/health/ready` is still process-level. Database connectivity will be added in
 a later backend PR.
 
+## Telegram Entry Point
+
+Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBAPP_URL` outside source control to
+enable the Telegram Bot `/start` entry point. The Bot replies with a Nadom
+Mini App button. The API validates signed, current Telegram Mini App `initData`
+without logging it:
+
+```text
+POST /telegram/init-data/validate
+{ "initData": "<window.Telegram.WebApp.initData>" }
+```
+
+The API returns only `{ "valid": true }` or `{ "valid": false }`; it does not
+echo Telegram data or expose validation-failure details.
+
 ## Database
 
 Start PostgreSQL:
