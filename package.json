@@ -16,7 +16,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @ivhome/shared build && pnpm --parallel --stream --filter @ivhome/api --filter @ivhome/mini-app --filter @ivhome/telegram-bot --filter @ivhome/dashboard dev",
-    "test": "pnpm -r --if-present test",
+    "test": "tsx --test packages/shared/src/**/*.test.ts apps/api/src/**/*.test.ts",
     "lint": "eslint .",
     "typecheck": "pnpm db:generate && pnpm -r --if-present typecheck && tsc --noEmit -p prisma/tsconfig.json",
     "build": "pnpm -r --if-present build",
