@@ -158,6 +158,14 @@ function getStep(index: number) {
   return STEPS[index] ?? STEPS[0]!;
 }
 
+function isLikelyMobileRuntime() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isEmergency = variant === "signal";
   const isOffers = variant === "offers";
@@ -231,6 +239,7 @@ export function App() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -288,15 +297,31 @@ export function App() {
       return;
     }
 
+    setEmergencyNotice(null);
     setStepIndex((current) => Math.min(current + 1, STEPS.length - 1));
   }
 
   function goBack() {
+    setEmergencyNotice(null);
     setStepIndex((current) => Math.max(current - 1, 0));
   }
 
   function restartFlow() {
     setStepIndex(3);
+  }
+
+  async function handleEmergencyCall(phoneNumber: "103" | "112") {
+    if (isLikelyMobileRuntime()) {
+      window.location.href = `tel:${phoneNumber}`;
+      return;
+    }
+
+    try {
+      await navigator.clipboard?.writeText(phoneNumber);
+      setEmergencyNotice(`Номер ${phoneNumber} скопирован. Наберите его с телефона.`);
+    } catch {
+      setEmergencyNotice(`Наберите ${phoneNumber} с телефона.`);
+    }
   }
 
   return (
@@ -321,10 +346,13 @@ export function App() {
           </div>
 
           {step.id === "emergency" ? (
-            <div className="emergency-actions" aria-label="Экстренная помощь">
-              <a className="emergency-link" href="tel:103">Позвонить 103</a>
-              <a className="emergency-link" href="tel:112">Позвонить 112</a>
-            </div>
+            <>
+              <div className="emergency-actions" aria-label="Экстренная помощь">
+                <button className="emergency-link" onClick={() => void handleEmergencyCall("103")} type="button">Позвонить 103</button>
+                <button className="emergency-link" onClick={() => void handleEmergencyCall("112")} type="button">Позвонить 112</button>
+              </div>
+              {emergencyNotice ? <p className="emergency-copy-note">{emergencyNotice}</p> : null}
+            </>
           ) : null}
 
           {isProfileStep ? (
