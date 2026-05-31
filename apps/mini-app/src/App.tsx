@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import "./App.css";
 
-type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time";
+type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
 type Step = {
   id: StepId;
@@ -10,6 +10,17 @@ type Step = {
   title: string;
   body: string[];
   iconLabel: string;
+};
+
+type Offer = {
+  name: string;
+  status: string;
+  zone: string;
+  responseTime: string;
+  arrivalTime: string;
+  price: string;
+  rating: string;
+  note: string;
 };
 
 const STEPS: Step[] = [
@@ -70,6 +81,16 @@ const STEPS: Step[] = [
     ],
     iconLabel: "time",
   },
+  {
+    id: "offers",
+    eyebrow: "Шаг 6 из 6",
+    title: "Подходящие варианты",
+    body: [
+      "Нашли несколько медслужб под ваш район и время.",
+      "Сравните ответ, прибытие и ориентировочную стоимость.",
+    ],
+    iconLabel: "offers",
+  },
 ];
 
 const PROFILE_OPTIONS = [
@@ -100,15 +121,49 @@ const TIME_OPTIONS = [
   "Выбрать время позже",
 ];
 
+const OFFERS: Offer[] = [
+  {
+    name: "Медслужба Север",
+    status: "Лицензия проверена",
+    zone: "САО · СЗАО · рядом",
+    responseTime: "обычно 5–10 минут",
+    arrivalTime: "от 40 минут",
+    price: "от 8 500 ₽",
+    rating: "4.8",
+    note: "Детали и возможность выезда подтверждает медслужба.",
+  },
+  {
+    name: "Медслужба Центр",
+    status: "Лицензия проверена",
+    zone: "ЦАО · ЗАО · ЮЗАО",
+    responseTime: "обычно 10–15 минут",
+    arrivalTime: "от 55 минут",
+    price: "от 9 200 ₽",
+    rating: "4.7",
+    note: "Стоимость фиксируется после подтверждения медслужбой.",
+  },
+  {
+    name: "Медслужба Ночь",
+    status: "Доступна 24/7",
+    zone: "Москва · по зонам выезда",
+    responseTime: "обычно до 20 минут",
+    arrivalTime: "от 70 минут",
+    price: "от 10 500 ₽",
+    rating: "4.6",
+    note: "Подходит, если нужен поздний или срочный выезд.",
+  },
+];
+
 function getStep(index: number) {
   return STEPS[index] ?? STEPS[0];
 }
 
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isEmergency = variant === "signal";
+  const isOffers = variant === "offers";
 
   return (
-    <div className={`node-icon ${isEmergency ? "node-icon--emergency" : ""}`} aria-hidden="true">
+    <div className={`node-icon ${isEmergency ? "node-icon--emergency" : ""} ${isOffers ? "node-icon--offers" : ""}`} aria-hidden="true">
       <span className="node-icon__dot node-icon__dot--main" />
       <span className="node-icon__line node-icon__line--first" />
       <span className="node-icon__dot node-icon__dot--second" />
@@ -131,6 +186,45 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
   );
 }
 
+function OfferCard({ offer }: { offer: Offer }) {
+  return (
+    <article className="offer-card">
+      <div className="offer-card__header">
+        <div>
+          <p className="status-label">{offer.status}</p>
+          <h2>{offer.name}</h2>
+        </div>
+        <span className="rating-pill">⋆ {offer.rating}</span>
+      </div>
+
+      <p className="offer-zone">{offer.zone}</p>
+
+      <div className="sla-grid" aria-label="Время ответа и прибытия">
+        <div className="sla-box">
+          <span>Ответ медслужбы</span>
+          <strong>{offer.responseTime}</strong>
+        </div>
+        <div className="sla-box">
+          <span>Прибытие после подтверждения</span>
+          <strong>{offer.arrivalTime}</strong>
+        </div>
+      </div>
+
+      <div className="price-row">
+        <span>Ориентировочная стоимость</span>
+        <strong>{offer.price}</strong>
+      </div>
+
+      <p className="offer-note">{offer.note}</p>
+
+      <div className="offer-actions">
+        <button className="button button--primary" type="button">Смотреть детали</button>
+        <button className="button button--secondary" type="button">Написать специалисту</button>
+      </div>
+    </article>
+  );
+}
+
 export function App() {
   const [stepIndex, setStepIndex] = useState(0);
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
@@ -142,6 +236,7 @@ export function App() {
   const isProfileStep = step.id === "profile";
   const isLocationStep = step.id === "location";
   const isTimeStep = step.id === "time";
+  const isOffersStep = step.id === "offers";
   const hasLocation = Boolean(selectedDistrict || manualDistrict.trim());
 
   const primaryLabel = useMemo(() => {
@@ -165,7 +260,11 @@ export function App() {
       return hasLocation ? "Продолжить" : "Укажите район";
     }
 
-    return selectedTime ? "Показать варианты" : "Выберите время";
+    if (step.id === "time") {
+      return selectedTime ? "Показать варианты" : "Выберите время";
+    }
+
+    return "Изменить параметры";
   }, [hasLocation, selectedProfile, selectedTime, step.id]);
 
   function canContinue() {
@@ -196,9 +295,13 @@ export function App() {
     setStepIndex((current) => Math.max(current - 1, 0));
   }
 
+  function restartFlow() {
+    setStepIndex(3);
+  }
+
   return (
     <main className="app-shell">
-      <section className="phone-frame" aria-labelledby="screen-title">
+      <section className={`phone-frame ${isOffersStep ? "phone-frame--offers" : ""}`} aria-labelledby="screen-title">
         <header className="screen-header">
           <ProgressDots currentIndex={stepIndex} />
           <span className="screen-header__brand">Надом</span>
@@ -289,10 +392,23 @@ export function App() {
               ))}
             </div>
           ) : null}
+
+          {isOffersStep ? (
+            <div className="offers-list" aria-label="Подходящие варианты">
+              {OFFERS.map((offer) => (
+                <OfferCard key={offer.name} offer={offer} />
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <footer className="screen-footer">
-          <button className="button button--primary" disabled={!canContinue()} onClick={goNext} type="button">
+          <button
+            className="button button--primary"
+            disabled={!canContinue()}
+            onClick={isOffersStep ? restartFlow : goNext}
+            type="button"
+          >
             {primaryLabel}
           </button>
           {isFirstStep ? (
