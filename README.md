@@ -5,16 +5,17 @@ at-home medical service partners in Moscow. The platform is an aggregator: it
 does not provide medical services, diagnose, prescribe treatment, or recommend
 medication or IV composition.
 
-## PR 2 Scope
+## PR 4 Scope
 
-This database-modeling stage intentionally contains no business logic. The
+This Telegram integration stage adds the first safe launch boundary. The
 repository now includes:
 
 - a `pnpm` monorepo;
 - a Fastify API with process-level health checks;
 - placeholder React apps for the Telegram Mini App and internal dashboard;
-- a placeholder Telegram Bot package;
-- a shared package;
+- a Telegram Bot `/start` entry point;
+- a shared Telegram Mini App `initData` validation helper;
+- a process-level API route for Telegram launch-data validation;
 - PostgreSQL in Docker Compose;
 - the Prisma data model for the MVP aggregator;
 - idempotent fake seed data for local development;
@@ -48,7 +49,7 @@ apps/
   api/            Fastify backend
   dashboard/      shared internal dashboard with /admin and /clinic routes
   mini-app/       Telegram Mini App
-  telegram-bot/   Telegram Bot placeholder
+  telegram-bot/   Telegram Bot entry point
 packages/
   shared/         shared TypeScript package
 prisma/
@@ -90,6 +91,35 @@ curl http://localhost:3000/health/ready
 `/health/ready` is still process-level. Database connectivity will be added in
 a later backend PR.
 
+## Telegram Launch Boundary
+
+The Telegram Bot reads its token only from `TELEGRAM_BOT_TOKEN`. If
+`TELEGRAM_WEBAPP_URL` is set, `/start` includes an inline button that opens the
+Telegram Mini App. Tokens, raw Telegram updates, raw `initData`, and Telegram
+payloads must not be logged.
+
+The API exposes a process-level launch validation endpoint:
+
+```http
+POST /telegram/validate-init-data
+```
+
+Request body:
+
+```json
+{ "initData": "<raw Telegram Mini App initData>" }
+```
+
+The endpoint validates Telegram Mini App launch data with the shared HMAC
+SHA-256 helper. It returns a generic invalid response for rejected launch data,
+returns `503` when `TELEGRAM_BOT_TOKEN` is not configured, and returns only a
+minimal parsed Telegram identity when validation succeeds.
+
+This boundary does not persist Telegram users, does not write to the database,
+does not collect phone numbers or addresses, and does not add request creation,
+matching, offers, medical triage, diagnosis, treatment recommendations, or IV
+composition logic.
+
 ## Database
 
 Start PostgreSQL:
@@ -127,6 +157,7 @@ values. It must never be treated as production data.
 
 ```bash
 pnpm dev
+pnpm test
 pnpm lint
 pnpm typecheck
 pnpm build
