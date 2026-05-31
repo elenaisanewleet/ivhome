@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import "./App.css";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
+type CardView = "offers" | "details" | "chat" | "confirmation" | "status" | "price-lock";
 
 type Step = {
   id: StepId;
@@ -13,6 +14,7 @@ type Step = {
 };
 
 type Offer = {
+  id: string;
   name: string;
   status: string;
   zone: string;
@@ -20,6 +22,7 @@ type Offer = {
   arrivalTime: string;
   price: string;
   rating: string;
+  condition: string;
   note: string;
 };
 
@@ -123,6 +126,7 @@ const TIME_OPTIONS = [
 
 const OFFERS: Offer[] = [
   {
+    id: "north",
     name: "Медслужба Север",
     status: "Лицензия проверена",
     zone: "САО · СЗАО · рядом",
@@ -130,9 +134,11 @@ const OFFERS: Offer[] = [
     arrivalTime: "от 40 минут",
     price: "от 8 500 ₽",
     rating: "4.8",
+    condition: "Выезд после подтверждения специалистом медслужбы.",
     note: "Детали и возможность выезда подтверждает медслужба.",
   },
   {
+    id: "center",
     name: "Медслужба Центр",
     status: "Лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
@@ -140,9 +146,11 @@ const OFFERS: Offer[] = [
     arrivalTime: "от 55 минут",
     price: "от 9 200 ₽",
     rating: "4.7",
+    condition: "Доступность ближайшего времени уточнит медслужба.",
     note: "Стоимость фиксируется после подтверждения медслужбой.",
   },
   {
+    id: "night",
     name: "Медслужба Ночь",
     status: "Принимает заявки сейчас",
     zone: "Москва · по зонам выезда",
@@ -150,6 +158,7 @@ const OFFERS: Offer[] = [
     arrivalTime: "от 70 минут",
     price: "от 10 500 ₽",
     rating: "4.6",
+    condition: "Возможность позднего выезда уточнит медслужба.",
     note: "Подходит, если нужен поздний или ближайший выезд.",
   },
 ];
@@ -194,9 +203,9 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
   );
 }
 
-function OfferCard({ offer }: { offer: Offer }) {
+function OfferSummary({ offer }: { offer: Offer }) {
   return (
-    <article className="offer-card">
+    <>
       <div className="offer-card__header">
         <div>
           <p className="status-label"><span className="status-dot" />{offer.status}</p>
@@ -222,14 +231,130 @@ function OfferCard({ offer }: { offer: Offer }) {
         <span>Ориентировочная стоимость</span>
         <strong>{offer.price}</strong>
       </div>
+    </>
+  );
+}
 
+function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (offer: Offer) => void }) {
+  return (
+    <article className="offer-card">
+      <OfferSummary offer={offer} />
       <p className="offer-note">{offer.note}</p>
-
       <div className="offer-actions">
-        <button className="button button--teal" type="button">Написать специалисту</button>
-        <button className="button button--primary" type="button">Подтвердить заявку</button>
+        <button className="button button--primary" onClick={() => onOpen(offer)} type="button">Подробнее</button>
       </div>
     </article>
+  );
+}
+
+function FlowIntro({ eyebrow, title, children }: { eyebrow: string; title: string; children: React.ReactNode }) {
+  return (
+    <>
+      <p className="eyebrow">{eyebrow}</p>
+      <h1 id="screen-title">{title}</h1>
+      <div className="screen-copy">{children}</div>
+    </>
+  );
+}
+
+function OfferDetails({ offer }: { offer: Offer }) {
+  return (
+    <>
+      <FlowIntro eyebrow="Карточка медслужбы" title={offer.name}>
+        <p>Проверьте условия перед чатом со специалистом выбранной медслужбы.</p>
+      </FlowIntro>
+      <article className="offer-card offer-card--details">
+        <OfferSummary offer={offer} />
+        <dl className="detail-list">
+          <div><dt>Условия</dt><dd>{offer.condition}</dd></div>
+          <div><dt>Район выезда</dt><dd>{offer.zone}</dd></div>
+        </dl>
+        <p className="offer-note">Детали и возможность выезда подтверждает медслужба.</p>
+      </article>
+    </>
+  );
+}
+
+function SpecialistChat({ offer }: { offer: Offer }) {
+  return (
+    <>
+      <FlowIntro eyebrow="Чат с медслужбой" title="Уточните детали">
+        <p>{offer.name} ответит в этом чате. Не отправляйте медицинские документы или лишние личные данные.</p>
+      </FlowIntro>
+      <section className="chat-card" aria-label="Чат со специалистом выбранной медслужбы">
+        <p className="chat-card__date">Сегодня</p>
+        <div className="chat-bubble chat-bubble--service">
+          <strong>Специалист медслужбы</strong>
+          <span>Здравствуйте. Уточним возможность выезда и условия. После этого вы сможете подтвердить заявку.</span>
+        </div>
+        <div className="chat-bubble chat-bubble--user">
+          <span>Подойдёт ближайшее доступное время.</span>
+        </div>
+        <p className="chat-card__note">Макет чата: сообщения не отправляются.</p>
+      </section>
+      <label className="chat-input">
+        <span>Сообщение специалисту</span>
+        <input disabled placeholder="Введите сообщение" type="text" />
+      </label>
+    </>
+  );
+}
+
+function RequestConfirmation({ offer }: { offer: Offer }) {
+  return (
+    <>
+      <FlowIntro eyebrow="Подтверждение заявки" title="Проверьте заявку">
+        <p>После отправки выбранная медслужба подтвердит возможность выезда, итоговую стоимость и ожидаемое время прибытия.</p>
+      </FlowIntro>
+      <section className="request-card">
+        <p className="request-card__service">{offer.name}</p>
+        <dl className="request-list">
+          <div><dt>Район</dt><dd>{offer.zone}</dd></div>
+          <div><dt>Время</dt><dd>Как можно скорее</dd></div>
+          <div><dt>Стоимость</dt><dd>{offer.price}</dd></div>
+          <div><dt>Связь</dt><dd>Чат со специалистом</dd></div>
+        </dl>
+        <p className="privacy-note">Точный адрес и контактные данные можно уточнить позже, если они понадобятся выбранной медслужбе.</p>
+      </section>
+    </>
+  );
+}
+
+function RequestStatus({ offer }: { offer: Offer }) {
+  return (
+    <>
+      <FlowIntro eyebrow="Статус заявки" title="Заявка передана медслужбе">
+        <p>{offer.name} проверяет возможность выезда. Ожидайте подтверждение в приложении.</p>
+      </FlowIntro>
+      <section className="status-card">
+        <div className="status-track">
+          <div className="status-track__item status-track__item--done"><span>1</span><div><strong>Заявка передана</strong><small>Данные отправлены выбранной медслужбе</small></div></div>
+          <div className="status-track__item status-track__item--current"><span>2</span><div><strong>Ожидаем ответ</strong><small>{offer.responseTime}</small></div></div>
+          <div className="status-track__item"><span>3</span><div><strong>Подтверждение выезда</strong><small>Стоимость и прибытие появятся отдельно</small></div></div>
+        </div>
+        <p className="privacy-note">Пока медслужба подтверждает заявку, можно вернуться в чат.</p>
+      </section>
+    </>
+  );
+}
+
+function PriceLockPreview({ offer }: { offer: Offer }) {
+  return (
+    <>
+      <FlowIntro eyebrow="Фиксация стоимости" title="Стоимость подтверждена">
+        <p>Так будет выглядеть статус после подтверждения выбранной медслужбой.</p>
+      </FlowIntro>
+      <section className="price-lock-card">
+        <p className="status-label"><span className="status-dot" />Выезд подтверждён</p>
+        <p className="price-lock-card__service">{offer.name}</p>
+        <div className="price-lock-card__amount"><span>Итоговая стоимость</span><strong>8 500 ₽</strong></div>
+        <p className="lock-note">Стоимость зафиксирована выбранной организацией.</p>
+        <div className="sla-grid sla-grid--flush" aria-label="Подтверждённое время ответа и прибытия">
+          <div className="sla-box"><span>Ответ</span><strong>подтверждено</strong></div>
+          <div className="sla-box sla-box--eta"><span>Прибытие</span><strong>около 19:40</strong></div>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -240,6 +365,8 @@ export function App() {
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
+  const [cardView, setCardView] = useState<CardView>("offers");
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -307,7 +434,54 @@ export function App() {
   }
 
   function restartFlow() {
+    setCardView("offers");
+    setSelectedOffer(null);
     setStepIndex(3);
+  }
+
+  function openOffer(offer: Offer) {
+    setSelectedOffer(offer);
+    setCardView("details");
+  }
+
+  function goBackInCardFlow() {
+    if (cardView === "details") {
+      setSelectedOffer(null);
+      setCardView("offers");
+      return;
+    }
+
+    const previousView: Partial<Record<CardView, CardView>> = {
+      chat: "details",
+      confirmation: "chat",
+      status: "chat",
+      "price-lock": "status",
+    };
+
+    setCardView(previousView[cardView] ?? "offers");
+  }
+
+  function advanceCardFlow() {
+    const nextView: Partial<Record<CardView, CardView>> = {
+      details: "chat",
+      chat: "confirmation",
+      confirmation: "status",
+      status: "price-lock",
+    };
+
+    setCardView(nextView[cardView] ?? cardView);
+  }
+
+  function cardFlowPrimaryLabel() {
+    const labels: Record<Exclude<CardView, "offers">, string> = {
+      details: "Написать специалисту",
+      chat: "Перейти к подтверждению",
+      confirmation: "Подтвердить заявку",
+      status: "Показать фиксацию стоимости",
+      "price-lock": "Вернуться к вариантам",
+    };
+
+    return cardView === "offers" ? "Изменить параметры" : labels[cardView];
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -334,16 +508,18 @@ export function App() {
         </header>
 
         <div className="screen-card">
-          <NodeIcon variant={step.iconLabel} />
-
-          <p className="eyebrow">{step.eyebrow}</p>
-          <h1 id="screen-title">{step.title}</h1>
-
-          <div className="screen-copy">
-            {step.body.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
+          {!isOffersStep || cardView === "offers" ? (
+            <>
+              <NodeIcon variant={step.iconLabel} />
+              <p className="eyebrow">{step.eyebrow}</p>
+              <h1 id="screen-title">{step.title}</h1>
+              <div className="screen-copy">
+                {step.body.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </>
+          ) : null}
 
           {step.id === "emergency" ? (
             <>
@@ -422,28 +598,42 @@ export function App() {
             </div>
           ) : null}
 
-          {isOffersStep ? (
+          {isOffersStep && cardView === "offers" ? (
             <div className="offers-list" aria-label="Подходящие варианты">
               {OFFERS.map((offer) => (
-                <OfferCard key={offer.name} offer={offer} />
+                <OfferCard key={offer.id} offer={offer} onOpen={openOffer} />
               ))}
             </div>
           ) : null}
+
+          {isOffersStep && selectedOffer && cardView === "details" ? <OfferDetails offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "chat" ? <SpecialistChat offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "confirmation" ? <RequestConfirmation offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "status" ? <RequestStatus offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "price-lock" ? <PriceLockPreview offer={selectedOffer} /> : null}
         </div>
 
         <footer className="screen-footer">
-          <button
-            className="button button--primary"
-            disabled={!canContinue()}
-            onClick={isOffersStep ? restartFlow : goNext}
-            type="button"
-          >
-            {primaryLabel}
-          </button>
-          {isFirstStep ? (
-            <button className="button button--ghost" type="button">Как это работает</button>
+          {isOffersStep ? (
+            <>
+              <button
+                className="button button--primary"
+                onClick={cardView === "offers" ? restartFlow : cardView === "price-lock" ? () => { setCardView("offers"); setSelectedOffer(null); } : advanceCardFlow}
+                type="button"
+              >
+                {cardFlowPrimaryLabel()}
+              </button>
+              <button className="button button--ghost" onClick={cardView === "offers" ? goBack : goBackInCardFlow} type="button">Назад</button>
+            </>
           ) : (
-            <button className="button button--ghost" onClick={goBack} type="button">Назад</button>
+            <>
+              <button className="button button--primary" disabled={!canContinue()} onClick={goNext} type="button">{primaryLabel}</button>
+              {isFirstStep ? (
+                <button className="button button--ghost" type="button">Как это работает</button>
+              ) : (
+                <button className="button button--ghost" onClick={goBack} type="button">Назад</button>
+              )}
+            </>
           )}
         </footer>
       </section>

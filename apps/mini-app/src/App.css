@@ -568,3 +568,232 @@ h1 {
     padding: 10px 20px calc(20px + env(safe-area-inset-bottom));
   }
 }
+
+.offer-card--details {
+  margin-top: 2px;
+}
+
+.detail-list,
+.request-list {
+  display: grid;
+  gap: 0;
+  margin: 11px 14px 0;
+}
+
+.detail-list div,
+.request-list div {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.9fr) minmax(0, 1.5fr);
+  gap: 10px;
+  padding: 9px 0;
+  border-top: 0.5px solid var(--paper-3);
+}
+
+.detail-list dt,
+.detail-list dd,
+.request-list dt,
+.request-list dd {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.detail-list dt,
+.request-list dt {
+  color: var(--ink-4);
+}
+
+.detail-list dd,
+.request-list dd {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+
+.chat-card,
+.request-card,
+.status-card,
+.price-lock-card {
+  padding: 14px;
+  border: 0.5px solid var(--paper-3);
+  border-radius: var(--r-lg);
+  background: var(--white);
+}
+
+.chat-card {
+  display: grid;
+  gap: 10px;
+}
+
+.chat-card__date,
+.chat-card__note {
+  margin: 0;
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.chat-bubble {
+  max-width: 88%;
+  display: grid;
+  gap: 4px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  color: var(--ink-2);
+  background: var(--paper-2);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.chat-bubble strong {
+  color: var(--accent);
+  font-size: 10px;
+}
+
+.chat-bubble--user {
+  justify-self: end;
+  background: var(--accent-light);
+}
+
+.chat-input {
+  display: grid;
+  gap: 6px;
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.chat-input input {
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--paper-3);
+  border-radius: var(--r-md);
+  color: var(--ink-4);
+  background: var(--paper-2);
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.request-card__service,
+.price-lock-card__service {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.request-card .privacy-note {
+  margin-top: 11px;
+}
+
+.status-track {
+  display: grid;
+  gap: 0;
+}
+
+.status-track__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 9px;
+  min-height: 60px;
+  color: var(--ink-4);
+}
+
+.status-track__item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 25px;
+  bottom: 3px;
+  left: 11px;
+  width: 1px;
+  background: var(--paper-3);
+}
+
+.status-track__item > span {
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--paper-3);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+
+.status-track__item strong,
+.status-track__item small {
+  display: block;
+  line-height: 1.45;
+}
+
+.status-track__item strong {
+  color: var(--ink-3);
+  font-size: 11px;
+}
+
+.status-track__item small {
+  margin-top: 2px;
+  color: var(--ink-4);
+  font-size: 10px;
+}
+
+.status-track__item--done > span,
+.status-track__item--current > span {
+  border-color: var(--accent);
+  color: var(--white);
+  background: var(--accent);
+}
+
+.status-track__item--current strong {
+  color: var(--accent);
+}
+
+.status-card .privacy-note {
+  margin-top: 5px;
+}
+
+.price-lock-card {
+  display: grid;
+  gap: 11px;
+}
+
+.price-lock-card__amount {
+  display: grid;
+  gap: 5px;
+  padding: 15px 0;
+  border-top: 0.5px solid var(--paper-3);
+  border-bottom: 0.5px solid var(--paper-3);
+}
+
+.price-lock-card__amount span {
+  color: var(--ink-4);
+  font-size: 10px;
+}
+
+.price-lock-card__amount strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: -0.05em;
+}
+
+.lock-note {
+  margin: 0;
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.sla-grid--flush {
+  padding: 0;
+}
