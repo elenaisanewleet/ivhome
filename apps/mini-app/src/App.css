@@ -22,7 +22,8 @@ body {
 }
 
 button,
-a {
+a,
+input {
   font: inherit;
 }
 
@@ -226,6 +227,41 @@ h1 {
 .choice-chip--selected {
   border-color: rgba(126, 184, 212, 0.62);
   background: rgba(126, 184, 212, 0.18);
+}
+
+.location-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.text-field {
+  display: grid;
+  gap: 8px;
+  color: #7a8185;
+  font-size: 13px;
+}
+
+.text-field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid #e5e2dc;
+  border-radius: 16px;
+  color: #171b1d;
+  background: #f8f7f4;
+  outline: none;
+}
+
+.text-field input:focus {
+  border-color: rgba(126, 184, 212, 0.72);
+  box-shadow: 0 0 0 4px rgba(126, 184, 212, 0.14);
+}
+
+.privacy-note {
+  margin: 0;
+  color: #7a8185;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .screen-footer {
