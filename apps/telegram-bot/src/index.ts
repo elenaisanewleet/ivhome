@@ -1,9 +1,9 @@
 const API_ROOT = "https://api.telegram.org/";
 
 const START_MESSAGE = [
-  "привет, я IVhome 🫧",
+  "привет, я Надом 🫧",
   "",
-  "если нужен медицинский выезд на дом — помогу быстро найти подходящий вариант",
+  "если нужен медицинский выезд на дом — помогу быстро найти подходящую службу",
   "",
   "без 20 сайтов, лишних звонков и непонятных цен",
   "",
@@ -13,7 +13,7 @@ const START_MESSAGE = [
   "⋆ району",
   "⋆ условиям",
   "",
-  "дальше детали подтверждает медпартнёр 🩺",
+  "дальше детали подтверждает выбранная медицинская служба 🩵",
   "",
   "при экстренных симптомах обратитесь в 103/112",
   "сервис не заменяет очную медицинскую консультацию",
@@ -82,7 +82,7 @@ async function sendStartMessage(chatId: number | string): Promise<void> {
         inline_keyboard: [
           [
             {
-              text: "Открыть IVhome",
+              text: "Открыть Надом",
               web_app: { url: webAppUrl },
             },
           ],
@@ -114,7 +114,7 @@ async function processUpdate(update: TelegramUpdate): Promise<void> {
 }
 
 async function poll(): Promise<void> {
-  console.log("IVhome Telegram bot started.");
+  console.log("Nadom Telegram bot started.");
 
   while (true) {
     try {
