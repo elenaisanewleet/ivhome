@@ -172,6 +172,12 @@ enum OfferStatus {
   ARCHIVED
 }
 
+enum RatingModerationStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
 model User {
   id             String     @id @default(cuid())
   status         UserStatus @default(ACTIVE)
@@ -220,7 +226,7 @@ model Clinic {
   id            String       @id @default(cuid())
   legalName     String
   publicName    String
-  inn           String
+  inn           String       @unique
   ogrn          String?
   status        ClinicStatus @default(DRAFT)
   ratingAverage Decimal?     @db.Decimal(3, 2)
@@ -238,6 +244,8 @@ model Clinic {
   quotes          Quote[]
   bookings        Booking[]
   ratings         Rating[]
+
+  @@index([status])
 }
 
 model ClinicMembership {
@@ -278,7 +286,9 @@ model ClinicLicense {
   clinic    Clinic @relation(fields: [clinicId], references: [id])
   checkedBy User?  @relation("ClinicLicenseCheckedBy", fields: [checkedByUserId], references: [id])
 
+  @@unique([clinicId, licenseNumber])
   @@index([clinicId, status])
+  @@index([licenseNumber])
   @@index([nextCheckAt])
 }
 
@@ -314,6 +324,8 @@ model ClinicServiceOffer {
   serviceCategory ServiceCategory @relation(fields: [serviceCategoryId], references: [id])
 
   @@unique([clinicId, serviceCategoryId])
+  @@index([status])
+  @@index([serviceCategoryId, status])
 }
 
 model ClinicServiceArea {
@@ -326,6 +338,7 @@ model ClinicServiceArea {
   clinic Clinic @relation(fields: [clinicId], references: [id])
 
   @@unique([clinicId, districtCode])
+  @@index([districtCode, isActive])
 }
 
 model PartnerContactChannel {
@@ -530,8 +543,8 @@ model SlaEvent {
 }
 
 model Rating {
-  id                 String    @id @default(cuid())
-  bookingId          String    @unique
+  id                 String                 @id @default(cuid())
+  bookingId          String                 @unique
   userId             String
   clinicId           String
   overallScore       Int
@@ -539,9 +552,11 @@ model Rating {
   priceAccuracyScore Int?
   communicationScore Int?
   comment            String?
-  isPublished        Boolean   @default(false)
+  isPublished        Boolean                @default(false)
+  moderationStatus   RatingModerationStatus @default(PENDING)
+  moderationReason   String?
   moderatedAt        DateTime?
-  createdAt          DateTime  @default(now())
+  createdAt          DateTime               @default(now())
 
   booking Booking @relation(fields: [bookingId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
