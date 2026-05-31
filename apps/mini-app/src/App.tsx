@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 
 import "./App.css";
 
-type StepId = "welcome" | "consent" | "emergency" | "profile";
+type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time";
 
 type Step = {
   id: StepId;
@@ -25,7 +25,7 @@ const STEPS: Step[] = [
   },
   {
     id: "consent",
-    eyebrow: "Шаг 1 из 4",
+    eyebrow: "Шаг 1 из 6",
     title: "Сначала — согласие",
     body: [
       "Чтобы подобрать варианты, нам нужны район, желаемое время и профиль запроса.",
@@ -35,7 +35,7 @@ const STEPS: Step[] = [
   },
   {
     id: "emergency",
-    eyebrow: "Шаг 2 из 4",
+    eyebrow: "Шаг 2 из 6",
     title: "Если состояние острое — 103 или 112",
     body: [
       "Если состояние кажется острым или быстро ухудшается, лучше сразу обратиться за экстренной помощью.",
@@ -45,12 +45,30 @@ const STEPS: Step[] = [
   },
   {
     id: "profile",
-    eyebrow: "Шаг 3 из 4",
+    eyebrow: "Шаг 3 из 6",
     title: "Что нужно подобрать?",
-    body: [
-      "Можно выбрать ближайший вариант. Детали уточнит медслужба.",
-    ],
+    body: ["Можно выбрать ближайший вариант. Детали уточнит медслужба."],
     iconLabel: "route",
+  },
+  {
+    id: "location",
+    eyebrow: "Шаг 4 из 6",
+    title: "Где нужен выезд?",
+    body: [
+      "Достаточно района или округа.",
+      "Точный адрес сейчас не нужен.",
+    ],
+    iconLabel: "location",
+  },
+  {
+    id: "time",
+    eyebrow: "Шаг 5 из 6",
+    title: "Когда нужен выезд?",
+    body: [
+      "Медслужба отдельно подтвердит возможность и время прибытия.",
+      "Пока выберите удобный ориентир.",
+    ],
+    iconLabel: "time",
   },
 ];
 
@@ -61,6 +79,30 @@ const PROFILE_OPTIONS = [
   "Плановый выезд",
   "Уточнить с медслужбой",
 ];
+
+const DISTRICT_OPTIONS = [
+  "ЦАО",
+  "САО",
+  "СВАО",
+  "ВАО",
+  "ЮВАО",
+  "ЮАО",
+  "ЮЗАО",
+  "ЗАО",
+  "СЗАО",
+  "Новая Москва",
+];
+
+const TIME_OPTIONS = [
+  "Как можно скорее",
+  "Сегодня",
+  "Завтра",
+  "Выбрать время позже",
+];
+
+function getStep(index: number) {
+  return STEPS[index] ?? STEPS[0];
+}
 
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isEmergency = variant === "signal";
@@ -92,9 +134,15 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
 export function App() {
   const [stepIndex, setStepIndex] = useState(0);
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const step = STEPS[stepIndex];
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [manualDistrict, setManualDistrict] = useState("");
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
+  const isLocationStep = step.id === "location";
+  const isTimeStep = step.id === "time";
+  const hasLocation = Boolean(selectedDistrict || manualDistrict.trim());
 
   const primaryLabel = useMemo(() => {
     if (step.id === "welcome") {
@@ -109,11 +157,35 @@ export function App() {
       return "Продолжить подбор";
     }
 
-    return selectedProfile ? "Продолжить" : "Выберите вариант";
-  }, [selectedProfile, step.id]);
+    if (step.id === "profile") {
+      return selectedProfile ? "Продолжить" : "Выберите вариант";
+    }
+
+    if (step.id === "location") {
+      return hasLocation ? "Продолжить" : "Укажите район";
+    }
+
+    return selectedTime ? "Показать варианты" : "Выберите время";
+  }, [hasLocation, selectedProfile, selectedTime, step.id]);
+
+  function canContinue() {
+    if (isProfileStep) {
+      return Boolean(selectedProfile);
+    }
+
+    if (isLocationStep) {
+      return hasLocation;
+    }
+
+    if (isTimeStep) {
+      return Boolean(selectedTime);
+    }
+
+    return true;
+  }
 
   function goNext() {
-    if (isProfileStep && !selectedProfile) {
+    if (!canContinue()) {
       return;
     }
 
@@ -165,10 +237,62 @@ export function App() {
               ))}
             </div>
           ) : null}
+
+          {isLocationStep ? (
+            <div className="location-panel" aria-label="Район или округ">
+              <div className="choice-list">
+                {DISTRICT_OPTIONS.map((district) => (
+                  <button
+                    className={`choice-chip ${selectedDistrict === district ? "choice-chip--selected" : ""}`}
+                    key={district}
+                    onClick={() => {
+                      setSelectedDistrict(district);
+                      setManualDistrict("");
+                    }}
+                    type="button"
+                  >
+                    {district}
+                  </button>
+                ))}
+              </div>
+
+              <label className="text-field">
+                <span>Или введите район вручную</span>
+                <input
+                  autoComplete="off"
+                  inputMode="text"
+                  onChange={(event) => {
+                    setManualDistrict(event.target.value);
+                    setSelectedDistrict(null);
+                  }}
+                  placeholder="например, Арбат или Хамовники"
+                  type="text"
+                  value={manualDistrict}
+                />
+              </label>
+
+              <p className="privacy-note">Точный адрес и телефон сейчас не нужны.</p>
+            </div>
+          ) : null}
+
+          {isTimeStep ? (
+            <div className="choice-list" aria-label="Желаемое время выезда">
+              {TIME_OPTIONS.map((option) => (
+                <button
+                  className={`choice-chip ${selectedTime === option ? "choice-chip--selected" : ""}`}
+                  key={option}
+                  onClick={() => setSelectedTime(option)}
+                  type="button"
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <footer className="screen-footer">
-          <button className="button button--primary" disabled={isProfileStep && !selectedProfile} onClick={goNext} type="button">
+          <button className="button button--primary" disabled={!canContinue()} onClick={goNext} type="button">
             {primaryLabel}
           </button>
           {isFirstStep ? (
