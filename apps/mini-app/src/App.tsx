@@ -155,7 +155,7 @@ const OFFERS: Offer[] = [
 ];
 
 function getStep(index: number) {
-  return STEPS[index] ?? STEPS[0];
+  return STEPS[index] ?? STEPS[0]!;
 }
 
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
