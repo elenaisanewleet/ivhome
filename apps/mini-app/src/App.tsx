@@ -4,7 +4,20 @@ import "./App.css";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
-type OfferView = "details" | "chat" | "confirmation" | "status" | "price-lock";
+type OfferView =
+  | "details"
+  | "chat"
+  | "confirmation"
+  | "status"
+  | "price-lock"
+  | "dispatched"
+  | "completed"
+  | "feedback"
+  | "support";
+
+type OffersMode = "ready" | "empty" | "error";
+
+type PreviewId = "offers" | OffersMode | OfferView;
 
 type Step = {
   id: StepId;
@@ -21,9 +34,13 @@ type Offer = {
   responseTime: string;
   arrivalTime: string;
   price: string;
+  finalPrice: string;
   rating: string;
+  conditions: string[];
   note: string;
 };
+
+type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";
 
 const STEPS: Step[] = [
   {
@@ -31,8 +48,8 @@ const STEPS: Step[] = [
     eyebrow: "Надом 🫧",
     title: "Подберём медслужбу с выездом на дом",
     body: [
-      "Приватно, быстро и без лишних звонков.",
-      "Вы выбираете вариант по времени, стоимости и условиям. Детали подтверждает выбранная медслужба.",
+      "Конфиденциальный подбор вариантов медицинского выезда на дом.",
+      "Сравните время, условия и ориентировочную стоимость. Детали подтверждает выбранная медслужба.",
     ],
     iconLabel: "welcome",
   },
@@ -41,36 +58,33 @@ const STEPS: Step[] = [
     eyebrow: "Шаг 1 из 6",
     title: "Сначала — согласие",
     body: [
-      "Чтобы подобрать варианты, нам нужны район, желаемое время и профиль запроса.",
-      "Эти данные передаются только выбранной медслужбе — для подтверждения заявки и условий выезда.",
+      "Для подбора нужны только район, удобное время и формат запроса.",
+      "Продолжая, вы соглашаетесь на обработку этих данных для подбора вариантов. Точный адрес и телефон сейчас не нужны.",
     ],
     iconLabel: "privacy",
   },
   {
     id: "emergency",
     eyebrow: "Шаг 2 из 6",
-    title: "Если состояние острое — 103 или 112",
+    title: "Когда лучше позвонить 103 или 112",
     body: [
-      "Если состояние кажется острым или быстро ухудшается, лучше сразу обратиться за экстренной помощью.",
-      "Надом может показать варианты выезда, но детали и возможность помощи подтверждает выбранная медслужба.",
+      "Если состояние кажется острым или быстро ухудшается — лучше обратиться за экстренной помощью: 103 или 112.",
+      "Надом может показать доступные варианты выезда, но детали и возможность помощи подтверждает выбранная медслужба.",
     ],
     iconLabel: "signal",
   },
   {
     id: "profile",
     eyebrow: "Шаг 3 из 6",
-    title: "Что нужно подобрать?",
-    body: ["Можно выбрать ближайший вариант. Детали уточнит медслужба."],
+    title: "Как помочь с подбором?",
+    body: ["Выберите подходящий формат. Медицинские детали на этом этапе не нужны."],
     iconLabel: "route",
   },
   {
     id: "location",
     eyebrow: "Шаг 4 из 6",
     title: "Где нужен выезд?",
-    body: [
-      "Достаточно района или округа.",
-      "Точный адрес сейчас не нужен.",
-    ],
+    body: ["Достаточно района или округа.", "Точный адрес сейчас не нужен."],
     iconLabel: "location",
   },
   {
@@ -78,7 +92,7 @@ const STEPS: Step[] = [
     eyebrow: "Шаг 5 из 6",
     title: "Когда нужен выезд?",
     body: [
-      "Медслужба отдельно подтвердит возможность и время прибытия.",
+      "Медслужба отдельно подтвердит возможность выезда и время прибытия.",
       "Пока выберите удобный ориентир.",
     ],
     iconLabel: "time",
@@ -88,19 +102,18 @@ const STEPS: Step[] = [
     eyebrow: "Шаг 6 из 6",
     title: "Подходящие варианты",
     body: [
-      "Нашли несколько медслужб под ваш район и время.",
-      "Сравните ответ, прибытие и ориентировочную стоимость.",
+      "Нашли медслужбы под ваш район и время.",
+      "Сравните ответ, прибытие после подтверждения и ориентировочную стоимость.",
     ],
     iconLabel: "offers",
   },
 ];
 
 const PROFILE_OPTIONS = [
-  "После алкоголя / праздника",
-  "Нужен выезд сегодня",
-  "Интоксикация / самочувствие",
-  "Плановый выезд",
-  "Уточнить с медслужбой",
+  "Найти ближайший вариант",
+  "Сравнить условия выезда",
+  "Сначала задать личный вопрос",
+  "Планирую выезд заранее",
 ];
 
 const DISTRICT_OPTIONS = [
@@ -116,48 +129,90 @@ const DISTRICT_OPTIONS = [
   "Новая Москва",
 ];
 
-const TIME_OPTIONS = [
-  "Как можно скорее",
-  "Сегодня",
-  "Завтра",
-  "Выбрать время позже",
-];
+const TIME_OPTIONS = ["Как можно скорее", "Сегодня", "Завтра", "Выбрать время позже"];
 
 const OFFERS: Offer[] = [
   {
     name: "Медслужба Север",
     status: "Лицензия проверена",
     zone: "САО · СЗАО · рядом",
-    responseTime: "обычно 5–10 минут",
+    responseTime: "5–10 минут",
     arrivalTime: "от 40 минут",
     price: "от 8 500 ₽",
+    finalPrice: "9 200 ₽",
     rating: "4.8",
+    conditions: ["Выезд после подтверждения", "Условия можно уточнить в чате"],
     note: "Детали и возможность выезда подтверждает медслужба.",
   },
   {
     name: "Медслужба Центр",
     status: "Лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
-    responseTime: "обычно 10–15 минут",
+    responseTime: "10–15 минут",
     arrivalTime: "от 55 минут",
     price: "от 9 200 ₽",
+    finalPrice: "10 400 ₽",
     rating: "4.7",
-    note: "Стоимость фиксируется после подтверждения медслужбой.",
+    conditions: ["Работает по зонам выезда", "Стоимость подтверждается до выезда"],
+    note: "Детали и возможность выезда подтверждает медслужба.",
   },
   {
     name: "Медслужба Ночь",
-    status: "Принимает заявки сейчас",
+    status: "Проверена · принимает заявки",
     zone: "Москва · по зонам выезда",
-    responseTime: "обычно до 20 минут",
+    responseTime: "до 20 минут",
     arrivalTime: "от 70 минут",
     price: "от 10 500 ₽",
+    finalPrice: "11 300 ₽",
     rating: "4.6",
-    note: "Подходит, если нужен поздний или ближайший выезд.",
+    conditions: ["Доступна в позднее время", "Время зависит от зоны выезда"],
+    note: "Детали и возможность выезда подтверждает медслужба.",
   },
 ];
 
+const STATUS_ITEMS = [
+  "Заявка создана",
+  "Передали медслужбе",
+  "Ожидаем подтверждение",
+  "Медслужба подтвердила",
+  "Стоимость подтверждена",
+  "Специалист выехал",
+  "Завершено",
+];
+
+const OFFER_VIEWS: OfferView[] = [
+  "details",
+  "chat",
+  "confirmation",
+  "status",
+  "price-lock",
+  "dispatched",
+  "completed",
+  "feedback",
+  "support",
+];
+
+const OFFERS_STEP_INDEX = STEPS.findIndex((step) => step.id === "offers");
+const PROFILE_STEP_INDEX = STEPS.findIndex((step) => step.id === "profile");
+const TIME_STEP_INDEX = STEPS.findIndex((step) => step.id === "time");
+
 function getStep(index: number) {
   return STEPS[index] ?? STEPS[0]!;
+}
+
+function readPreviewId(): PreviewId | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const preview = new URLSearchParams(window.location.search).get("preview");
+  const availablePreviews: PreviewId[] = ["offers", "ready", "empty", "error", ...OFFER_VIEWS];
+
+  return availablePreviews.includes(preview as PreviewId) ? (preview as PreviewId) : null;
+}
+
+function isOfferView(preview: PreviewId | null): preview is OfferView {
+  return OFFER_VIEWS.includes(preview as OfferView);
 }
 
 function isLikelyMobileRuntime() {
@@ -173,7 +228,10 @@ function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isOffers = variant === "offers";
 
   return (
-    <div className={`node-icon ${isEmergency ? "node-icon--emergency" : ""} ${isOffers ? "node-icon--offers" : ""}`} aria-hidden="true">
+    <div
+      className={`node-icon ${isEmergency ? "node-icon--emergency" : ""} ${isOffers ? "node-icon--offers" : ""}`}
+      aria-hidden="true"
+    >
       <span className="node-icon__dot node-icon__dot--main" />
       <span className="node-icon__line node-icon__line--first" />
       <span className="node-icon__dot node-icon__dot--second" />
@@ -185,7 +243,7 @@ function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
 
 function ProgressDots({ currentIndex }: { currentIndex: number }) {
   return (
-    <div className="progress-dots" aria-label={`Шаг ${currentIndex + 1} из ${STEPS.length}`}>
+    <div className="progress-dots" aria-label={`Экран ${currentIndex + 1} из ${STEPS.length}`}>
       {STEPS.map((step, index) => (
         <span
           className={`progress-dot ${index <= currentIndex ? "progress-dot--active" : ""}`}
@@ -196,110 +254,638 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
   );
 }
 
+function SlaGrid({ offer }: { offer: Offer }) {
+  return (
+    <div className="sla-grid" aria-label="Время ответа и прибытия">
+      <div className="sla-box">
+        <span>Ответ</span>
+        <strong>{offer.responseTime}</strong>
+      </div>
+      <div className="sla-box sla-box--eta">
+        <span>Прибытие после подтверждения</span>
+        <strong>{offer.arrivalTime}</strong>
+      </div>
+    </div>
+  );
+}
+
 function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) => void }) {
   return (
     <article className="offer-card">
       <div className="offer-card__header">
         <div>
-          <p className="status-label"><span className="status-dot" />{offer.status}</p>
+          <p className="status-label">
+            <span className="status-dot" />
+            {offer.status}
+          </p>
           <h2>{offer.name}</h2>
         </div>
         <span className="rating-pill">⋆ {offer.rating}</span>
       </div>
 
       <p className="offer-zone">{offer.zone}</p>
-
-      <div className="sla-grid" aria-label="Время ответа и прибытия">
-        <div className="sla-box">
-          <span>Ответ</span>
-          <strong>{offer.responseTime}</strong>
-        </div>
-        <div className="sla-box sla-box--eta">
-          <span>Прибытие</span>
-          <strong>{offer.arrivalTime}</strong>
-        </div>
-      </div>
+      <SlaGrid offer={offer} />
 
       <div className="price-row">
         <span>Ориентировочная стоимость</span>
         <strong>{offer.price}</strong>
       </div>
 
+      <ul className="condition-list condition-list--compact">
+        {offer.conditions.map((condition) => (
+          <li key={condition}>{condition}</li>
+        ))}
+      </ul>
+
       <p className="offer-note">{offer.note}</p>
 
       <div className="offer-actions">
-        <button className="button button--secondary" onClick={() => onOpen("details")} type="button">Смотреть детали</button>
-        <button className="button button--teal" onClick={() => onOpen("chat")} type="button">Написать специалисту</button>
-        <button className="button button--primary" onClick={() => onOpen("confirmation")} type="button">Подтвердить заявку</button>
+        <button className="button button--secondary" onClick={() => onOpen("details")} type="button">
+          Смотреть детали
+        </button>
+        <button className="button button--teal" onClick={() => onOpen("chat")} type="button">
+          Написать специалисту
+        </button>
+        <button className="button button--primary" onClick={() => onOpen("confirmation")} type="button">
+          Подтвердить заявку
+        </button>
       </div>
     </article>
   );
 }
 
-function OfferSubflow({ offer, view, onBack, onNext }: { offer: Offer; view: OfferView; onBack: () => void; onNext: () => void }) {
-  const content = {
-    details: {
-      eyebrow: "Детали предложения",
-      title: offer.name,
-      body: "Детали и возможность выезда подтверждает выбранная медслужба.",
-      action: "Написать специалисту",
-    },
-    chat: {
-      eyebrow: "Чат с медслужбой",
-      title: "Уточните детали",
-      body: "Специалист выбранной медслужбы ответит в чате и подтвердит условия выезда.",
-      action: "Перейти к подтверждению",
-    },
-    confirmation: {
-      eyebrow: "Подтверждение заявки",
-      title: "Проверьте выбранный вариант",
-      body: "После отправки заявки медслужба подтвердит возможность выезда и итоговую стоимость.",
-      action: "Отправить заявку",
-    },
-    status: {
-      eyebrow: "Статус заявки",
-      title: "Заявка передана медслужбе",
-      body: "Ожидаем подтверждение выбранной медслужбы. Ответ и ожидаемое прибытие уточняются отдельно.",
-      action: "Показать стоимость",
-    },
-    "price-lock": {
-      eyebrow: "Стоимость подтверждена",
-      title: "Стоимость зафиксирована медслужбой",
-      body: "Итоговая стоимость подтверждена выбранной медслужбой.",
-      action: "Вернуться к предложениям",
-    },
-  } satisfies Record<OfferView, { eyebrow: string; title: string; body: string; action: string }>;
-  const current = content[view];
+function SubflowHeader({
+  eyebrow,
+  title,
+  body,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+}) {
+  return (
+    <header className="subflow-header">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 id="screen-title">{title}</h2>
+      <p>{body}</p>
+    </header>
+  );
+}
+
+function OfferBadge({ offer }: { offer: Offer }) {
+  return (
+    <div className="selected-offer-badge">
+      <div>
+        <p className="status-label">
+          <span className="status-dot" />
+          {offer.status}
+        </p>
+        <strong>{offer.name}</strong>
+      </div>
+      <span>{offer.zone}</span>
+    </div>
+  );
+}
+
+function StatusTrack({ stage }: { stage: StatusStage }) {
+  const activeIndex = {
+    waiting: 2,
+    "price-lock": 4,
+    dispatched: 5,
+    completed: 6,
+  } satisfies Record<StatusStage, number>;
 
   return (
-    <section className="offer-subflow" aria-label={current.eyebrow}>
-      <p className="eyebrow">{current.eyebrow}</p>
-      <h2>{current.title}</h2>
-      <p>{current.body}</p>
-      {view === "details" ? (
-        <div className="subflow-summary">
-          <span>{offer.zone}</span>
-          <strong>{offer.price}</strong>
-        </div>
-      ) : null}
-      {view === "chat" ? <div className="chat-placeholder">Чат со специалистом выбранной медслужбы</div> : null}
+    <ol className="status-track" aria-label="Статус заявки">
+      {STATUS_ITEMS.map((item, index) => (
+        <li
+          className={`status-track__item ${index <= activeIndex[stage] ? "status-track__item--active" : ""}`}
+          key={item}
+        >
+          <span className="status-track__node" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function OfferDetails({
+  offer,
+  onBack,
+  onChat,
+  onConfirm,
+}: {
+  offer: Offer;
+  onBack: () => void;
+  onChat: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Карточка медслужбы"
+        title={offer.name}
+        body="Проверьте условия и при необходимости задайте вопрос специалисту выбранной медслужбы."
+      />
+      <OfferBadge offer={offer} />
+      <SlaGrid offer={offer} />
+      <div className="price-lock price-lock--estimate">
+        <span>Ориентировочная стоимость</span>
+        <strong>{offer.price}</strong>
+      </div>
+      <div className="conditions-panel">
+        <p className="meta-label">Условия выезда</p>
+        <ul className="condition-list">
+          {offer.conditions.map((condition) => (
+            <li key={condition}>{condition}</li>
+          ))}
+        </ul>
+      </div>
+      <p className="privacy-note">Детали и возможность выезда подтверждает выбранная медслужба.</p>
       <div className="subflow-actions">
-        <button className="button button--primary" onClick={onNext} type="button">{current.action}</button>
-        <button className="button button--ghost" onClick={onBack} type="button">Назад</button>
+        <button className="button button--teal" onClick={onChat} type="button">
+          Написать специалисту
+        </button>
+        <button className="button button--primary" onClick={onConfirm} type="button">
+          Подтвердить заявку
+        </button>
+        <button className="button button--ghost" onClick={onBack} type="button">
+          Назад к списку
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function ChatView({
+  offer,
+  onBack,
+  onContinue,
+}: {
+  offer: Offer;
+  onBack: () => void;
+  onContinue: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Чат со специалистом"
+        title={offer.name}
+        body="Можно уточнить формат помощи, время, условия или личный вопрос."
+      />
+
+      <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
+        <p className="chat-window__date">Сегодня · локальный макет</p>
+        <div className="chat-bubble chat-bubble--service">
+          Здравствуйте. Я специалист выбранной медслужбы. Можно уточнить условия выезда.
+        </div>
+        <div className="chat-bubble chat-bubble--user">Подскажите, когда сможете подтвердить время?</div>
+        <div className="chat-bubble chat-bubble--service">
+          Обычно отвечаем в течение {offer.responseTime}. Возможность выезда подтвердим отдельно.
+        </div>
+      </div>
+
+      {/* Chat content must not be duplicated into Telegram notifications or stored without explicit backend/privacy design. */}
+      <label className="chat-input">
+        <span className="sr-only">Сообщение специалисту</span>
+        <input autoComplete="off" placeholder="Напишите вопрос специалисту…" type="text" />
+        <button aria-label="Добавить вопрос в локальный макет" type="button">
+          ↑
+        </button>
+      </label>
+      <p className="privacy-note">Содержание чата не отправляется в Telegram-уведомления.</p>
+
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onContinue} type="button">
+          Продолжить к подтверждению
+        </button>
+        <button className="button button--secondary" onClick={onContinue} type="button">
+          Пропустить чат
+        </button>
+        <button className="button button--ghost" onClick={onBack} type="button">
+          Назад к карточке
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function ConfirmationView({
+  district,
+  offer,
+  time,
+  onBack,
+  onChangeOffer,
+  onSubmit,
+}: {
+  district: string;
+  offer: Offer;
+  time: string;
+  onBack: () => void;
+  onChangeOffer: () => void;
+  onSubmit: () => void;
+}) {
+  const summary = [
+    ["Медслужба", offer.name],
+    ["Район / геозона", district],
+    ["Время", time],
+    ["Ориентировочная стоимость", offer.price],
+    ["Ответ", offer.responseTime],
+    ["Прибытие после подтверждения", offer.arrivalTime],
+  ];
+
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Подтверждение заявки"
+        title="Проверьте выбранный вариант"
+        body="После отправки медслужба подтвердит возможность выезда, время и итоговую стоимость."
+      />
+      <dl className="summary-list">
+        {summary.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="privacy-note">
+        Выбранная медслужба может запросить данные, необходимые для оказания услуги.
+      </p>
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onSubmit} type="button">
+          Отправить заявку
+        </button>
+        <button className="button button--secondary" onClick={onBack} type="button">
+          Вернуться в чат
+        </button>
+        <button className="button button--ghost" onClick={onChangeOffer} type="button">
+          Изменить вариант
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function WaitingView({
+  offer,
+  onNext,
+  onSupport,
+}: {
+  offer: Offer;
+  onNext: () => void;
+  onSupport: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Ожидаем подтверждение 🧊"
+        title="Заявка передана медслужбе"
+        body="Выбранная медслужба проверяет возможность выезда. Ответ и ожидаемое прибытие отслеживаются отдельно."
+      />
+      <OfferBadge offer={offer} />
+      <StatusTrack stage="waiting" />
+      <div className="status-callout">
+        <span>Ожидаемый ответ</span>
+        <strong>{offer.responseTime}</strong>
+      </div>
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onNext} type="button">
+          Показать подтверждение
+        </button>
+        <button className="button button--ghost" onClick={onSupport} type="button">
+          Нужна поддержка
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function PriceLockView({
+  offer,
+  onNext,
+}: {
+  offer: Offer;
+  onNext: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Стоимость подтверждена"
+        title="Стоимость подтверждена медслужбой"
+        body="Условия согласованы с выбранной медслужбой до выезда специалиста."
+      />
+      <StatusTrack stage="price-lock" />
+      <div className="price-lock">
+        <span>Итоговая стоимость</span>
+        <strong>{offer.finalPrice}</strong>
+      </div>
+      <p className="privacy-note">Итоговую стоимость подтверждает выбранная медслужба.</p>
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onNext} type="button">
+          Продолжить
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function DispatchedView({
+  offer,
+  onComplete,
+  onSupport,
+}: {
+  offer: Offer;
+  onComplete: () => void;
+  onSupport: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Специалист выехал 🪽"
+        title="Ожидайте специалиста"
+        body="Статус обновлён выбранной медслужбой. Ожидаемое прибытие указано отдельно."
+      />
+      <StatusTrack stage="dispatched" />
+      <div className="status-callout status-callout--teal">
+        <span>Ожидаемое прибытие</span>
+        <strong>{offer.arrivalTime}</strong>
+      </div>
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onComplete} type="button">
+          Показать завершение
+        </button>
+        <button className="button button--ghost" onClick={onSupport} type="button">
+          Нужна поддержка
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function CompletedView({
+  onFeedback,
+  onRestart,
+  onSupport,
+}: {
+  onFeedback: () => void;
+  onRestart: () => void;
+  onSupport: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Завершено 🩵"
+        title="Выезд завершён"
+        body="Спасибо. Можно оценить взаимодействие с медслужбой или начать новый подбор."
+      />
+      <StatusTrack stage="completed" />
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onFeedback} type="button">
+          Оценить взаимодействие
+        </button>
+        <button className="button button--secondary" onClick={onSupport} type="button">
+          Нужна поддержка
+        </button>
+        <button className="button button--ghost" onClick={onRestart} type="button">
+          Подобрать снова
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function FeedbackView({
+  rating,
+  onRate,
+  onRestart,
+  onSupport,
+}: {
+  rating: number | null;
+  onRate: (rating: number) => void;
+  onRestart: () => void;
+  onSupport: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Обратная связь"
+        title="Как прошло взаимодействие?"
+        body="Оценка поможет улучшить подбор вариантов. Можно оставить только оценку."
+      />
+      <div className="rating-grid" aria-label="Оценка от 1 до 5">
+        {[1, 2, 3, 4, 5].map((value) => (
+          <button
+            aria-pressed={rating === value}
+            className={`rating-button ${rating === value ? "rating-button--selected" : ""}`}
+            key={value}
+            onClick={() => onRate(value)}
+            type="button"
+          >
+            {value}
+          </button>
+        ))}
+      </div>
+      <p className="privacy-note">
+        Не добавляйте медицинские детали в обратную связь. Для личного вопроса используйте поддержку.
+      </p>
+      <div className="subflow-actions">
+        <button className="button button--secondary" onClick={onSupport} type="button">
+          Нужна поддержка
+        </button>
+        <button className="button button--primary" onClick={onRestart} type="button">
+          Подобрать снова
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function SupportView({
+  onBack,
+  onRestart,
+}: {
+  onBack: () => void;
+  onRestart: () => void;
+}) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader
+        eyebrow="Поддержка 🩵"
+        title="Поможем разобраться"
+        body="Напишите в поддержку сервиса и укажите номер заявки, если он есть. Не отправляйте медицинские детали."
+      />
+      <div className="support-panel">
+        <p className="meta-label">Чат поддержки</p>
+        <strong>Ответим спокойно и по делу</strong>
+        <span>В UI-макете отправка сообщений отключена.</span>
+      </div>
+      <div className="subflow-actions">
+        <button className="button button--primary" type="button">
+          Открыть чат поддержки
+        </button>
+        <button className="button button--secondary" onClick={onBack} type="button">
+          Вернуться к заявке
+        </button>
+        <button className="button button--ghost" onClick={onRestart} type="button">
+          Начать подбор снова
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function OfferSubflow({
+  district,
+  offer,
+  rating,
+  supportReturnView,
+  time,
+  view,
+  onChangeView,
+  onRate,
+  onRestart,
+  onShowSupport,
+}: {
+  district: string;
+  offer: Offer;
+  rating: number | null;
+  supportReturnView: Exclude<OfferView, "support">;
+  time: string;
+  view: OfferView;
+  onChangeView: (view: OfferView | null) => void;
+  onRate: (rating: number) => void;
+  onRestart: () => void;
+  onShowSupport: (returnView: Exclude<OfferView, "support">) => void;
+}) {
+  if (view === "details") {
+    return (
+      <OfferDetails
+        offer={offer}
+        onBack={() => onChangeView(null)}
+        onChat={() => onChangeView("chat")}
+        onConfirm={() => onChangeView("confirmation")}
+      />
+    );
+  }
+
+  if (view === "chat") {
+    return <ChatView offer={offer} onBack={() => onChangeView("details")} onContinue={() => onChangeView("confirmation")} />;
+  }
+
+  if (view === "confirmation") {
+    return (
+      <ConfirmationView
+        district={district}
+        offer={offer}
+        onBack={() => onChangeView("chat")}
+        onChangeOffer={() => onChangeView(null)}
+        onSubmit={() => onChangeView("status")}
+        time={time}
+      />
+    );
+  }
+
+  if (view === "status") {
+    return (
+      <WaitingView
+        offer={offer}
+        onNext={() => onChangeView("price-lock")}
+        onSupport={() => onShowSupport("status")}
+      />
+    );
+  }
+
+  if (view === "price-lock") {
+    return <PriceLockView offer={offer} onNext={() => onChangeView("dispatched")} />;
+  }
+
+  if (view === "dispatched") {
+    return (
+      <DispatchedView
+        offer={offer}
+        onComplete={() => onChangeView("completed")}
+        onSupport={() => onShowSupport("dispatched")}
+      />
+    );
+  }
+
+  if (view === "completed") {
+    return (
+      <CompletedView
+        onFeedback={() => onChangeView("feedback")}
+        onRestart={onRestart}
+        onSupport={() => onShowSupport("completed")}
+      />
+    );
+  }
+
+  if (view === "feedback") {
+    return <FeedbackView onRate={onRate} onRestart={onRestart} onSupport={() => onShowSupport("feedback")} rating={rating} />;
+  }
+
+  return <SupportView onBack={() => onChangeView(supportReturnView)} onRestart={onRestart} />;
+}
+
+function OffersState({
+  mode,
+  onChangeParameters,
+  onRetry,
+}: {
+  mode: Exclude<OffersMode, "ready">;
+  onChangeParameters: () => void;
+  onRetry: () => void;
+}) {
+  const isEmpty = mode === "empty";
+
+  return (
+    <section className={`list-state list-state--${mode}`}>
+      <span className="list-state__symbol" aria-hidden="true">
+        {isEmpty ? "⋆" : "↻"}
+      </span>
+      <p className="eyebrow">{isEmpty ? "Варианты" : "Обновление списка"}</p>
+      <h2>{isEmpty ? "Пока нет подходящих вариантов" : "Не получилось загрузить варианты"}</h2>
+      <p>
+        {isEmpty
+          ? "Попробуйте изменить район или время выезда."
+          : "Попробуйте загрузить список ещё раз. Параметры подбора сохранены."}
+      </p>
+      <div className="subflow-actions">
+        {isEmpty ? (
+          <button className="button button--primary" onClick={onChangeParameters} type="button">
+            Изменить параметры
+          </button>
+        ) : (
+          <button className="button button--primary" onClick={onRetry} type="button">
+            Попробовать снова
+          </button>
+        )}
+        {!isEmpty ? (
+          <button className="button button--ghost" onClick={onChangeParameters} type="button">
+            Изменить параметры
+          </button>
+        ) : null}
       </div>
     </section>
   );
 }
 
 export function App() {
-  const [stepIndex, setStepIndex] = useState(0);
+  const [preview] = useState<PreviewId | null>(() => readPreviewId());
+  const startsOnOffers = preview !== null;
+  const initialOfferView = isOfferView(preview) ? preview : null;
+  const [stepIndex, setStepIndex] = useState(startsOnOffers ? OFFERS_STEP_INDEX : 0);
   const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(startsOnOffers ? "САО" : null);
   const [manualDistrict, setManualDistrict] = useState("");
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(startsOnOffers ? "Сегодня" : null);
   const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [offerView, setOfferView] = useState<OfferView | null>(null);
+  const [offersMode, setOffersMode] = useState<OffersMode>(preview === "empty" || preview === "error" ? preview : "ready");
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(initialOfferView ? OFFERS[0]! : null);
+  const [offerView, setOfferView] = useState<OfferView | null>(initialOfferView);
+  const [supportReturnView, setSupportReturnView] = useState<Exclude<OfferView, "support">>("completed");
+  const [rating, setRating] = useState<number | null>(null);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -307,6 +893,9 @@ export function App() {
   const isTimeStep = step.id === "time";
   const isOffersStep = step.id === "offers";
   const hasLocation = Boolean(selectedDistrict || manualDistrict.trim());
+  const district = selectedDistrict || manualDistrict.trim() || "Район уточняется";
+  const time = selectedTime || "Время уточняется";
+  const showOfferSubflow = isOffersStep && selectedOffer && offerView;
 
   const primaryLabel = useMemo(() => {
     if (step.id === "welcome") {
@@ -366,8 +955,23 @@ export function App() {
     setStepIndex((current) => Math.max(current - 1, 0));
   }
 
-  function restartFlow() {
-    setStepIndex(3);
+  function changeParameters() {
+    setSelectedOffer(null);
+    setOfferView(null);
+    setOffersMode("ready");
+    setStepIndex(TIME_STEP_INDEX);
+  }
+
+  function restartSelection() {
+    setSelectedProfile(null);
+    setSelectedDistrict(null);
+    setManualDistrict("");
+    setSelectedTime(null);
+    setSelectedOffer(null);
+    setOfferView(null);
+    setOffersMode("ready");
+    setRating(null);
+    setStepIndex(PROFILE_STEP_INDEX);
   }
 
   function openOfferView(offer: Offer, view: OfferView) {
@@ -375,54 +979,17 @@ export function App() {
     setOfferView(view);
   }
 
-  function goBackFromOfferView() {
-    if (offerView === "chat") {
-      setOfferView("details");
-      return;
-    }
+  function changeOfferView(view: OfferView | null) {
+    setOfferView(view);
 
-    if (offerView === "confirmation") {
-      setOfferView("chat");
-      return;
+    if (!view) {
+      setSelectedOffer(null);
     }
-
-    if (offerView === "status") {
-      setOfferView("confirmation");
-      return;
-    }
-
-    if (offerView === "price-lock") {
-      setOfferView("status");
-      return;
-    }
-
-    setSelectedOffer(null);
-    setOfferView(null);
   }
 
-  function goNextFromOfferView() {
-    if (offerView === "details") {
-      setOfferView("chat");
-      return;
-    }
-
-    if (offerView === "chat") {
-      setOfferView("confirmation");
-      return;
-    }
-
-    if (offerView === "confirmation") {
-      setOfferView("status");
-      return;
-    }
-
-    if (offerView === "status") {
-      setOfferView("price-lock");
-      return;
-    }
-
-    setSelectedOffer(null);
-    setOfferView(null);
+  function showSupport(returnView: Exclude<OfferView, "support">) {
+    setSupportReturnView(returnView);
+    setOfferView("support");
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -441,130 +1008,167 @@ export function App() {
 
   return (
     <main className="app-shell">
-      <section className={`phone-frame ${isOffersStep ? "phone-frame--offers" : ""}`} aria-labelledby="screen-title">
+      <section
+        className={`phone-frame ${isOffersStep ? "phone-frame--offers" : ""}`}
+        aria-labelledby="screen-title"
+        data-offers-mode={offersMode}
+        data-screen={offerView ?? step.id}
+      >
         <div className="phone-notch" />
         <header className="screen-header">
           <ProgressDots currentIndex={stepIndex} />
           <span className="screen-header__brand">Надом</span>
         </header>
 
-        <div className="screen-card">
-          <NodeIcon variant={step.iconLabel} />
-
-          <p className="eyebrow">{step.eyebrow}</p>
-          <h1 id="screen-title">{step.title}</h1>
-
-          <div className="screen-copy">
-            {step.body.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-
-          {step.id === "emergency" ? (
+        <div className={`screen-card ${showOfferSubflow ? "screen-card--subflow" : ""}`}>
+          {showOfferSubflow ? (
+            <OfferSubflow
+              district={district}
+              offer={selectedOffer}
+              onChangeView={changeOfferView}
+              onRate={setRating}
+              onRestart={restartSelection}
+              onShowSupport={showSupport}
+              rating={rating}
+              supportReturnView={supportReturnView}
+              time={time}
+              view={offerView}
+            />
+          ) : (
             <>
-              <div className="emergency-actions" aria-label="Экстренная помощь">
-                <button className="emergency-link" onClick={() => void handleEmergencyCall("103")} type="button">Позвонить 103</button>
-                <button className="emergency-link" onClick={() => void handleEmergencyCall("112")} type="button">Позвонить 112</button>
-              </div>
-              {emergencyNotice ? <p className="emergency-copy-note">{emergencyNotice}</p> : null}
-            </>
-          ) : null}
+              <NodeIcon variant={step.iconLabel} />
+              <p className="eyebrow">{step.eyebrow}</p>
+              <h1 id="screen-title">{step.title}</h1>
 
-          {isProfileStep ? (
-            <div className="choice-list" aria-label="Профиль помощи">
-              {PROFILE_OPTIONS.map((option) => (
-                <button
-                  className={`choice-chip ${selectedProfile === option ? "choice-chip--selected" : ""}`}
-                  key={option}
-                  onClick={() => setSelectedProfile(option)}
-                  type="button"
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          ) : null}
+              {!isOffersStep || offersMode === "ready" ? (
+                <div className="screen-copy">
+                  {step.body.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              ) : null}
 
-          {isLocationStep ? (
-            <div className="location-panel" aria-label="Район или округ">
-              <div className="choice-list">
-                {DISTRICT_OPTIONS.map((district) => (
-                  <button
-                    className={`choice-chip ${selectedDistrict === district ? "choice-chip--selected" : ""}`}
-                    key={district}
-                    onClick={() => {
-                      setSelectedDistrict(district);
-                      setManualDistrict("");
-                    }}
-                    type="button"
-                  >
-                    {district}
-                  </button>
-                ))}
-              </div>
+              {step.id === "emergency" ? (
+                <>
+                  <div className="emergency-actions" aria-label="Экстренная помощь">
+                    <button className="emergency-link" onClick={() => void handleEmergencyCall("103")} type="button">
+                      Позвонить 103
+                    </button>
+                    <button className="emergency-link" onClick={() => void handleEmergencyCall("112")} type="button">
+                      Позвонить 112
+                    </button>
+                  </div>
+                  {emergencyNotice ? <p className="emergency-copy-note">{emergencyNotice}</p> : null}
+                </>
+              ) : null}
 
-              <label className="text-field">
-                <span>Или введите район вручную</span>
-                <input
-                  autoComplete="off"
-                  inputMode="text"
-                  onChange={(event) => {
-                    setManualDistrict(event.target.value);
-                    setSelectedDistrict(null);
-                  }}
-                  placeholder="например, Арбат или Хамовники"
-                  type="text"
-                  value={manualDistrict}
+              {isProfileStep ? (
+                <div className="choice-list" aria-label="Формат подбора">
+                  {PROFILE_OPTIONS.map((option) => (
+                    <button
+                      className={`choice-chip ${selectedProfile === option ? "choice-chip--selected" : ""}`}
+                      key={option}
+                      onClick={() => setSelectedProfile(option)}
+                      type="button"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {isLocationStep ? (
+                <div className="location-panel" aria-label="Район или округ">
+                  <div className="choice-list choice-list--districts">
+                    {DISTRICT_OPTIONS.map((districtOption) => (
+                      <button
+                        className={`choice-chip ${selectedDistrict === districtOption ? "choice-chip--selected" : ""}`}
+                        key={districtOption}
+                        onClick={() => {
+                          setSelectedDistrict(districtOption);
+                          setManualDistrict("");
+                        }}
+                        type="button"
+                      >
+                        {districtOption}
+                      </button>
+                    ))}
+                  </div>
+
+                  <label className="text-field">
+                    <span>Или введите район вручную</span>
+                    <input
+                      autoComplete="off"
+                      inputMode="text"
+                      onChange={(event) => {
+                        setManualDistrict(event.target.value);
+                        setSelectedDistrict(null);
+                      }}
+                      placeholder="например, Арбат или Хамовники"
+                      type="text"
+                      value={manualDistrict}
+                    />
+                  </label>
+
+                  <p className="privacy-note">Точный адрес и телефон сейчас не нужны.</p>
+                </div>
+              ) : null}
+
+              {isTimeStep ? (
+                <div className="choice-list" aria-label="Желаемое время выезда">
+                  {TIME_OPTIONS.map((option) => (
+                    <button
+                      className={`choice-chip ${selectedTime === option ? "choice-chip--selected" : ""}`}
+                      key={option}
+                      onClick={() => setSelectedTime(option)}
+                      type="button"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+
+              {isOffersStep && offersMode === "ready" ? (
+                <div className="offers-list" aria-label="Подходящие варианты">
+                  {OFFERS.map((offer) => (
+                    <OfferCard key={offer.name} offer={offer} onOpen={(view) => openOfferView(offer, view)} />
+                  ))}
+                </div>
+              ) : null}
+
+              {isOffersStep && offersMode !== "ready" ? (
+                <OffersState
+                  mode={offersMode}
+                  onChangeParameters={changeParameters}
+                  onRetry={() => setOffersMode("ready")}
                 />
-              </label>
-
-              <p className="privacy-note">Точный адрес и телефон сейчас не нужны.</p>
-            </div>
-          ) : null}
-
-          {isTimeStep ? (
-            <div className="choice-list" aria-label="Желаемое время выезда">
-              {TIME_OPTIONS.map((option) => (
-                <button
-                  className={`choice-chip ${selectedTime === option ? "choice-chip--selected" : ""}`}
-                  key={option}
-                  onClick={() => setSelectedTime(option)}
-                  type="button"
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          {isOffersStep && selectedOffer && offerView ? (
-            <OfferSubflow offer={selectedOffer} onBack={goBackFromOfferView} onNext={goNextFromOfferView} view={offerView} />
-          ) : null}
-
-          {isOffersStep && !offerView ? (
-            <div className="offers-list" aria-label="Подходящие варианты">
-              {OFFERS.map((offer) => (
-                <OfferCard key={offer.name} offer={offer} onOpen={(view) => openOfferView(offer, view)} />
-              ))}
-            </div>
-          ) : null}
+              ) : null}
+            </>
+          )}
         </div>
 
-        {!offerView ? <footer className="screen-footer">
-          <button
-            className="button button--primary"
-            disabled={!canContinue()}
-            onClick={isOffersStep ? restartFlow : goNext}
-            type="button"
-          >
-            {primaryLabel}
-          </button>
-          {isFirstStep ? (
-            <button className="button button--ghost" type="button">Как это работает</button>
-          ) : (
-            <button className="button button--ghost" onClick={goBack} type="button">Назад</button>
-          )}
-        </footer> : null}
+        {!showOfferSubflow && (!isOffersStep || offersMode === "ready") ? (
+          <footer className="screen-footer">
+            <button
+              className="button button--primary"
+              disabled={!canContinue()}
+              onClick={isOffersStep ? changeParameters : goNext}
+              type="button"
+            >
+              {primaryLabel}
+            </button>
+            {isFirstStep ? (
+              <button className="button button--ghost" type="button">
+                Как это работает
+              </button>
+            ) : (
+              <button className="button button--ghost" onClick={goBack} type="button">
+                Назад
+              </button>
+            )}
+          </footer>
+        ) : null}
       </section>
     </main>
   );
