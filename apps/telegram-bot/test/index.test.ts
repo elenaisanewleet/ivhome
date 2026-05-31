@@ -10,12 +10,14 @@ test("recognizes Telegram /start commands", () => {
   assert.equal(isStartCommand("/status"), false);
 });
 
-test("creates a Nadom start message with a Mini App button", () => {
+test("creates a Nadom start message", () => {
   const message = createStartMessage();
 
   assert.match(message.text, /привет, я Надом/u);
-  assert.equal(
-    message.reply_markup.inline_keyboard[0]?.[0]?.web_app.url,
-    "http://localhost:5173",
-  );
+});
+
+test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
+  const message = createStartMessage();
+
+  assert.equal("reply_markup" in message, false);
 });
