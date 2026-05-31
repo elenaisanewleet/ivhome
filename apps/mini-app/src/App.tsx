@@ -94,9 +94,9 @@ const STEPS: Step[] = [
 ];
 
 const PROFILE_OPTIONS = [
-  "Плохо после алкоголя",
-  "Нужно сегодня",
-  "Отравление / стало плохо",
+  "После алкоголя / праздника",
+  "Нужен выезд сегодня",
+  "Интоксикация / самочувствие",
   "Плановый выезд",
   "Уточнить с медслужбой",
 ];
@@ -144,13 +144,13 @@ const OFFERS: Offer[] = [
   },
   {
     name: "Медслужба Ночь",
-    status: "Доступна 24/7",
+    status: "Принимает заявки сейчас",
     zone: "Москва · по зонам выезда",
     responseTime: "обычно до 20 минут",
     arrivalTime: "от 70 минут",
     price: "от 10 500 ₽",
     rating: "4.6",
-    note: "Подходит, если нужен поздний или срочный выезд.",
+    note: "Подходит, если нужен поздний или ближайший выезд.",
   },
 ];
 
@@ -209,11 +209,11 @@ function OfferCard({ offer }: { offer: Offer }) {
 
       <div className="sla-grid" aria-label="Время ответа и прибытия">
         <div className="sla-box">
-          <span>Ответ медслужбы</span>
+          <span>Ответ</span>
           <strong>{offer.responseTime}</strong>
         </div>
         <div className="sla-box sla-box--eta">
-          <span>ETA после подтверждения</span>
+          <span>Прибытие</span>
           <strong>{offer.arrivalTime}</strong>
         </div>
       </div>
