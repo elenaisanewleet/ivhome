@@ -6,9 +6,9 @@ prescribe treatment, and does not recommend medication or IV composition.
 
 ## Prototype Boundaries
 
-PR 1 contains only the project foundation and process-level health checks. It
-does not contain authentication, personal data processing, clinical data,
-partner matching, request submission, or payments.
+PR 2 adds the Prisma data model and fake local-development seed data. It does
+not contain authentication, personal data processing logic, clinical data,
+partner matching, request submission workflows, or payments.
 
 The MVP explicitly excludes:
 
@@ -66,6 +66,19 @@ Before any real user data is accepted:
 - log access to sensitive records;
 - complete a threat model and incident response runbook;
 - validate Russian personal data localization requirements.
+
+## Fake Seed Data
+
+`prisma/seed.ts` contains fake local-development data only. Demo clinic names,
+`DEMO-*` license numbers, masked contact values, and placeholder values such as
+`fake-encrypted:*` are deliberately not real people, clinics, addresses,
+licenses, or credentials.
+
+Fields ending in `Encrypted` or `Hash` identify values that must not be stored
+in clear text when application logic is implemented. The fake placeholders in
+the seed are not a cryptographic implementation. Production code must use an
+approved encryption and key-management design, and must keep plaintext
+personal or medical data out of logs, audit metadata, and Telegram messages.
 
 ## Emergency Screening TODO
 

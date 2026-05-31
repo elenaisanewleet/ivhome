@@ -5,9 +5,10 @@ at-home medical service partners in Moscow. The platform is an aggregator: it
 does not provide medical services, diagnose, prescribe treatment, or recommend
 medication or IV composition.
 
-## PR 1 Scope
+## PR 2 Scope
 
-This foundation stage intentionally contains no business logic. It adds:
+This database-modeling stage intentionally contains no business logic. The
+repository now includes:
 
 - a `pnpm` monorepo;
 - a Fastify API with process-level health checks;
@@ -15,7 +16,8 @@ This foundation stage intentionally contains no business logic. It adds:
 - a placeholder Telegram Bot package;
 - a shared package;
 - PostgreSQL in Docker Compose;
-- a Prisma entry point for the schema work in PR 2;
+- the Prisma data model for the MVP aggregator;
+- idempotent fake seed data for local development;
 - baseline security notes.
 
 ## Simplified MVP Architecture
@@ -32,9 +34,9 @@ The partner-side request-review role is `CLINIC_AUTHORIZED_STAFF`. UI copy must
 say "уполномоченный сотрудник партнёра" and must not imply that IVhome verifies
 the medical qualification of a specific person.
 
-PR 2 will add `PartnerLead` or `LeadTransfer` and `PartnerContactChannel` data
-models. Supported contact channels are planned as `TELEGRAM`, `WHATSAPP`,
-`PHONE`, `EMAIL`, and `DASHBOARD`, so early partners can process leads manually.
+The schema includes `PartnerLead` and `PartnerContactChannel` models. Supported
+contact channels are `TELEGRAM`, `WHATSAPP`, `PHONE`, `EMAIL`, and `DASHBOARD`,
+so early partners can process leads manually in later workflow PRs.
 
 The MVP excludes online payments, acquiring, automatic license verification,
 telemedicine, AI recommendations, and CRM integrations.
@@ -50,7 +52,9 @@ apps/
 packages/
   shared/         shared TypeScript package
 prisma/
-  schema.prisma   Prisma entry point; models arrive in PR 2
+  migrations/      committed PostgreSQL migrations
+  schema.prisma   Prisma data model
+  seed.ts         idempotent fake local-development data
 ```
 
 ## Requirements
@@ -65,6 +69,8 @@ prisma/
 cp .env.example .env
 pnpm install
 docker compose up -d postgres
+pnpm db:migrate
+pnpm db:seed
 pnpm dev
 ```
 
@@ -81,8 +87,41 @@ curl http://localhost:3000/health/live
 curl http://localhost:3000/health/ready
 ```
 
-`/health/ready` is process-level in PR 1. Database connectivity will be added
-when Prisma models are introduced.
+`/health/ready` is still process-level. Database connectivity will be added in
+a later backend PR.
+
+## Database
+
+Start PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+Create and apply a development migration after changing the schema:
+
+```bash
+pnpm db:migrate:dev -- --name describe_your_change
+```
+
+Apply committed migrations in an environment:
+
+```bash
+pnpm db:migrate
+```
+
+Seed local development data, validate the schema, and generate the Prisma
+client:
+
+```bash
+pnpm db:seed
+pnpm db:validate
+pnpm db:generate
+```
+
+The seed is idempotent and contains fake data only: demo partners, fake license
+numbers, masked or placeholder contact values, and placeholder encrypted
+values. It must never be treated as production data.
 
 ## Scripts
 
@@ -91,6 +130,10 @@ pnpm dev
 pnpm lint
 pnpm typecheck
 pnpm build
+pnpm db:migrate
+pnpm db:migrate:dev -- --name describe_your_change
+pnpm db:seed
+pnpm db:studio
 pnpm db:validate
 pnpm db:generate
 ```
