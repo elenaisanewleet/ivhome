@@ -648,8 +648,12 @@ h1 {
 }
 
 .chat-bubble strong {
-  color: var(--accent);
+  color: var(--teal);
   font-size: 10px;
+}
+
+.chat-bubble--service {
+  background: var(--teal-light);
 }
 
 .chat-bubble--user {

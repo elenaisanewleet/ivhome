@@ -257,11 +257,11 @@ function FlowIntro({ eyebrow, title, children }: { eyebrow: string; title: strin
   );
 }
 
-function OfferDetails({ offer }: { offer: Offer }) {
+function OfferDetails({ offer, onConfirm, onOpenChat }: { offer: Offer; onConfirm: () => void; onOpenChat: () => void }) {
   return (
     <>
       <FlowIntro eyebrow="Карточка медслужбы" title={offer.name}>
-        <p>Проверьте условия перед чатом со специалистом выбранной медслужбы.</p>
+        <p>Проверьте условия. Перед подтверждением можно задать вопрос специалисту выбранной медслужбы.</p>
       </FlowIntro>
       <article className="offer-card offer-card--details">
         <OfferSummary offer={offer} />
@@ -270,37 +270,46 @@ function OfferDetails({ offer }: { offer: Offer }) {
           <div><dt>Район выезда</dt><dd>{offer.zone}</dd></div>
         </dl>
         <p className="offer-note">Детали и возможность выезда подтверждает медслужба.</p>
+        <div className="offer-actions">
+          <button className="button button--teal" onClick={onOpenChat} type="button">Написать специалисту</button>
+          <button className="button button--secondary" onClick={onConfirm} type="button">Подтвердить заявку</button>
+        </div>
       </article>
     </>
   );
 }
 
 function SpecialistChat({ offer }: { offer: Offer }) {
+  // Privacy boundary: real chat content must not be copied into Telegram notifications.
   return (
     <>
-      <FlowIntro eyebrow="Чат с медслужбой" title="Уточните детали">
-        <p>{offer.name} ответит в этом чате. Не отправляйте медицинские документы или лишние личные данные.</p>
+      <FlowIntro eyebrow={offer.name} title="Связь со специалистом">
+        <p>Можно уточнить формат помощи, время, условия или личный вопрос. Этот шаг можно пропустить.</p>
+        <p>Детали и возможность выезда подтверждает выбранная медслужба.</p>
       </FlowIntro>
       <section className="chat-card" aria-label="Чат со специалистом выбранной медслужбы">
-        <p className="chat-card__date">Сегодня</p>
+        <p className="chat-card__date">Пример диалога</p>
+        <div className="chat-bubble chat-bubble--user">
+          <span>Можно уточнить, когда реально сможете приехать?</span>
+        </div>
         <div className="chat-bubble chat-bubble--service">
           <strong>Специалист медслужбы</strong>
-          <span>Здравствуйте. Уточним возможность выезда и условия. После этого вы сможете подтвердить заявку.</span>
+          <span>Да, проверим доступность по вашему району и подтвердим время.</span>
         </div>
         <div className="chat-bubble chat-bubble--user">
-          <span>Подойдёт ближайшее доступное время.</span>
+          <span>Хочу сначала понять условия и стоимость.</span>
         </div>
         <p className="chat-card__note">Макет чата: сообщения не отправляются.</p>
       </section>
       <label className="chat-input">
         <span>Сообщение специалисту</span>
-        <input disabled placeholder="Введите сообщение" type="text" />
+        <input disabled placeholder="Напишите вопрос специалисту…" type="text" />
       </label>
     </>
   );
 }
 
-function RequestConfirmation({ offer }: { offer: Offer }) {
+function RequestConfirmation({ chatUsed, offer }: { chatUsed: boolean; offer: Offer }) {
   return (
     <>
       <FlowIntro eyebrow="Подтверждение заявки" title="Проверьте заявку">
@@ -312,7 +321,7 @@ function RequestConfirmation({ offer }: { offer: Offer }) {
           <div><dt>Район</dt><dd>{offer.zone}</dd></div>
           <div><dt>Время</dt><dd>Как можно скорее</dd></div>
           <div><dt>Стоимость</dt><dd>{offer.price}</dd></div>
-          <div><dt>Связь</dt><dd>Чат со специалистом</dd></div>
+          <div><dt>Связь</dt><dd>{chatUsed ? "Чат со специалистом" : "Чат пропущен"}</dd></div>
         </dl>
         <p className="privacy-note">Точный адрес и контактные данные можно уточнить позже, если они понадобятся выбранной медслужбе.</p>
       </section>
@@ -367,6 +376,7 @@ export function App() {
   const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
   const [cardView, setCardView] = useState<CardView>("offers");
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const [hasOpenedSpecialistChat, setHasOpenedSpecialistChat] = useState(false);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -441,7 +451,13 @@ export function App() {
 
   function openOffer(offer: Offer) {
     setSelectedOffer(offer);
+    setHasOpenedSpecialistChat(false);
     setCardView("details");
+  }
+
+  function openSpecialistChat() {
+    setHasOpenedSpecialistChat(true);
+    setCardView("chat");
   }
 
   function goBackInCardFlow() {
@@ -451,10 +467,18 @@ export function App() {
       return;
     }
 
+    if (cardView === "confirmation") {
+      setCardView(hasOpenedSpecialistChat ? "chat" : "details");
+      return;
+    }
+
+    if (cardView === "status") {
+      setCardView("confirmation");
+      return;
+    }
+
     const previousView: Partial<Record<CardView, CardView>> = {
       chat: "details",
-      confirmation: "chat",
-      status: "chat",
       "price-lock": "status",
     };
 
@@ -606,25 +630,41 @@ export function App() {
             </div>
           ) : null}
 
-          {isOffersStep && selectedOffer && cardView === "details" ? <OfferDetails offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "details" ? (
+            <OfferDetails
+              offer={selectedOffer}
+              onConfirm={() => setCardView("confirmation")}
+              onOpenChat={openSpecialistChat}
+            />
+          ) : null}
           {isOffersStep && selectedOffer && cardView === "chat" ? <SpecialistChat offer={selectedOffer} /> : null}
-          {isOffersStep && selectedOffer && cardView === "confirmation" ? <RequestConfirmation offer={selectedOffer} /> : null}
+          {isOffersStep && selectedOffer && cardView === "confirmation" ? <RequestConfirmation chatUsed={hasOpenedSpecialistChat} offer={selectedOffer} /> : null}
           {isOffersStep && selectedOffer && cardView === "status" ? <RequestStatus offer={selectedOffer} /> : null}
           {isOffersStep && selectedOffer && cardView === "price-lock" ? <PriceLockPreview offer={selectedOffer} /> : null}
         </div>
 
         <footer className="screen-footer">
           {isOffersStep ? (
-            <>
-              <button
-                className="button button--primary"
-                onClick={cardView === "offers" ? restartFlow : cardView === "price-lock" ? () => { setCardView("offers"); setSelectedOffer(null); } : advanceCardFlow}
-                type="button"
-              >
-                {cardFlowPrimaryLabel()}
-              </button>
-              <button className="button button--ghost" onClick={cardView === "offers" ? goBack : goBackInCardFlow} type="button">Назад</button>
-            </>
+            cardView === "details" ? (
+              <button className="button button--ghost" onClick={goBackInCardFlow} type="button">Назад к вариантам</button>
+            ) : cardView === "chat" ? (
+              <>
+                <button className="button button--teal" onClick={() => setCardView("confirmation")} type="button">Продолжить к подтверждению</button>
+                <button className="button button--secondary" onClick={() => setCardView("confirmation")} type="button">Пропустить чат</button>
+                <button className="button button--ghost" onClick={() => setCardView("details")} type="button">Назад к карточке</button>
+              </>
+            ) : (
+              <>
+                <button
+                  className="button button--primary"
+                  onClick={cardView === "offers" ? restartFlow : cardView === "price-lock" ? () => { setCardView("offers"); setSelectedOffer(null); } : advanceCardFlow}
+                  type="button"
+                >
+                  {cardFlowPrimaryLabel()}
+                </button>
+                <button className="button button--ghost" onClick={cardView === "offers" ? goBack : goBackInCardFlow} type="button">Назад</button>
+              </>
+            )
           ) : (
             <>
               <button className="button button--primary" disabled={!canContinue()} onClick={goNext} type="button">{primaryLabel}</button>
