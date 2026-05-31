@@ -15,11 +15,24 @@ This folder stores source references for Nadom / IVhome. Do not claim that a ref
 * `saved_resource(4).html`
 * `saved_resource(5).html`
 
-## PNG visual references, if present
+## PNG visual references, present
 
-PNG files should be stored under:
+PNG visual references are stored under:
 
 * `docs/nadom/references/visual/`
+
+Current PNG files:
+
+* `01_saved_resource_1.png`
+* `02_saved_resource_2.png`
+* `03_saved_resource_3.png`
+* `04_saved_resource_4.png`
+* `05_saved_resource_5.png`
+* `06_saved_resource.png`
+* `07_screen_icons.png`
+* `08_screen_soft_symbols.png`
+
+The PNG files use clean ASCII filenames for reliable GitHub upload. They correspond to the visual references originally named as `saved_resource*.html` renders and two supporting screenshots.
 
 ## Supporting product, legal, and market sources, if present
 
@@ -28,7 +41,7 @@ PNG files should be stored under:
 
 ## Missing references
 
-The following original source files were not present in the repository or accessible workspace when this documentation was added:
+The following original source files were not present in the repository or accessible workspace when the documentation was added:
 
 * `Выполнение промта по проекту - Claude.html`
 * `saved_resource.html`
@@ -39,14 +52,3 @@ The following original source files were not present in the repository or access
 * `saved_resource(5).html`
 * `ivhome-strategy.md.pdf`
 * `Бизнес-план сервиса конфиденциального вызова капельницы на дому в Москве.pdf`
-
-The following expected PNG visual references were supplied as visual context but were not accessible as files in the workspace, so they were not copied or fabricated:
-
-* `01_saved_resource(1).png`
-* `02_saved_resource(2).png`
-* `03_saved_resource(3).png`
-* `04_saved_resource(4).png`
-* `05_saved_resource(5).png`
-* `06_saved_resource.png`
-* `Снимок экрана — 2026-05-31 в 10.48.17 AM.png`
-* `Снимок экрана — 2026-05-31 в 10.48.32 AM.png`
