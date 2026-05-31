@@ -191,7 +191,7 @@ function OfferCard({ offer }: { offer: Offer }) {
     <article className="offer-card">
       <div className="offer-card__header">
         <div>
-          <p className="status-label">{offer.status}</p>
+          <p className="status-label"><span className="status-dot" />{offer.status}</p>
           <h2>{offer.name}</h2>
         </div>
         <span className="rating-pill">⋆ {offer.rating}</span>
@@ -204,8 +204,8 @@ function OfferCard({ offer }: { offer: Offer }) {
           <span>Ответ медслужбы</span>
           <strong>{offer.responseTime}</strong>
         </div>
-        <div className="sla-box">
-          <span>Прибытие после подтверждения</span>
+        <div className="sla-box sla-box--eta">
+          <span>ETA после подтверждения</span>
           <strong>{offer.arrivalTime}</strong>
         </div>
       </div>
@@ -218,8 +218,8 @@ function OfferCard({ offer }: { offer: Offer }) {
       <p className="offer-note">{offer.note}</p>
 
       <div className="offer-actions">
-        <button className="button button--primary" type="button">Смотреть детали</button>
-        <button className="button button--secondary" type="button">Написать специалисту</button>
+        <button className="button button--teal" type="button">Написать специалисту</button>
+        <button className="button button--primary" type="button">Подтвердить заявку</button>
       </div>
     </article>
   );
@@ -302,6 +302,7 @@ export function App() {
   return (
     <main className="app-shell">
       <section className={`phone-frame ${isOffersStep ? "phone-frame--offers" : ""}`} aria-labelledby="screen-title">
+        <div className="phone-notch" />
         <header className="screen-header">
           <ProgressDots currentIndex={stepIndex} />
           <span className="screen-header__brand">Надом</span>
