@@ -4,6 +4,8 @@ import "./App.css";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
+type OfferView = "details" | "chat" | "confirmation" | "status" | "price-lock";
+
 type Step = {
   id: StepId;
   eyebrow: string;
@@ -194,7 +196,7 @@ function ProgressDots({ currentIndex }: { currentIndex: number }) {
   );
 }
 
-function OfferCard({ offer }: { offer: Offer }) {
+function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) => void }) {
   return (
     <article className="offer-card">
       <div className="offer-card__header">
@@ -226,10 +228,66 @@ function OfferCard({ offer }: { offer: Offer }) {
       <p className="offer-note">{offer.note}</p>
 
       <div className="offer-actions">
-        <button className="button button--teal" type="button">Написать специалисту</button>
-        <button className="button button--primary" type="button">Подтвердить заявку</button>
+        <button className="button button--secondary" onClick={() => onOpen("details")} type="button">Смотреть детали</button>
+        <button className="button button--teal" onClick={() => onOpen("chat")} type="button">Написать специалисту</button>
+        <button className="button button--primary" onClick={() => onOpen("confirmation")} type="button">Подтвердить заявку</button>
       </div>
     </article>
+  );
+}
+
+function OfferSubflow({ offer, view, onBack, onNext }: { offer: Offer; view: OfferView; onBack: () => void; onNext: () => void }) {
+  const content = {
+    details: {
+      eyebrow: "Детали предложения",
+      title: offer.name,
+      body: "Детали и возможность выезда подтверждает выбранная медслужба.",
+      action: "Написать специалисту",
+    },
+    chat: {
+      eyebrow: "Чат с медслужбой",
+      title: "Уточните детали",
+      body: "Специалист выбранной медслужбы ответит в чате и подтвердит условия выезда.",
+      action: "Перейти к подтверждению",
+    },
+    confirmation: {
+      eyebrow: "Подтверждение заявки",
+      title: "Проверьте выбранный вариант",
+      body: "После отправки заявки медслужба подтвердит возможность выезда и итоговую стоимость.",
+      action: "Отправить заявку",
+    },
+    status: {
+      eyebrow: "Статус заявки",
+      title: "Заявка передана медслужбе",
+      body: "Ожидаем подтверждение выбранной медслужбы. Ответ и ожидаемое прибытие уточняются отдельно.",
+      action: "Показать стоимость",
+    },
+    "price-lock": {
+      eyebrow: "Стоимость подтверждена",
+      title: "Стоимость зафиксирована медслужбой",
+      body: "Итоговая стоимость подтверждена выбранной медслужбой.",
+      action: "Вернуться к предложениям",
+    },
+  } satisfies Record<OfferView, { eyebrow: string; title: string; body: string; action: string }>;
+  const current = content[view];
+
+  return (
+    <section className="offer-subflow" aria-label={current.eyebrow}>
+      <p className="eyebrow">{current.eyebrow}</p>
+      <h2>{current.title}</h2>
+      <p>{current.body}</p>
+      {view === "details" ? (
+        <div className="subflow-summary">
+          <span>{offer.zone}</span>
+          <strong>{offer.price}</strong>
+        </div>
+      ) : null}
+      {view === "chat" ? <div className="chat-placeholder">Чат со специалистом выбранной медслужбы</div> : null}
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onNext} type="button">{current.action}</button>
+        <button className="button button--ghost" onClick={onBack} type="button">Назад</button>
+      </div>
+    </section>
   );
 }
 
@@ -240,6 +298,8 @@ export function App() {
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  const [offerView, setOfferView] = useState<OfferView | null>(null);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -308,6 +368,61 @@ export function App() {
 
   function restartFlow() {
     setStepIndex(3);
+  }
+
+  function openOfferView(offer: Offer, view: OfferView) {
+    setSelectedOffer(offer);
+    setOfferView(view);
+  }
+
+  function goBackFromOfferView() {
+    if (offerView === "chat") {
+      setOfferView("details");
+      return;
+    }
+
+    if (offerView === "confirmation") {
+      setOfferView("chat");
+      return;
+    }
+
+    if (offerView === "status") {
+      setOfferView("confirmation");
+      return;
+    }
+
+    if (offerView === "price-lock") {
+      setOfferView("status");
+      return;
+    }
+
+    setSelectedOffer(null);
+    setOfferView(null);
+  }
+
+  function goNextFromOfferView() {
+    if (offerView === "details") {
+      setOfferView("chat");
+      return;
+    }
+
+    if (offerView === "chat") {
+      setOfferView("confirmation");
+      return;
+    }
+
+    if (offerView === "confirmation") {
+      setOfferView("status");
+      return;
+    }
+
+    if (offerView === "status") {
+      setOfferView("price-lock");
+      return;
+    }
+
+    setSelectedOffer(null);
+    setOfferView(null);
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -422,16 +537,20 @@ export function App() {
             </div>
           ) : null}
 
-          {isOffersStep ? (
+          {isOffersStep && selectedOffer && offerView ? (
+            <OfferSubflow offer={selectedOffer} onBack={goBackFromOfferView} onNext={goNextFromOfferView} view={offerView} />
+          ) : null}
+
+          {isOffersStep && !offerView ? (
             <div className="offers-list" aria-label="Подходящие варианты">
               {OFFERS.map((offer) => (
-                <OfferCard key={offer.name} offer={offer} />
+                <OfferCard key={offer.name} offer={offer} onOpen={(view) => openOfferView(offer, view)} />
               ))}
             </div>
           ) : null}
         </div>
 
-        <footer className="screen-footer">
+        {!offerView ? <footer className="screen-footer">
           <button
             className="button button--primary"
             disabled={!canContinue()}
@@ -445,7 +564,7 @@ export function App() {
           ) : (
             <button className="button button--ghost" onClick={goBack} type="button">Назад</button>
           )}
-        </footer>
+        </footer> : null}
       </section>
     </main>
   );
