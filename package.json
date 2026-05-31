@@ -24,7 +24,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio --schema prisma/schema.prisma",
     "db:validate": "DATABASE_URL=${DATABASE_URL:-postgresql://ivhome:ivhome_local_password@127.0.0.1:5432/ivhome?schema=public} prisma validate --schema prisma/schema.prisma",
-    "db:generate": "DATABASE_URL=${DATABASE_URL:-postgresql://ivhome:ivhome_local_password@127.0.0.1:5432/ivhome?schema=public} prisma generate --schema prisma/schema.prisma"
+    "db:generate": "DATABASE_URL=${DATABASE_URL:-postgresql://ivhome:ivhome_local_password@127.0.0.1:5432/ivhome?schema=public} prisma generate --schema prisma/schema.prisma",
+    "test": "pnpm --filter @ivhome/shared build && pnpm -r --if-present test"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2"
