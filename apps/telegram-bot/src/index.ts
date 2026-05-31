@@ -1,5 +1,5 @@
 const botToken = process.env.TELEGRAM_BOT_TOKEN ?? "";
-const webAppUrl = process.env.TELEGRAM_WEBAPP_URL ?? "http://localhost:5173";
+const webAppUrl = process.env.TELEGRAM_WEBAPP_URL;
 const telegramApiUrl = `https://api.telegram.org/bot${botToken}`;
 
 type TelegramUpdate = {
@@ -26,11 +26,15 @@ export function createStartMessage() {
       "если нужен медицинский выезд на дом — помогу найти подходящий вариант",
       "детали подтверждает выбранная организация",
     ].join("\n\n"),
-    reply_markup: {
-      inline_keyboard: [
-        [{ text: "подобрать вариант", web_app: { url: webAppUrl } }],
-      ],
-    },
+    ...(webAppUrl
+      ? {
+          reply_markup: {
+            inline_keyboard: [
+              [{ text: "подобрать вариант", web_app: { url: webAppUrl } }],
+            ],
+          },
+        }
+      : {}),
   };
 }
 
