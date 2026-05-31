@@ -100,6 +100,10 @@ const TIME_OPTIONS = [
   "Выбрать время позже",
 ];
 
+function getStep(index: number) {
+  return STEPS[index] ?? STEPS[0];
+}
+
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
   const isEmergency = variant === "signal";
 
@@ -133,7 +137,7 @@ export function App() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const step = STEPS[stepIndex];
+  const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
   const isLocationStep = step.id === "location";
