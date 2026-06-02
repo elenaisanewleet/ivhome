@@ -1,7 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createStartMessage, isStartCommand } from "../src/index.js";
+import {
+  createStartMessage,
+  createStatusUpdateMessage,
+  isStartCommand,
+} from "../src/index.js";
 
 test("recognizes Telegram /start commands", () => {
   assert.equal(isStartCommand("/start"), true);
@@ -20,4 +24,10 @@ test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
   const message = createStartMessage();
 
   assert.equal("reply_markup" in message, false);
+});
+
+test("creates a neutral status notification without request details", () => {
+  assert.deepEqual(createStatusUpdateMessage(), {
+    text: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+  });
 });

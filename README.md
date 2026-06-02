@@ -105,6 +105,26 @@ POST /telegram/init-data/validate
 The API returns only `{ "valid": true }` or `{ "valid": false }`; it does not
 echo Telegram data or expose validation-failure details.
 
+## Mini App MVP Integration Contract
+
+The Mini App keeps a fully walkable local fallback when `VITE_API_BASE_URL` is
+unset. For controlled MVP previews, the API exposes a gated in-memory contract:
+
+```text
+GET  /mvp/dev/offers
+POST /mvp/dev/requests
+GET  /mvp/dev/requests/:requestId/status
+```
+
+Set `ENABLE_MVP_DEV_API=true` to enable these routes. The request endpoint
+accepts only `offerId`, `district`, `desiredTime`, and `profile`. It rejects
+extra fields and does not accept chat content, phone numbers, exact addresses,
+raw Telegram data, or medical details.
+
+This is preview scaffolding, not production persistence or authentication.
+Before real traffic, replace the in-memory store with an approved authenticated
+workflow and complete the security work listed in [SECURITY.md](./SECURITY.md).
+
 ## Database
 
 Start PostgreSQL:
@@ -166,3 +186,35 @@ pnpm db:generate
 9. Audit logs and security hardening.
 
 See [SECURITY.md](./SECURITY.md) for prototype limits and production TODOs.
+
+## Deployment / Replit
+
+The committed `.replit` file prepares an API deployment. It does not publish
+anything automatically and it does not contain secrets.
+
+For an API preview in Replit Publishing:
+
+1. Import this repository and select an Autoscale or Reserved VM web-server
+   deployment.
+2. Use the committed build command:
+   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build`.
+3. Use the committed run command: `pnpm --filter @ivhome/api start`.
+4. Add `DATABASE_URL`, `CORS_ORIGINS`, and `ENABLE_MVP_DEV_API=true` as
+   deployment environment values for a controlled preview. Do not enable the
+   dev API for real user traffic.
+5. Verify `GET /health/live` and `GET /health/ready` on the published API URL.
+
+Publish the Mini App separately as a Static Deployment:
+
+1. Add `VITE_API_BASE_URL=https://<api-subdomain>.replit.app` and an optional
+   HTTPS `VITE_SUPPORT_URL` as build environment values.
+2. Use build command:
+   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/mini-app build`.
+3. Use public directory: `apps/mini-app/dist`.
+4. Set `TELEGRAM_WEBAPP_URL` to the published Mini App HTTPS URL for the bot.
+
+The long-polling Telegram Bot should be published separately as a Reserved VM
+background worker with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBAPP_URL` supplied
+through Replit secrets. Use build command
+`pnpm install --frozen-lockfile && pnpm --filter @ivhome/telegram-bot build`
+and run command `pnpm --filter @ivhome/telegram-bot start`.

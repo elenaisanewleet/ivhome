@@ -80,6 +80,9 @@ importers:
 
   apps/mini-app:
     dependencies:
+      '@ivhome/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       react:
         specifier: ^19.1.0
         version: 19.2.6

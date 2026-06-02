@@ -1,0 +1,7 @@
+entrypoint = "apps/api/src/server.ts"
+modules = ["nodejs-22"]
+run = "pnpm install --frozen-lockfile && pnpm --filter @ivhome/shared build && pnpm --filter @ivhome/api dev"
+
+[deployment]
+build = "pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build"
+run = "pnpm --filter @ivhome/api start"

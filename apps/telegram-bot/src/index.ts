@@ -38,6 +38,12 @@ export function createStartMessage() {
   };
 }
 
+export function createStatusUpdateMessage() {
+  return {
+    text: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+  };
+}
+
 async function callTelegramApi<T>(method: string, body: unknown) {
   const response = await fetch(`${telegramApiUrl}/${method}`, {
     method: "POST",

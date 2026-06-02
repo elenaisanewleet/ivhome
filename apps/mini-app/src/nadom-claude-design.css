@@ -1,0 +1,436 @@
+/*
+ * Nadom Claude design overrides.
+ * Applies the ready Claude design direction on top of the UI-only MVP skeleton:
+ * v2 structure/private digital-service feel + v1 palette/card mood.
+ * No medical illustrations, hearts, ECG, sirens, red crosses, doctor imagery or generic SaaS gradients.
+ */
+
+:root {
+  --ink: #0f0f0e;
+  --ink-2: #2a2a28;
+  --ink-3: #5a5a56;
+  --ink-4: #8a8a84;
+  --ink-5: #c4c4bc;
+
+  --paper: #f5f4f0;
+  --paper-2: #eeede8;
+  --paper-3: #e4e3dc;
+  --white: #fafaf8;
+
+  --accent: #4a7fa5;
+  --accent-mid: #7eb8d4;
+  --accent-light: #d4e8f5;
+  --teal: #3a8a82;
+  --teal-light: #c8e8e4;
+  --dust: #b89090;
+  --dust-light: #ede0dc;
+  --ok: #3a7a5a;
+  --ok-light: #c8e8d8;
+  --warn: #8a6020;
+  --warn-light: #f0e4c4;
+  --err: #8a3030;
+  --err-light: #f0d4d4;
+
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-body: "Onest", system-ui, sans-serif;
+  --font-mono: "SF Mono", "Fira Code", monospace;
+}
+
+body {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(74, 127, 165, 0.1), transparent 24rem),
+    radial-gradient(circle at 12% 92%, rgba(184, 144, 144, 0.08), transparent 20rem),
+    linear-gradient(135deg, #0f0f0e 0%, #181816 45%, #0f0f0e 100%);
+}
+
+.app-shell {
+  background:
+    linear-gradient(90deg, rgba(250, 250, 248, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(250, 250, 248, 0.025) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.phone-frame {
+  border-color: rgba(196, 196, 188, 0.28);
+  background: var(--paper);
+  box-shadow:
+    0 42px 110px rgba(0, 0, 0, 0.62),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.2);
+}
+
+.screen-header {
+  background: rgba(245, 244, 240, 0.96);
+  border-bottom-color: rgba(15, 15, 14, 0.08);
+}
+
+.screen-header__brand {
+  color: var(--ink-3);
+  font-weight: 700;
+}
+
+.progress-dot {
+  height: 3px;
+  background: rgba(15, 15, 14, 0.12);
+}
+
+.progress-dot--active {
+  background: var(--accent);
+}
+
+.screen-card {
+  background:
+    radial-gradient(circle at 82% 4%, rgba(126, 184, 212, 0.11), transparent 9rem),
+    var(--paper);
+}
+
+/* Replace the previous illustrative symbol with the Claude-style routing mark. */
+.node-icon {
+  width: 64px;
+  height: 64px;
+  margin: 4px 0 6px;
+  border: 0.5px solid rgba(74, 127, 165, 0.18);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(74, 127, 165, 0.09), transparent 60%),
+    var(--white);
+}
+
+.node-icon::before,
+.node-icon::after {
+  display: none !important;
+}
+
+.node-icon__dot,
+.node-icon__line {
+  display: block !important;
+  position: absolute;
+}
+
+.node-icon__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 0 0 6px rgba(74, 127, 165, 0.1);
+}
+
+.node-icon__dot--main {
+  top: 18px;
+  left: 18px;
+}
+
+.node-icon__dot--second {
+  top: 18px;
+  right: 17px;
+  background: var(--teal);
+  box-shadow: 0 0 0 6px rgba(58, 138, 130, 0.1);
+}
+
+.node-icon__dot--third {
+  right: 19px;
+  bottom: 17px;
+  background: var(--dust);
+  box-shadow: 0 0 0 6px rgba(184, 144, 144, 0.12);
+}
+
+.node-icon__line {
+  height: 1.5px;
+  border-radius: 999px;
+  background: rgba(74, 127, 165, 0.45);
+  transform-origin: left center;
+}
+
+.node-icon__line--first {
+  top: 22px;
+  left: 27px;
+  width: 20px;
+}
+
+.node-icon__line--second {
+  top: 29px;
+  left: 42px;
+  width: 22px;
+  transform: rotate(67deg);
+  background: rgba(58, 138, 130, 0.45);
+}
+
+.node-icon--emergency {
+  border-color: rgba(138, 48, 48, 0.18);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(138, 48, 48, 0.06), transparent 60%),
+    var(--white);
+}
+
+.node-icon--emergency .node-icon__dot,
+.node-icon--emergency .node-icon__dot--second,
+.node-icon--emergency .node-icon__dot--third {
+  background: var(--err);
+  box-shadow: 0 0 0 6px rgba(138, 48, 48, 0.08);
+}
+
+.node-icon--emergency .node-icon__line {
+  background: rgba(138, 48, 48, 0.32);
+}
+
+.node-icon--offers {
+  border-color: rgba(58, 138, 130, 0.2);
+}
+
+.eyebrow,
+.meta-label {
+  color: var(--accent);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+}
+
+h1,
+.subflow-header h2,
+.offer-subflow h2,
+.list-state h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+}
+
+h1 {
+  max-width: 15ch;
+  font-size: clamp(23px, 6vw, 31px);
+  line-height: 1.08;
+}
+
+.screen-copy {
+  max-width: 32ch;
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
+
+.choice-chip,
+.text-field input,
+.offer-card,
+.offer-subflow,
+.list-state {
+  border-color: rgba(15, 15, 14, 0.09);
+  background: var(--white);
+}
+
+.choice-chip {
+  min-height: 46px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(15, 15, 14, 0.035);
+}
+
+.choice-chip--selected {
+  border-color: rgba(74, 127, 165, 0.42);
+  color: var(--accent);
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.9), rgba(250, 250, 248, 0.92));
+}
+
+.offer-card {
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(15, 15, 14, 0.055);
+}
+
+.offer-card__header {
+  border-bottom-color: rgba(15, 15, 14, 0.08);
+}
+
+.offer-card h2 {
+  font-size: 14px;
+}
+
+.status-label {
+  color: var(--teal);
+}
+
+.status-dot {
+  background: var(--teal);
+}
+
+.rating-pill {
+  color: var(--dust);
+  background: var(--dust-light);
+}
+
+.sla-box {
+  border-color: rgba(15, 15, 14, 0.08);
+  background: var(--paper);
+}
+
+.sla-box span {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sla-box strong {
+  font-size: 13px;
+}
+
+.sla-box--eta strong,
+.condition-list li::before {
+  color: var(--teal);
+}
+
+.price-row {
+  border-top-color: rgba(15, 15, 14, 0.08);
+  border-bottom-color: rgba(15, 15, 14, 0.08);
+}
+
+.offer-actions {
+  grid-template-columns: 1fr;
+}
+
+.button {
+  min-height: 46px;
+  border-radius: 14px;
+}
+
+.button--primary {
+  background: var(--accent);
+  box-shadow: 0 10px 22px rgba(74, 127, 165, 0.16);
+}
+
+.button--teal {
+  background: var(--teal);
+  box-shadow: 0 10px 22px rgba(58, 138, 130, 0.14);
+}
+
+.button--secondary {
+  border-color: rgba(15, 15, 14, 0.12);
+  color: var(--ink-3);
+  background: rgba(250, 250, 248, 0.4);
+}
+
+.button--ghost {
+  color: var(--accent);
+}
+
+.emergency-link {
+  color: var(--err);
+  background: rgba(240, 212, 212, 0.72);
+}
+
+.privacy-note,
+.emergency-copy-note {
+  border: 0.5px solid rgba(15, 15, 14, 0.06);
+  background: rgba(238, 237, 232, 0.72);
+}
+
+.offer-subflow {
+  border-radius: 22px;
+  box-shadow: 0 18px 46px rgba(15, 15, 14, 0.06);
+}
+
+.selected-offer-badge,
+.conditions-panel,
+.status-callout,
+.chat-window,
+.support-panel,
+.summary-list {
+  border-color: rgba(15, 15, 14, 0.08);
+}
+
+.selected-offer-badge,
+.conditions-panel,
+.status-callout,
+.chat-window {
+  background: var(--paper);
+}
+
+.price-lock {
+  border-color: rgba(58, 138, 130, 0.18);
+  background: linear-gradient(135deg, rgba(200, 232, 228, 0.96), rgba(250, 250, 248, 0.78));
+}
+
+.price-lock--estimate {
+  border-color: rgba(15, 15, 14, 0.08);
+  background: linear-gradient(135deg, rgba(238, 237, 232, 0.95), rgba(250, 250, 248, 0.82));
+}
+
+.chat-window {
+  background:
+    linear-gradient(90deg, rgba(15, 15, 14, 0.025) 1px, transparent 1px),
+    linear-gradient(rgba(15, 15, 14, 0.025) 1px, transparent 1px),
+    var(--paper);
+  background-size: 24px 24px;
+}
+
+.chat-bubble {
+  box-shadow: 0 8px 18px rgba(15, 15, 14, 0.035);
+}
+
+.chat-bubble--service {
+  color: var(--ink-2);
+  background: var(--teal-light);
+}
+
+.chat-bubble--user {
+  color: var(--ink-2);
+  background: var(--accent-light);
+}
+
+.chat-input {
+  border-color: rgba(15, 15, 14, 0.1);
+}
+
+.status-track__item--active .status-track__node {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+
+.status-track__item--active:not(:last-child)::after {
+  background: rgba(58, 138, 130, 0.38);
+}
+
+.rating-button {
+  border-color: rgba(184, 144, 144, 0.2);
+}
+
+.list-state__symbol {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+@media (max-width: 420px) {
+  body,
+  .app-shell {
+    background: var(--paper);
+  }
+
+  .screen-card {
+    padding-top: 18px;
+  }
+
+  .node-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  .node-icon__dot--main {
+    top: 17px;
+    left: 17px;
+  }
+
+  .node-icon__dot--second {
+    top: 17px;
+    right: 16px;
+  }
+
+  .node-icon__dot--third {
+    right: 18px;
+    bottom: 16px;
+  }
+
+  .node-icon__line--first {
+    top: 21px;
+    left: 26px;
+    width: 18px;
+  }
+
+  .node-icon__line--second {
+    top: 28px;
+    left: 39px;
+    width: 20px;
+  }
+}

@@ -7,13 +7,20 @@ prescribe treatment, and does not recommend medication or IV composition.
 ## Prototype Boundaries
 
 PR 2 adds the Prisma data model and fake local-development seed data. PR 3 adds
-only the Telegram Bot `/start` entry point and Telegram Mini App `initData`
-validation. It does not contain staff authentication, personal data persistence,
-clinical data, partner matching, request submission workflows, or payments.
+the Telegram Bot `/start` entry point and Telegram Mini App `initData`
+validation. The Mini App MVP integration scaffold adds gated in-memory preview
+routes only. It does not contain staff authentication, production personal data
+persistence, clinical data, production matching, or payments.
 
 Telegram `initData` is validated server-side using Telegram's signed payload,
 and stale payloads are rejected. The API returns only a validation boolean. It
 must not log or echo `initData`, bot tokens, or Telegram user data.
+
+The `/mvp/dev/*` routes are disabled unless `ENABLE_MVP_DEV_API=true`. They are
+for controlled previews only. The request contract accepts only an offer ID,
+district, desired time, and help profile. It must not be extended with chat
+content, phone numbers, exact addresses, raw Telegram data, or medical details
+without an approved authenticated persistence and privacy design.
 
 The MVP explicitly excludes:
 
@@ -87,6 +94,7 @@ personal or medical data out of logs, audit metadata, and Telegram messages.
 
 ## Emergency Screening TODO
 
-Emergency screening copy and hard-stop logic must be approved by a medical
-expert and legal counsel before release. It is a routing safeguard, not a
-diagnostic questionnaire.
+Emergency screening copy and the calm `103/112` recommendation layer must be
+approved by a medical expert and legal counsel before release. It is a routing
+safeguard, not a diagnosis, not a panic screen, and not a user-blocking
+hard-stop.
