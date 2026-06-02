@@ -25,18 +25,18 @@ repository now includes:
 The internal tools are one React application with role-based routes:
 
 - `/admin` for platform staff;
-- `/clinic` for partner staff.
+- `/clinic` for medservice staff.
 
 The route boundaries and backend modules should remain separable so the two
 interfaces can become standalone applications later if needed.
 
-The partner-side request-review role is `CLINIC_AUTHORIZED_STAFF`. UI copy must
-say "уполномоченный сотрудник партнёра" and must not imply that IVhome verifies
+The clinic-side request-review role is `CLINIC_AUTHORIZED_STAFF`. UI copy must
+say "уполномоченный сотрудник медслужбы" and must not imply that IVhome verifies
 the medical qualification of a specific person.
 
 The schema includes `PartnerLead` and `PartnerContactChannel` models. Supported
 contact channels are `TELEGRAM`, `WHATSAPP`, `PHONE`, `EMAIL`, and `DASHBOARD`,
-so early partners can process leads manually in later workflow PRs.
+so early medical organizations can process leads manually in later workflow PRs.
 
 The MVP excludes online payments, acquiring, automatic license verification,
 telemedicine, AI recommendations, and CRM integrations.
@@ -111,9 +111,11 @@ The Mini App keeps a fully walkable local fallback when `VITE_API_BASE_URL` is
 unset. For controlled MVP previews, the API exposes a gated in-memory contract:
 
 ```text
-GET  /mvp/dev/offers
-POST /mvp/dev/requests
-GET  /mvp/dev/requests/:requestId/status
+GET   /mvp/dev/offers
+GET   /mvp/dev/requests
+POST  /mvp/dev/requests
+GET   /mvp/dev/requests/:requestId/status
+PATCH /mvp/dev/requests/:requestId/status
 ```
 
 Set `ENABLE_MVP_DEV_API=true` to enable these routes. The request endpoint
@@ -121,7 +123,9 @@ accepts only `offerId`, `district`, `desiredTime`, and `profile`. It rejects
 extra fields and does not accept chat content, phone numbers, exact addresses,
 raw Telegram data, or medical details.
 
-This is preview scaffolding, not production persistence or authentication.
+The preview dashboard can list minimized request records and manually update the
+request status through the gated preview API. This is preview scaffolding, not
+production persistence, authentication, RBAC, audit logging, or medical workflow.
 Before real traffic, replace the in-memory store with an approved authenticated
 workflow and complete the security work listed in [SECURITY.md](./SECURITY.md).
 
@@ -212,6 +216,16 @@ Publish the Mini App separately as a Static Deployment:
    `pnpm install --frozen-lockfile && pnpm --filter @ivhome/mini-app build`.
 3. Use public directory: `apps/mini-app/dist`.
 4. Set `TELEGRAM_WEBAPP_URL` to the published Mini App HTTPS URL for the bot.
+
+Publish the preview dashboard separately as a controlled Static Deployment:
+
+1. Add `VITE_API_BASE_URL=https://<api-subdomain>.replit.app` as a build
+   environment value.
+2. Use build command:
+   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/dashboard build`.
+3. Use public directory: `apps/dashboard/dist`.
+4. Restrict access manually at the Replit/project level. This dashboard has no
+   production authentication or RBAC yet.
 
 The long-polling Telegram Bot should be published separately as a Reserved VM
 background worker with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBAPP_URL` supplied
