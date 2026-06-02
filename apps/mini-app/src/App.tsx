@@ -1,6 +1,15 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import type { MvpOffer, MvpRequestStatus } from "@ivhome/shared";
 
 import "./App.css";
+import {
+  createMvpRequest,
+  isApiConfigured,
+  loadMvpRequestStatus,
+  loadOffers,
+  readSupportUrl,
+} from "./api";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
@@ -27,17 +36,11 @@ type Step = {
   iconLabel: string;
 };
 
-type Offer = {
-  name: string;
-  status: string;
-  zone: string;
-  responseTime: string;
-  arrivalTime: string;
-  price: string;
-  finalPrice: string;
-  rating: string;
-  conditions: string[];
-  note: string;
+type Offer = MvpOffer;
+
+type ChatMessage = {
+  id: string;
+  text: string;
 };
 
 type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";
@@ -131,8 +134,9 @@ const DISTRICT_OPTIONS = [
 
 const TIME_OPTIONS = ["Как можно скорее", "Сегодня", "Завтра", "Выбрать время позже"];
 
-const OFFERS: Offer[] = [
+const FALLBACK_OFFERS: Offer[] = [
   {
+    id: "medservice-north",
     name: "Медслужба Север",
     status: "Лицензия проверена",
     zone: "САО · СЗАО · рядом",
@@ -145,6 +149,7 @@ const OFFERS: Offer[] = [
     note: "Детали и возможность выезда подтверждает медслужба.",
   },
   {
+    id: "medservice-center",
     name: "Медслужба Центр",
     status: "Лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
@@ -157,6 +162,7 @@ const OFFERS: Offer[] = [
     note: "Детали и возможность выезда подтверждает медслужба.",
   },
   {
+    id: "medservice-night",
     name: "Медслужба Ночь",
     status: "Проверена · принимает заявки",
     zone: "Москва · по зонам выезда",
@@ -213,6 +219,10 @@ function readPreviewId(): PreviewId | null {
 
 function isOfferView(preview: PreviewId | null): preview is OfferView {
   return OFFER_VIEWS.includes(preview as OfferView);
+}
+
+function offerViewForStatus(status: MvpRequestStatus): OfferView {
+  return status === "waiting" ? "status" : status;
 }
 
 function isLikelyMobileRuntime() {
@@ -419,14 +429,31 @@ function OfferDetails({
 }
 
 function ChatView({
+  messages,
   offer,
   onBack,
   onContinue,
+  onSend,
 }: {
+  messages: ChatMessage[];
   offer: Offer;
   onBack: () => void;
   onContinue: () => void;
+  onSend: (message: string) => void;
 }) {
+  const [draft, setDraft] = useState("");
+
+  function submitMessage() {
+    const message = draft.trim();
+
+    if (!message) {
+      return;
+    }
+
+    onSend(message);
+    setDraft("");
+  }
+
   return (
     <section className="offer-subflow">
       <SubflowHeader
@@ -444,17 +471,36 @@ function ChatView({
         <div className="chat-bubble chat-bubble--service">
           Обычно отвечаем в течение {offer.responseTime}. Возможность выезда подтвердим отдельно.
         </div>
+        {messages.map((message) => (
+          <div className="chat-bubble chat-bubble--user" key={message.id}>
+            {message.text}
+          </div>
+        ))}
       </div>
 
       {/* Chat content must not be duplicated into Telegram notifications or stored without explicit backend/privacy design. */}
-      <label className="chat-input">
+      <form
+        className="chat-input"
+        onSubmit={(event) => {
+          event.preventDefault();
+          submitMessage();
+        }}
+      >
         <span className="sr-only">Сообщение специалисту</span>
-        <input autoComplete="off" placeholder="Напишите вопрос специалисту…" type="text" />
-        <button aria-label="Добавить вопрос в локальный макет" type="button">
+        <input
+          autoComplete="off"
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Напишите вопрос специалисту…"
+          type="text"
+          value={draft}
+        />
+        <button aria-label="Добавить вопрос в локальный макет" disabled={!draft.trim()} type="submit">
           ↑
         </button>
-      </label>
-      <p className="privacy-note">Содержание чата не отправляется в Telegram-уведомления.</p>
+      </form>
+      <p className="privacy-note">
+        Сообщение сохраняется только в этом локальном макете и не отправляется в Telegram-уведомления.
+      </p>
 
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onContinue} type="button">
@@ -474,6 +520,8 @@ function ChatView({
 function ConfirmationView({
   district,
   offer,
+  requestError,
+  submitPending,
   time,
   onBack,
   onChangeOffer,
@@ -481,6 +529,8 @@ function ConfirmationView({
 }: {
   district: string;
   offer: Offer;
+  requestError: string | null;
+  submitPending: boolean;
   time: string;
   onBack: () => void;
   onChangeOffer: () => void;
@@ -513,9 +563,10 @@ function ConfirmationView({
       <p className="privacy-note">
         Выбранная медслужба может запросить данные, необходимые для оказания услуги.
       </p>
+      {requestError ? <p className="request-error">{requestError}</p> : null}
       <div className="subflow-actions">
-        <button className="button button--primary" onClick={onSubmit} type="button">
-          Отправить заявку
+        <button className="button button--primary" disabled={submitPending} onClick={onSubmit} type="button">
+          {submitPending ? "Отправляем…" : "Отправить заявку"}
         </button>
         <button className="button button--secondary" onClick={onBack} type="button">
           Вернуться в чат
@@ -530,10 +581,16 @@ function ConfirmationView({
 
 function WaitingView({
   offer,
+  requestId,
+  statusNotice,
+  usesApi,
   onNext,
   onSupport,
 }: {
   offer: Offer;
+  requestId: string | null;
+  statusNotice: string | null;
+  usesApi: boolean;
   onNext: () => void;
   onSupport: () => void;
 }) {
@@ -550,9 +607,11 @@ function WaitingView({
         <span>Ожидаемый ответ</span>
         <strong>{offer.responseTime}</strong>
       </div>
+      {requestId ? <p className="request-reference">Номер заявки: {requestId}</p> : null}
+      {statusNotice ? <p className="privacy-note">{statusNotice}</p> : null}
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
-          Показать подтверждение
+          {usesApi ? "Обновить статус" : "Показать демо-подтверждение"}
         </button>
         <button className="button button--ghost" onClick={onSupport} type="button">
           Нужна поддержка
@@ -705,9 +764,13 @@ function FeedbackView({
 function SupportView({
   onBack,
   onRestart,
+  requestId,
+  supportUrl,
 }: {
   onBack: () => void;
   onRestart: () => void;
+  requestId: string | null;
+  supportUrl: string | null;
 }) {
   return (
     <section className="offer-subflow">
@@ -719,12 +782,19 @@ function SupportView({
       <div className="support-panel">
         <p className="meta-label">Чат поддержки</p>
         <strong>Ответим спокойно и по делу</strong>
-        <span>В UI-макете отправка сообщений отключена.</span>
+        <span>{requestId ? `Номер заявки: ${requestId}` : "Номер заявки появится после отправки."}</span>
+        <span>{supportUrl ? "Откройте защищённый канал поддержки." : "Канал поддержки пока не подключён."}</span>
       </div>
       <div className="subflow-actions">
-        <button className="button button--primary" type="button">
-          Открыть чат поддержки
-        </button>
+        {supportUrl ? (
+          <a className="button button--primary" href={supportUrl} rel="noreferrer" target="_blank">
+            Открыть чат поддержки
+          </a>
+        ) : (
+          <button className="button button--primary" disabled type="button">
+            Чат поддержки подключается
+          </button>
+        )}
         <button className="button button--secondary" onClick={onBack} type="button">
           Вернуться к заявке
         </button>
@@ -737,27 +807,47 @@ function SupportView({
 }
 
 function OfferSubflow({
+  chatMessages,
   district,
   offer,
   rating,
+  requestError,
+  requestId,
+  statusNotice,
+  submitPending,
   supportReturnView,
+  supportUrl,
   time,
+  usesApi,
   view,
   onChangeView,
   onRate,
   onRestart,
+  onSendChatMessage,
   onShowSupport,
+  onSubmit,
+  onUpdateStatus,
 }: {
+  chatMessages: ChatMessage[];
   district: string;
   offer: Offer;
   rating: number | null;
+  requestError: string | null;
+  requestId: string | null;
+  statusNotice: string | null;
+  submitPending: boolean;
   supportReturnView: Exclude<OfferView, "support">;
+  supportUrl: string | null;
   time: string;
+  usesApi: boolean;
   view: OfferView;
   onChangeView: (view: OfferView | null) => void;
   onRate: (rating: number) => void;
   onRestart: () => void;
+  onSendChatMessage: (message: string) => void;
   onShowSupport: (returnView: Exclude<OfferView, "support">) => void;
+  onSubmit: () => void;
+  onUpdateStatus: () => void;
 }) {
   if (view === "details") {
     return (
@@ -771,7 +861,15 @@ function OfferSubflow({
   }
 
   if (view === "chat") {
-    return <ChatView offer={offer} onBack={() => onChangeView("details")} onContinue={() => onChangeView("confirmation")} />;
+    return (
+      <ChatView
+        messages={chatMessages}
+        offer={offer}
+        onBack={() => onChangeView("details")}
+        onContinue={() => onChangeView("confirmation")}
+        onSend={onSendChatMessage}
+      />
+    );
   }
 
   if (view === "confirmation") {
@@ -781,7 +879,9 @@ function OfferSubflow({
         offer={offer}
         onBack={() => onChangeView("chat")}
         onChangeOffer={() => onChangeView(null)}
-        onSubmit={() => onChangeView("status")}
+        onSubmit={onSubmit}
+        requestError={requestError}
+        submitPending={submitPending}
         time={time}
       />
     );
@@ -791,8 +891,11 @@ function OfferSubflow({
     return (
       <WaitingView
         offer={offer}
-        onNext={() => onChangeView("price-lock")}
+        onNext={onUpdateStatus}
         onSupport={() => onShowSupport("status")}
+        requestId={requestId}
+        statusNotice={statusNotice}
+        usesApi={usesApi}
       />
     );
   }
@@ -825,7 +928,14 @@ function OfferSubflow({
     return <FeedbackView onRate={onRate} onRestart={onRestart} onSupport={() => onShowSupport("feedback")} rating={rating} />;
   }
 
-  return <SupportView onBack={() => onChangeView(supportReturnView)} onRestart={onRestart} />;
+  return (
+    <SupportView
+      onBack={() => onChangeView(supportReturnView)}
+      onRestart={onRestart}
+      requestId={requestId}
+      supportUrl={supportUrl}
+    />
+  );
 }
 
 function OffersState({
@@ -880,12 +990,20 @@ export function App() {
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(startsOnOffers ? "САО" : null);
   const [manualDistrict, setManualDistrict] = useState("");
   const [selectedTime, setSelectedTime] = useState<string | null>(startsOnOffers ? "Сегодня" : null);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [emergencyNotice, setEmergencyNotice] = useState<string | null>(null);
   const [offersMode, setOffersMode] = useState<OffersMode>(preview === "empty" || preview === "error" ? preview : "ready");
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(initialOfferView ? OFFERS[0]! : null);
+  const [offers, setOffers] = useState<Offer[]>(FALLBACK_OFFERS);
+  const [offersLoading, setOffersLoading] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(initialOfferView ? FALLBACK_OFFERS[0]! : null);
   const [offerView, setOfferView] = useState<OfferView | null>(initialOfferView);
   const [supportReturnView, setSupportReturnView] = useState<Exclude<OfferView, "support">>("completed");
   const [rating, setRating] = useState<number | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [requestId, setRequestId] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
+  const [submitPending, setSubmitPending] = useState(false);
+  const [statusNotice, setStatusNotice] = useState<string | null>(null);
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -896,6 +1014,42 @@ export function App() {
   const district = selectedDistrict || manualDistrict.trim() || "Район уточняется";
   const time = selectedTime || "Время уточняется";
   const showOfferSubflow = isOffersStep && selectedOffer && offerView;
+  const supportUrl = readSupportUrl();
+  const usesApi = isApiConfigured();
+
+  useEffect(() => {
+    if (!isOffersStep || offersMode !== "ready" || preview !== null) {
+      return;
+    }
+
+    let isCurrent = true;
+
+    setOffersLoading(true);
+
+    void loadOffers(FALLBACK_OFFERS)
+      .then((loadedOffers) => {
+        if (!isCurrent) {
+          return;
+        }
+
+        setOffers(loadedOffers);
+        setOffersMode(loadedOffers.length > 0 ? "ready" : "empty");
+      })
+      .catch(() => {
+        if (isCurrent) {
+          setOffersMode("error");
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setOffersLoading(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [isOffersStep, offersMode, preview]);
 
   const primaryLabel = useMemo(() => {
     if (step.id === "welcome") {
@@ -959,6 +1113,10 @@ export function App() {
     setSelectedOffer(null);
     setOfferView(null);
     setOffersMode("ready");
+    setChatMessages([]);
+    setRequestId(null);
+    setRequestError(null);
+    setStatusNotice(null);
     setStepIndex(TIME_STEP_INDEX);
   }
 
@@ -971,10 +1129,21 @@ export function App() {
     setOfferView(null);
     setOffersMode("ready");
     setRating(null);
+    setChatMessages([]);
+    setRequestId(null);
+    setRequestError(null);
+    setStatusNotice(null);
     setStepIndex(PROFILE_STEP_INDEX);
   }
 
   function openOfferView(offer: Offer, view: OfferView) {
+    if (selectedOffer?.id !== offer.id) {
+      setChatMessages([]);
+      setRequestId(null);
+      setRequestError(null);
+      setStatusNotice(null);
+    }
+
     setSelectedOffer(offer);
     setOfferView(view);
   }
@@ -984,12 +1153,72 @@ export function App() {
 
     if (!view) {
       setSelectedOffer(null);
+      setChatMessages([]);
+      setRequestId(null);
+      setRequestError(null);
+      setStatusNotice(null);
     }
   }
 
   function showSupport(returnView: Exclude<OfferView, "support">) {
     setSupportReturnView(returnView);
     setOfferView("support");
+  }
+
+  function sendChatMessage(message: string) {
+    setChatMessages((current) => [
+      ...current,
+      {
+        id: `local-chat-${Date.now()}-${current.length}`,
+        text: message,
+      },
+    ]);
+  }
+
+  async function submitSelectedRequest() {
+    if (!selectedOffer || submitPending) {
+      return;
+    }
+
+    setRequestError(null);
+    setSubmitPending(true);
+
+    try {
+      const response = await createMvpRequest({
+        offerId: selectedOffer.id,
+        district,
+        desiredTime: time,
+        profile: selectedProfile ?? "Формат уточняется",
+      });
+
+      setRequestId(response.requestId);
+      setStatusNotice(null);
+      setOfferView(offerViewForStatus(response.status));
+    } catch {
+      setRequestError("Не получилось отправить заявку. Попробуйте ещё раз.");
+    } finally {
+      setSubmitPending(false);
+    }
+  }
+
+  async function updateSelectedRequestStatus() {
+    if (!requestId) {
+      setOfferView("price-lock");
+      return;
+    }
+
+    try {
+      const response = await loadMvpRequestStatus(requestId);
+
+      setOfferView(offerViewForStatus(response.status));
+      setStatusNotice(
+        response.status === "waiting"
+          ? "Медслужба ещё проверяет возможность выезда. Можно обновить статус позже."
+          : null,
+      );
+    } catch {
+      setStatusNotice("Не получилось обновить статус. Попробуйте ещё раз.");
+    }
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -1023,15 +1252,25 @@ export function App() {
         <div className={`screen-card ${showOfferSubflow ? "screen-card--subflow" : ""}`}>
           {showOfferSubflow ? (
             <OfferSubflow
+              chatMessages={chatMessages}
               district={district}
               offer={selectedOffer}
               onChangeView={changeOfferView}
               onRate={setRating}
               onRestart={restartSelection}
+              onSendChatMessage={sendChatMessage}
               onShowSupport={showSupport}
+              onSubmit={() => void submitSelectedRequest()}
+              onUpdateStatus={() => void updateSelectedRequestStatus()}
               rating={rating}
+              requestError={requestError}
+              requestId={requestId}
+              statusNotice={statusNotice}
+              submitPending={submitPending}
               supportReturnView={supportReturnView}
+              supportUrl={supportUrl}
               time={time}
+              usesApi={usesApi && Boolean(requestId)}
               view={offerView}
             />
           ) : (
@@ -1046,6 +1285,13 @@ export function App() {
                     <p key={paragraph}>{paragraph}</p>
                   ))}
                 </div>
+              ) : null}
+
+              {step.id === "welcome" && showHowItWorks ? (
+                <p className="privacy-note">
+                  Вы выбираете район и удобное время, сравниваете варианты и отправляете заявку выбранной медслужбе.
+                  Детали, возможность выезда и итоговую стоимость подтверждает медслужба.
+                </p>
               ) : null}
 
               {step.id === "emergency" ? (
@@ -1131,9 +1377,12 @@ export function App() {
 
               {isOffersStep && offersMode === "ready" ? (
                 <div className="offers-list" aria-label="Подходящие варианты">
-                  {OFFERS.map((offer) => (
-                    <OfferCard key={offer.name} offer={offer} onOpen={(view) => openOfferView(offer, view)} />
-                  ))}
+                  {offersLoading ? <p className="privacy-note">Обновляем варианты…</p> : null}
+                  {!offersLoading
+                    ? offers.map((offer) => (
+                        <OfferCard key={offer.id} offer={offer} onOpen={(view) => openOfferView(offer, view)} />
+                      ))
+                    : null}
                 </div>
               ) : null}
 
@@ -1159,8 +1408,8 @@ export function App() {
               {primaryLabel}
             </button>
             {isFirstStep ? (
-              <button className="button button--ghost" type="button">
-                Как это работает
+              <button className="button button--ghost" onClick={() => setShowHowItWorks((current) => !current)} type="button">
+                {showHowItWorks ? "Скрыть описание" : "Как это работает"}
               </button>
             ) : (
               <button className="button button--ghost" onClick={goBack} type="button">

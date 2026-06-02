@@ -9,6 +9,7 @@
     "build": "tsc --noEmit -p tsconfig.json && vite build"
   },
   "dependencies": {
+    "@ivhome/shared": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

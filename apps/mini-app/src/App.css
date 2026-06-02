@@ -471,6 +471,11 @@ h1 {
   transform: scale(0.98);
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .button--primary {
   color: var(--white);
   background: var(--accent);
@@ -873,6 +878,11 @@ h1 {
   font-size: 16px;
 }
 
+.chat-input button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -962,6 +972,22 @@ h1 {
 
 .status-callout--teal strong {
   color: var(--teal);
+}
+
+.request-error,
+.request-reference {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.request-error {
+  color: var(--err);
+}
+
+.request-reference {
+  color: var(--ink-4);
+  overflow-wrap: anywhere;
 }
 
 .rating-grid {
