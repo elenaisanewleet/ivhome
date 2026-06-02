@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { MvpOffer, MvpRequestStatus } from "@ivhome/shared";
 
 import "./App.css";
+import "./App.mobile.css";
+import "./App.chat.css";
 import {
   createMvpRequest,
   isApiConfigured,

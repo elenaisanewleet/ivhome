@@ -1,0 +1,7 @@
+.chat-bubble strong {
+  color: var(--teal);
+}
+
+.chat-bubble--service {
+  background: var(--teal-light);
+}
