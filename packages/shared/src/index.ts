@@ -33,4 +33,19 @@ export type MvpRequestStatusResponse = {
   updatedAt: string;
 };
 
+export type MvpRequestRecord = MvpRequestCreateInput & {
+  requestId: string;
+  status: MvpRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MvpRequestListResponse = {
+  requests: MvpRequestRecord[];
+};
+
+export type MvpRequestStatusUpdateInput = {
+  status: MvpRequestStatus;
+};
+
 export type MvpRequestCreateResponse = MvpRequestStatusResponse;

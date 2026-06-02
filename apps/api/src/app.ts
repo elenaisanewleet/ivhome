@@ -8,14 +8,18 @@ import type {
   MvpOffersResponse,
   MvpRequestCreateInput,
   MvpRequestCreateResponse,
+  MvpRequestListResponse,
+  MvpRequestRecord,
+  MvpRequestStatus,
   MvpRequestStatusResponse,
+  MvpRequestStatusUpdateInput,
 } from "@ivhome/shared";
 
 import { validateTelegramInitData } from "./telegram/init-data.js";
 
 const service = `${PROJECT_NAME}-api`;
 const allowedCorsOrigins = new Set(
-  (process.env.CORS_ORIGINS ?? "http://localhost:5173,http://127.0.0.1:5173")
+  (process.env.CORS_ORIGINS ?? "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean),
@@ -63,8 +67,10 @@ const mvpOffers: MvpOffer[] = [
   },
 ];
 
-const requestStore = new Map<string, MvpRequestStatusResponse>();
+const requestStore = new Map<string, MvpRequestRecord>();
 const requestFields = new Set(["offerId", "district", "desiredTime", "profile"]);
+const requestStatusUpdateFields = new Set(["status"]);
+const requestStatuses: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", "completed"];
 
 function isMvpDevApiEnabled() {
   return process.env.ENABLE_MVP_DEV_API === "true";
@@ -76,6 +82,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isShortText(value: unknown, maxLength: number): value is string {
   return typeof value === "string" && value.trim().length > 0 && value.trim().length <= maxLength;
+}
+
+function isMvpRequestStatus(value: unknown): value is MvpRequestStatus {
+  return typeof value === "string" && requestStatuses.includes(value as MvpRequestStatus);
 }
 
 function isMvpRequestCreateInput(value: unknown): value is MvpRequestCreateInput {
@@ -91,6 +101,22 @@ function isMvpRequestCreateInput(value: unknown): value is MvpRequestCreateInput
   );
 }
 
+function isMvpRequestStatusUpdateInput(value: unknown): value is MvpRequestStatusUpdateInput {
+  if (!isRecord(value) || Object.keys(value).some((key) => !requestStatusUpdateFields.has(key))) {
+    return false;
+  }
+
+  return isMvpRequestStatus(value.status);
+}
+
+function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
+  return {
+    requestId: record.requestId,
+    status: record.status,
+    updatedAt: record.updatedAt,
+  };
+}
+
 export function buildApp() {
   const app = Fastify({
     logger: true,
@@ -103,7 +129,7 @@ export function buildApp() {
       reply
         .header("Access-Control-Allow-Origin", origin)
         .header("Access-Control-Allow-Headers", "Content-Type")
-        .header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        .header("Access-Control-Allow-Methods", "GET,POST,PATCH,OPTIONS")
         .header("Vary", "Origin");
     }
   });
@@ -153,6 +179,16 @@ export function buildApp() {
     return { offers: mvpOffers } satisfies MvpOffersResponse;
   });
 
+  app.get("/mvp/dev/requests", async (_request, reply) => {
+    if (!isMvpDevApiEnabled()) {
+      return reply.code(503).send({ error: "mvp_dev_api_disabled" });
+    }
+
+    return {
+      requests: [...requestStore.values()].sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
+    } satisfies MvpRequestListResponse;
+  });
+
   app.post<{ Body: unknown }>("/mvp/dev/requests", async (request, reply) => {
     if (!isMvpDevApiEnabled()) {
       return reply.code(503).send({ error: "mvp_dev_api_disabled" });
@@ -169,15 +205,21 @@ export function buildApp() {
     }
 
     // In-memory preview contract only. Do not add chat, medical, contact, or Telegram data here.
-    const response = {
+    const now = new Date().toISOString();
+    const record = {
       requestId: randomUUID(),
+      offerId: input.offerId,
+      district: input.district,
+      desiredTime: input.desiredTime,
+      profile: input.profile,
       status: "waiting",
-      updatedAt: new Date().toISOString(),
-    } satisfies MvpRequestCreateResponse;
+      createdAt: now,
+      updatedAt: now,
+    } satisfies MvpRequestRecord;
 
-    requestStore.set(response.requestId, response);
+    requestStore.set(record.requestId, record);
 
-    return reply.code(201).send(response);
+    return reply.code(201).send(toStatusResponse(record) satisfies MvpRequestCreateResponse);
   });
 
   app.get<{ Params: { requestId: string } }>("/mvp/dev/requests/:requestId/status", async (request, reply) => {
@@ -185,13 +227,39 @@ export function buildApp() {
       return reply.code(503).send({ error: "mvp_dev_api_disabled" });
     }
 
-    const status = requestStore.get(request.params.requestId);
+    const record = requestStore.get(request.params.requestId);
 
-    if (!status) {
+    if (!record) {
       return reply.code(404).send({ error: "request_not_found" });
     }
 
-    return status;
+    return toStatusResponse(record);
+  });
+
+  app.patch<{ Body: unknown; Params: { requestId: string } }>("/mvp/dev/requests/:requestId/status", async (request, reply) => {
+    if (!isMvpDevApiEnabled()) {
+      return reply.code(503).send({ error: "mvp_dev_api_disabled" });
+    }
+
+    if (!isMvpRequestStatusUpdateInput(request.body)) {
+      return reply.code(400).send({ error: "invalid_request" });
+    }
+
+    const record = requestStore.get(request.params.requestId);
+
+    if (!record) {
+      return reply.code(404).send({ error: "request_not_found" });
+    }
+
+    const updatedRecord = {
+      ...record,
+      status: request.body.status,
+      updatedAt: new Date().toISOString(),
+    } satisfies MvpRequestRecord;
+
+    requestStore.set(updatedRecord.requestId, updatedRecord);
+
+    return toStatusResponse(updatedRecord);
   });
 
   return app;
