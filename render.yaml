@@ -1,0 +1,55 @@
+services:
+  - type: web
+    name: nadom-api-preview
+    runtime: node
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build
+    startCommand: pnpm --filter @ivhome/api start
+    healthCheckPath: /health/live
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: ENABLE_MVP_DEV_API
+        value: "true"
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+
+  - type: web
+    name: nadom-mini-app-preview
+    runtime: static
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @ivhome/mini-app build
+    staticPublishPath: apps/mini-app/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+      - key: VITE_SUPPORT_URL
+        sync: false
+
+  - type: web
+    name: nadom-dashboard-preview
+    runtime: static
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @ivhome/dashboard build
+    staticPublishPath: apps/dashboard/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false
+
+  - type: worker
+    name: nadom-telegram-bot-preview
+    runtime: node
+    plan: starter
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @ivhome/telegram-bot build
+    startCommand: pnpm --filter @ivhome/telegram-bot start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBAPP_URL
+        sync: false
