@@ -1,13 +1,29 @@
 import { useEffect, useMemo, useState } from "react";
 
-import type {
-  MvpRequestListResponse,
-  MvpRequestRecord,
-  MvpRequestStatus,
-  MvpRequestStatusResponse,
-} from "@ivhome/shared";
-
 import "./App.css";
+
+type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
+
+type MvpRequestRecord = {
+  requestId: string;
+  offerId: string;
+  district: string;
+  desiredTime: string;
+  profile: string;
+  status: MvpRequestStatus;
+  createdAt: string;
+  updatedAt: string;
+};
+
+type MvpRequestListResponse = {
+  requests: MvpRequestRecord[];
+};
+
+type MvpRequestStatusResponse = {
+  requestId: string;
+  status: MvpRequestStatus;
+  updatedAt: string;
+};
 
 const statusLabels = {
   waiting: "Ожидаем",
