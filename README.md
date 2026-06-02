@@ -191,44 +191,116 @@ pnpm db:generate
 
 See [SECURITY.md](./SECURITY.md) for prototype limits and production TODOs.
 
-## Deployment / Replit
+## Deployment / Render
 
-The committed `.replit` file prepares an API deployment. It does not publish
-anything automatically and it does not contain secrets.
+This repository includes `render.yaml` for a Render Blueprint. The file defines:
 
-For an API preview in Replit Publishing:
+- API preview web service: `nadom-api-preview`;
+- Mini App static site: `nadom-mini-app-preview`;
+- Dashboard static site: `nadom-dashboard-preview`;
+- Telegram Bot background worker: `nadom-telegram-bot-preview`.
 
-1. Import this repository and select an Autoscale or Reserved VM web-server
-   deployment.
-2. Use the committed build command:
-   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build`.
-3. Use the committed run command: `pnpm --filter @ivhome/api start`.
-4. Add `DATABASE_URL`, `CORS_ORIGINS`, and `ENABLE_MVP_DEV_API=true` as
-   deployment environment values for a controlled preview. Do not enable the
-   dev API for real user traffic.
-5. Verify `GET /health/live` and `GET /health/ready` on the published API URL.
+Render Blueprints are defined in a `render.yaml` file at the repository root. The
+Blueprint can manage multiple services, including web services, static sites, and
+background workers. Static sites use `runtime: static`, and workers use
+`type: worker`.
 
-Publish the Mini App separately as a Static Deployment:
+### API preview web service
 
-1. Add `VITE_API_BASE_URL=https://<api-subdomain>.replit.app` and an optional
-   HTTPS `VITE_SUPPORT_URL` as build environment values.
-2. Use build command:
-   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/mini-app build`.
-3. Use public directory: `apps/mini-app/dist`.
-4. Set `TELEGRAM_WEBAPP_URL` to the published Mini App HTTPS URL for the bot.
+Build command:
 
-Publish the preview dashboard separately as a controlled Static Deployment:
+```bash
+pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build
+```
 
-1. Add `VITE_API_BASE_URL=https://<api-subdomain>.replit.app` as a build
-   environment value.
-2. Use build command:
-   `pnpm install --frozen-lockfile && pnpm --filter @ivhome/dashboard build`.
-3. Use public directory: `apps/dashboard/dist`.
-4. Restrict access manually at the Replit/project level. This dashboard has no
-   production authentication or RBAC yet.
+Start command:
 
-The long-polling Telegram Bot should be published separately as a Reserved VM
-background worker with `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBAPP_URL` supplied
-through Replit secrets. Use build command
-`pnpm install --frozen-lockfile && pnpm --filter @ivhome/telegram-bot build`
-and run command `pnpm --filter @ivhome/telegram-bot start`.
+```bash
+pnpm --filter @ivhome/api start
+```
+
+Required Render environment variables:
+
+```text
+NODE_ENV=production
+HOST=0.0.0.0
+ENABLE_MVP_DEV_API=true
+DATABASE_URL=<Render Postgres internal connection string>
+CORS_ORIGINS=<Mini App URL>,<Dashboard URL>
+TELEGRAM_BOT_TOKEN=<only if initData validation is tested against the real bot>
+```
+
+Verify after deploy:
+
+```text
+<API_URL>/health/live
+<API_URL>/health/ready
+<API_URL>/mvp/dev/offers
+<API_URL>/mvp/dev/requests
+```
+
+### Mini App static site
+
+Build command:
+
+```bash
+pnpm install --frozen-lockfile && pnpm --filter @ivhome/mini-app build
+```
+
+Publish directory:
+
+```text
+apps/mini-app/dist
+```
+
+Required Render environment variables:
+
+```text
+VITE_API_BASE_URL=<API URL>
+VITE_SUPPORT_URL=<optional HTTPS support URL>
+```
+
+### Dashboard static site
+
+Build command:
+
+```bash
+pnpm install --frozen-lockfile && pnpm --filter @ivhome/dashboard build
+```
+
+Publish directory:
+
+```text
+apps/dashboard/dist
+```
+
+Required Render environment variables:
+
+```text
+VITE_API_BASE_URL=<API URL>
+```
+
+The dashboard is controlled-preview only. It has no production authentication or
+RBAC yet, so restrict access at the Render/project level and do not expose it for
+real traffic.
+
+### Telegram Bot worker
+
+Build command:
+
+```bash
+pnpm install --frozen-lockfile && pnpm --filter @ivhome/telegram-bot build
+```
+
+Start command:
+
+```bash
+pnpm --filter @ivhome/telegram-bot start
+```
+
+Required Render environment variables:
+
+```text
+TELEGRAM_BOT_TOKEN=<Telegram bot token>
+TELEGRAM_WEBAPP_URL=<Mini App URL>
+```
