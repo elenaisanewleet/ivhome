@@ -74,7 +74,7 @@ function routeTitle(pathname: string) {
 
 function routeDescription(pathname: string) {
   if (pathname === "/clinic") {
-    return "Preview-кабинет для уполномоченных сотрудников медслужбы.";
+    return "Preview-экран для уполномоченных сотрудников медслужбы.";
   }
 
   if (pathname === "/admin") {
@@ -155,89 +155,99 @@ export function App() {
 
   return (
     <main className="dashboard-shell">
-      <header className="dashboard-header">
-        <p className="dashboard-kicker">Надом · controlled preview</p>
-        <h1>{title}</h1>
-        <p>{description}</p>
-        <nav aria-label="Маршруты dashboard">
-          <a href="/admin">/admin</a>
-          <a href="/clinic">/clinic</a>
-        </nav>
-      </header>
-
-      {!isConfigured ? (
-        <section className="dashboard-card dashboard-card--empty">
-          <h2>Preview API не подключён</h2>
-          <p>Укажите VITE_API_BASE_URL, чтобы подключить preview API.</p>
-        </section>
-      ) : (
-        <section className="dashboard-card">
-          <div className="dashboard-toolbar">
-            <div>
-              <h2>Preview-заявки</h2>
-              <p>Только минимальные поля: район, время, формат запроса и статус. Без телефона, адреса, меддеталей и чата.</p>
-            </div>
-            <button disabled={isLoading} onClick={() => void refreshRequests()} type="button">
-              {isLoading ? "Обновляем…" : "Обновить"}
-            </button>
+      <section className="dashboard-frame" aria-labelledby="dashboard-title">
+        <header className="dashboard-header">
+          <div className="brand-mark" aria-hidden="true">
+            <span />
+            <span />
+            <span />
           </div>
+          <p className="dashboard-kicker">Надом · controlled preview</p>
+          <h1 id="dashboard-title">{title}</h1>
+          <p>{description}</p>
+          <nav aria-label="Маршруты dashboard">
+            <a href="/admin">/admin</a>
+            <a href="/clinic">/clinic</a>
+          </nav>
+        </header>
 
-          {message ? <p className="dashboard-message">{message}</p> : null}
-
-          {requests.length === 0 && !isLoading ? (
-            <div className="dashboard-empty-list">
-              <h3>Заявок пока нет</h3>
-              <p>Создайте заявку в Mini App, затем обновите список.</p>
+        {!isConfigured ? (
+          <section className="dashboard-card dashboard-card--empty">
+            <p className="meta-label">Настройка</p>
+            <h2>Preview API не подключён</h2>
+            <p>Укажите VITE_API_BASE_URL, чтобы подключить preview API.</p>
+          </section>
+        ) : (
+          <section className="dashboard-card">
+            <div className="dashboard-toolbar">
+              <div>
+                <p className="meta-label">Заявки</p>
+                <h2>Preview-заявки</h2>
+                <p>Минимальный набор полей: район, время, формат запроса и статус. Без телефона, адреса, меддеталей и чата.</p>
+              </div>
+              <button disabled={isLoading} onClick={() => void refreshRequests()} type="button">
+                {isLoading ? "Обновляем…" : "Обновить"}
+              </button>
             </div>
-          ) : null}
 
-          <div className="request-list">
-            {requests.map((request) => (
-              <article className="request-card" key={request.requestId}>
-                <div className="request-card__head">
-                  <div>
-                    <span className="request-id">{request.requestId}</span>
-                    <h3>{request.offerId}</h3>
-                  </div>
-                  <strong className={`status-pill status-pill--${request.status}`}>{statusLabels[request.status]}</strong>
-                </div>
+            {message ? <p className="dashboard-message">{message}</p> : null}
 
-                <dl className="request-fields">
-                  <div>
-                    <dt>Район</dt>
-                    <dd>{request.district}</dd>
-                  </div>
-                  <div>
-                    <dt>Время</dt>
-                    <dd>{request.desiredTime}</dd>
-                  </div>
-                  <div>
-                    <dt>Формат</dt>
-                    <dd>{request.profile}</dd>
-                  </div>
-                  <div>
-                    <dt>Обновлено</dt>
-                    <dd>{formatDate(request.updatedAt)}</dd>
-                  </div>
-                </dl>
+            {requests.length === 0 && !isLoading ? (
+              <div className="dashboard-empty-list">
+                <p className="meta-label">Пусто</p>
+                <h3>Заявок пока нет</h3>
+                <p>Создайте заявку в Mini App, затем обновите список.</p>
+              </div>
+            ) : null}
 
-                <div className="status-actions" aria-label="Изменить статус заявки">
-                  {statusOrder.map((status) => (
-                    <button
-                      disabled={updatingRequestId === request.requestId || request.status === status}
-                      key={status}
-                      onClick={() => void changeStatus(request, status)}
-                      type="button"
-                    >
-                      {statusLabels[status]}
-                    </button>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+            <div className="request-list">
+              {requests.map((request) => (
+                <article className="request-card" key={request.requestId}>
+                  <div className="request-card__head">
+                    <div>
+                      <span className="request-id">{request.requestId}</span>
+                      <h3>{request.offerId}</h3>
+                    </div>
+                    <strong className={`status-pill status-pill--${request.status}`}>{statusLabels[request.status]}</strong>
+                  </div>
+
+                  <dl className="request-fields">
+                    <div>
+                      <dt>Район</dt>
+                      <dd>{request.district}</dd>
+                    </div>
+                    <div>
+                      <dt>Время</dt>
+                      <dd>{request.desiredTime}</dd>
+                    </div>
+                    <div>
+                      <dt>Формат</dt>
+                      <dd>{request.profile}</dd>
+                    </div>
+                    <div>
+                      <dt>Обновлено</dt>
+                      <dd>{formatDate(request.updatedAt)}</dd>
+                    </div>
+                  </dl>
+
+                  <div className="status-actions" aria-label="Изменить статус заявки">
+                    {statusOrder.map((status) => (
+                      <button
+                        disabled={updatingRequestId === request.requestId || request.status === status}
+                        key={status}
+                        onClick={() => void changeStatus(request, status)}
+                        type="button"
+                      >
+                        {statusLabels[status]}
+                      </button>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </section>
     </main>
   );
 }
