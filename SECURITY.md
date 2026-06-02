@@ -94,6 +94,7 @@ personal or medical data out of logs, audit metadata, and Telegram messages.
 
 ## Emergency Screening TODO
 
-Emergency screening copy and hard-stop logic must be approved by a medical
-expert and legal counsel before release. It is a routing safeguard, not a
-diagnostic questionnaire.
+Emergency screening copy and the calm `103/112` recommendation layer must be
+approved by a medical expert and legal counsel before release. It is a routing
+safeguard, not a diagnosis, not a panic screen, and not a user-blocking
+hard-stop.
