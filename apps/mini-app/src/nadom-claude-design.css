@@ -180,5 +180,16 @@ body {
 /* ── Mobile: strip the desktop shell ────────────────────────────── */
 
 @media (max-width: 820px), (pointer: coarse) {
-  body, .app-shell { background: var(--paper); }
+  body,
+  .app-shell { background: var(--paper); }
+}
+
+/* Dark mode: desktop shell adapts */
+@media (prefers-color-scheme: dark) {
+  body {
+    background:
+      radial-gradient(circle at 78% 8%, rgba(74,127,165,0.12), transparent 24rem),
+      radial-gradient(circle at 12% 92%, rgba(74,127,165,0.06), transparent 20rem),
+      linear-gradient(135deg, #0f161e 0%, #131f2a 45%, #0f161e 100%);
+  }
 }
