@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Надом — Design Package v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Onest:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --void: #080807;
+  --void2: #0E0E0C;
+  --void3: #161614;
+  --void4: #1E1E1B;
+  --void5: #272724;
+  --void6: #333330;
+
+  --stone: #3D3D39;
+  --stone2: #5A5A54;
+  --stone3: #7A7A72;
+  --stone4: #9F9F95;
+  --stone5: #C8C8BC;
+  --stone6: #E6E6DC;
+
+  --cream: #F2F1EB;
+  --cream2: #EBEBDE;
+  --cream3: #E0DFD0;
+  --white: #FAFAF4;
+
+  --signal: #3D7AB5;
+  --signal2: #5A94CC;
+  --signal3: #8DB8E0;
+  --signal-dim: rgba(61,122,181,0.15);
+  --signal-glow: rgba(61,122,181,0.08);
+
+  --sage: #3A7A68;
+  --sage2: #5A9980;
+  --sage-dim: rgba(58,122,104,0.12);
+
+  --ember: #A05030;
+  --ember2: #C06840;
+  --ember-dim: rgba(160,80,48,0.12);
+
+  --err: #7A3030;
+  --err-dim: rgba(122,48,48,0.12);
+
+  --font-display: 'Unbounded', system-ui, sans-serif;
+  --font-body: 'Onest', system-ui, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', monospace;
+
+  --r1: 6px;
+  --r2: 12px;
+  --r3: 18px;
+  --r4: 24px;
+  --r5: 32px;
+
+  --pw: 320px;
+  --ph: 600px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--void);
+  color: var(--stone5);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.page { max-width: 1520px; margin: 0 auto; padding: 56px 40px; }
+
+.sec { margin-bottom: 96px; }
+
+.sec-tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--stone3);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sec-tag::after { content: ''; flex: 1; height: 0.5px; background: var(--void5); }
+
+.sec-h {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--white);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.sec-sub {
+  font-size: 13px;
+  color: var(--stone3);
+  margin-bottom: 32px;
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+.div { height: 0.5px; background: var(--void4); margin: 80px 0; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+.g5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
+.g6 { display: grid; grid-template-columns: repeat(6,1fr); gap: 10px; }
+
+@media (max-width:1200px) { .g6{grid-template-columns:repeat(4,1fr)} .g5{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:900px) { .g4,.g3{grid-template-columns:1fr 1fr} }
+@media (max-width:600px) { .g2,.g4,.g3,.g5,.g6{grid-template-columns:1fr} .page{padding:32px 16px} }
+
+/* ── CONCEPT BOX ── */
+.concept {
+  background: var(--void3);
+  border: 0.5px solid var(--void5);
+  border-radius: var(--r4);
+  padding: 40px;
+}
+.concept-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--signal2);
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+.concept-row {
+  display: flex;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--void5);
+  font-size: 12px;
+}
+.concept-row:last-child { border-bottom: none; }
+.concept-n { font-family: var(--font-mono); color: var(--stone3); min-width: 24px; font-size: 10px; padding-top: 2px; }
+.concept-t { color: var(--stone5); line-height: 1.6; }
+
+/* ── BRAND ── */
+.brand-hero {
+  background: var(--void3);
+  border: 0.5px solid var(--void5);
+  border-radius: var(--r5);
+  padding: 56px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  flex-wrap: wrap;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.brand-hero::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 240px; height: 240px;
+  background: radial-gradient(circle, rgba(61,122,181,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.brand-wm {
+  font-family: var(--font-display);
+  font-size: 72px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.brand-wm span { color: var(--signal2); }
+.brand-sub { font-size: 12px; color: var(--stone3); margin-top: 10px; letter-spacing: 0.04em; }
+
+/* ── SYMBOL BOX ── */
+.sym-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.sym-wrap {
+  width: 88px; height: 88px;
+  border-radius: var(--r3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sym-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone3);
+  text-align: center;
+  line-height: 1.5;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── PHONE FRAME ── */
+.phone {
+  width: var(--pw);
+  height: var(--ph);
+  background: var(--void3);
+  border-radius: 38px;
+  border: 1.5px solid var(--void5);
+  overflow: hidden;
+  position: relative;
+  flex-shrink: 0;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+}
+.phone-notch {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  width: 72px; height: 6px;
+  background: var(--void5);
+  border-radius: 3px;
+  z-index: 10;
+}
+.phone-scr {
+  width: 100%; height: 100%;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  color: var(--void);
+  overflow: hidden;
+}
+.phone-scr.dark {
+  background: var(--void2);
+  color: var(--stone5);
+}
+
+/* Screen parts */
+.s-hd {
+  padding: 38px 20px 14px;
+  border-bottom: 0.5px solid var(--cream3);
+  flex-shrink: 0;
+}
+.s-hd.dark-hd { border-bottom-color: var(--void5); }
+.s-back { font-size: 11px; color: var(--signal2); margin-bottom: 8px; display: flex; align-items: center; gap: 3px; }
+.s-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -0.03em; color: var(--void); line-height: 1.2; }
+.s-title.lgt { color: var(--white); }
+.s-desc { font-size: 12px; color: var(--stone2); margin-top: 4px; line-height: 1.5; }
+.s-desc.lgt { color: var(--stone4); }
+.s-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.s-foot {
+  padding: 10px 18px 22px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 13px 18px;
+  border-radius: var(--r2);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+}
+.btn-p { background: var(--signal); color: var(--white); }
+.btn-s { background: transparent; color: var(--stone2); border: 0.5px solid var(--cream3); font-weight: 500; font-size: 12px; }
+.btn-sage { background: var(--sage); color: var(--white); }
+.btn-g { background: transparent; color: var(--signal2); font-weight: 500; font-size: 12px; padding: 8px 0; }
+.btn-err { background: var(--err-dim); color: var(--err); font-size: 12px; font-weight: 600; }
+
+/* ── CHOICE ITEMS ── */
+.choice-list { display: flex; flex-direction: column; gap: 7px; }
+.choice-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 13px;
+  border-radius: var(--r2);
+  background: var(--white);
+  border: 0.5px solid var(--cream3);
+  cursor: pointer;
+}
+.choice-item.sel { border-color: var(--signal); background: rgba(61,122,181,0.06); }
+.c-dot { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--cream3); flex-shrink: 0; }
+.c-dot.on { background: var(--signal); border-color: var(--signal); }
+.c-main { font-size: 12px; font-weight: 600; color: var(--void); flex: 1; }
+.c-sub { font-size: 10px; color: var(--stone3); margin-top: 1px; }
+
+/* ── PILLS ── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.pill-b { background: var(--signal-dim); color: var(--signal2); }
+.pill-sage { background: var(--sage-dim); color: var(--sage2); }
+.pill-ember { background: var(--ember-dim); color: var(--ember2); }
+.pill-n { background: var(--cream2); color: var(--stone2); }
+.pill-err { background: var(--err-dim); color: var(--err); }
+.pill-ok { background: var(--sage-dim); color: var(--sage); }
+
+/* ── SCREEN WRAPPER ── */
+.scr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+.scr-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--stone3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+.scr-scroll {
+  display: flex;
+  gap: 24px;
+  overflow-x: auto;
+  padding-bottom: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--void5) transparent;
+}
+
+/* ── SERVICE CARD ── */
+.svc-card {
+  background: var(--white);
+  border-radius: var(--r3);
+  border: 0.5px solid var(--cream3);
+  overflow: hidden;
+}
+.svc-hd {
+  padding: 12px 14px 10px;
+  border-bottom: 0.5px solid var(--cream3);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.svc-name { font-size: 13px; font-weight: 700; color: var(--void); font-family: var(--font-display); letter-spacing: -0.02em; }
+.svc-lic { font-size: 9px; color: var(--sage); font-weight: 600; margin-top: 2px; }
+.svc-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 7px; }
+.svc-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+.svc-k { color: var(--stone3); }
+.svc-v { color: var(--void); font-weight: 500; }
+.svc-note { font-size: 9px; color: var(--stone3); padding-top: 7px; border-top: 0.5px solid var(--cream3); margin-top: 3px; }
+.eta-row { display: flex; gap: 7px; }
+.eta-col { flex: 1; background: var(--cream); border-radius: var(--r1); padding: 8px 10px; border: 0.5px solid var(--cream3); }
+.eta-k { font-size: 9px; color: var(--stone3); margin-bottom: 2px; }
+.eta-v { font-size: 14px; font-weight: 700; color: var(--void); font-family: var(--font-display); letter-spacing: -0.02em; }
+.eta-sub { font-size: 9px; color: var(--stone3); }
+
+/* ── CHAT ── */
+.chat-in, .chat-out {
+  max-width: 82%;
+  padding: 8px 11px;
+  border-radius: 12px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.chat-in {
+  background: var(--cream2);
+  color: var(--void);
+  border-bottom-left-radius: 3px;
+  align-self: flex-start;
+}
+.chat-out {
+  background: var(--signal);
+  color: white;
+  border-bottom-right-radius: 3px;
+  align-self: flex-end;
+}
+.chat-meta { font-size: 9px; color: var(--stone4); margin-top: 2px; }
+.chat-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  background: var(--white);
+  border-top: 0.5px solid var(--cream3);
+}
+.chat-input {
+  flex: 1;
+  background: var(--cream);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 11px;
+  color: var(--stone3);
+  font-family: var(--font-body);
+}
+
+/* ── STATUS TRACK ── */
+.track { display: flex; flex-direction: column; gap: 0; }
+.track-item { display: flex; gap: 10px; align-items: flex-start; }
+.track-line { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.tr-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--signal); margin-top: 4px; }
+.tr-dot.done { background: var(--sage); }
+.tr-dot.active { background: var(--signal); box-shadow: 0 0 0 3px rgba(61,122,181,0.15); }
+.tr-dot.off { background: var(--cream3); }
+.tr-conn { width: 1.5px; height: 26px; background: var(--cream3); margin: 3px 0; }
+.tr-conn.done { background: var(--sage); }
+.tr-txt { padding-bottom: 18px; }
+.tr-name { font-size: 11px; font-weight: 600; color: var(--void); }
+.tr-time { font-size: 9px; color: var(--stone3); margin-top: 1px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border-radius: var(--r2);
+  border: 0.5px solid var(--cream3);
+  padding: 12px 14px;
+}
+
+/* ── WELCOME BANNER ── */
+.wb {
+  background: linear-gradient(135deg, var(--void2) 0%, var(--void3) 100%);
+  border: 0.5px solid rgba(61,122,181,0.2);
+  border-radius: var(--r5);
+  padding: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  min-height: 280px;
+  position: relative;
+  overflow: hidden;
+}
+.wb::before {
+  content: '';
+  position: absolute;
+  bottom: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(61,122,181,0.07) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ── TG BOT ── */
+.tg-bg {
+  background: #17212B;
+  border-radius: var(--r4);
+  padding: 20px;
+}
+.tg-msg {
+  background: var(--white);
+  border-radius: 14px;
+  border-bottom-left-radius: 3px;
+  padding: 11px 14px;
+  max-width: 92%;
+  border: 0.5px solid var(--cream3);
+}
+.tg-hd { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 0.5px solid var(--cream3); }
+.tg-av { width: 26px; height: 26px; border-radius: 50%; background: var(--signal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tg-bname { font-size: 11px; font-weight: 700; color: var(--signal); }
+.tg-vrf { font-size: 9px; color: var(--sage); }
+.tg-txt { font-size: 12px; line-height: 1.55; color: var(--void); }
+.tg-time { font-size: 9px; color: var(--stone3); margin-top: 6px; text-align: right; }
+.tg-btns { display: flex; flex-direction: column; gap: 5px; margin-top: 9px; }
+.tg-btn { background: var(--signal-dim); color: var(--signal); border-radius: var(--r1); padding: 8px 12px; font-size: 11px; font-weight: 600; text-align: center; cursor: pointer; }
+
+/* ── ICON BOX ── */
+.ico-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 6px;
+  background: var(--void3);
+  border-radius: var(--r2);
+  border: 0.5px solid var(--void5);
+}
+.ico-lbl {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--stone3);
+  text-align: center;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* ── DESIGN SYSTEM ── */
+.swatch {
+  border-radius: var(--r1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 4px;
+  height: 52px;
+}
+.sw-lbl { font-family: var(--font-mono); font-size: 7px; text-align: center; line-height: 1.3; }
+.token-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 0.5px solid var(--void5);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+.tok-n { color: var(--stone3); min-width: 200px; }
+.tok-v { color: var(--signal2); }
+
+/* ── HANDOFF ── */
+.hoff { background: var(--void3); border-radius: var(--r3); padding: 28px 32px; border: 0.5px solid var(--void5); }
+.pr-row {
+  display: flex;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 0.5px solid var(--void5);
+  align-items: flex-start;
+}
+.pr-n { font-family: var(--font-mono); font-size: 10px; color: var(--stone3); min-width: 40px; padding-top: 1px; }
+.pr-t { font-size: 12px; font-weight: 600; color: var(--white); }
+.pr-d { font-size: 11px; color: var(--stone3); margin-top: 2px; line-height: 1.4; }
+
+/* ── CHECK ROW ── */
+.chk-row { display: flex; align-items: flex-start; gap: 9px; font-size: 10px; color: var(--stone2); line-height: 1.5; }
+.chk-box { width: 14px; height: 14px; border-radius: 3px; border: 1.5px solid var(--cream3); flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; }
+.chk-box.on { background: var(--signal); border-color: var(--signal); }
+
+/* ── AREA GRID ── */
+.area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.area-chip { display: flex; align-items: center; justify-content: center; padding: 9px; background: var(--white); border: 0.5px solid var(--cream3); border-radius: var(--r1); font-size: 11px; font-weight: 500; color: var(--void); cursor: pointer; text-align: center; }
+.area-chip.sel { background: var(--signal-dim); border-color: var(--signal); color: var(--signal); }
+
+/* ── MISC ── */
+.state-ill { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; flex: 1; text-align: center; padding: 20px; }
+.stars { display: flex; gap: 4px; }
+.star { font-size: 22px; color: var(--cream3); }
+.star.lit { color: #C8901A; }
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 11px; background: var(--cream2); border-radius: 100px; font-size: 11px; font-weight: 500; color: var(--void); border: 0.5px solid var(--cream3); cursor: pointer; }
+.chip.on { background: var(--signal-dim); border-color: var(--signal); color: var(--signal); }
+.s-inp { background: var(--white); border: 0.5px solid var(--cream3); border-radius: var(--r1); padding: 10px 12px; font-size: 12px; color: var(--void); font-family: var(--font-body); width: 100%; }
+.s-inp.foc { border-color: var(--signal); }
+
+@keyframes sp { to { transform: rotate(360deg); } }
+@keyframes pulse { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
+.spin { animation: sp 1.6s linear infinite; }
+.pulx { animation: pulse 2.2s ease-in-out infinite; }
+
+/* BotFather screen */
+.bf-scr { background: #17212B; border-radius: var(--r4); padding: 24px; display: flex; flex-direction: column; gap: 14px; max-width: 380px; }
+.bf-hd { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; border-bottom: 0.5px solid #2A3542; }
+.bf-av { width: 46px; height: 46px; border-radius: 50%; background: var(--signal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bf-name { font-size: 14px; font-weight: 700; color: #EAEAEA; font-family: var(--font-display); }
+.bf-handle { font-size: 11px; color: #708A9E; }
+
+/* concept color boxes */
+.pal-dir {
+  background: var(--void3);
+  border: 0.5px solid var(--void5);
+  border-radius: var(--r3);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pal-name { font-family: var(--font-display); font-size: 14px; color: var(--white); letter-spacing: -0.02em; margin-bottom: 4px; }
+.pal-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.ps { width: 44px; height: 44px; border-radius: var(--r1); }
+.pal-verdict { font-size: 11px; color: var(--stone3); line-height: 1.6; }
+.pal-selected { border-color: var(--signal); }
+
+/* ── SYMBOL GRID ── */
+.sym-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.sym-opt { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.sym-opt.winner .sym-wrap { box-shadow: 0 0 0 1.5px var(--signal); }
+
+/* ── PROG STEPPER ── */
+.prog-bar { height: 2px; background: var(--cream3); border-radius: 1px; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--signal); border-radius: 1px; }
+
+/* ── TEXT BLOCK ── */
+.txt-block {
+  background: var(--void2);
+  border-radius: var(--r1);
+  padding: 12px 14px;
+  border: 0.5px solid var(--void5);
+}
+.txt-tag { font-family: var(--font-mono); font-size: 8px; color: var(--stone3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 6px; }
+.txt-body { font-size: 11px; color: var(--stone5); line-height: 1.65; }
+
+/* ── ETA BLOCK ── */
+.sla-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.sla-label { font-family: var(--font-mono); font-size: 9px; color: var(--stone3); text-transform: uppercase; letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══ 01 VERDICT ═══ -->
+<div class="sec">
+  <div class="sec-tag">01 — Вердикт</div>
+  <div class="sec-h">Design Package v2 — решения</div>
+  <div class="sec-sub">Что берём, что меняем, что строим заново.</div>
+  <div class="concept">
+    <div class="concept-title">Синтез и выбор</div>
+    <div class="concept-row"><span class="concept-n">→</span><span class="concept-t"><strong>Из Canva PNG:</strong> полнота workflow (21 состояние), структура BotFather, набор иконок, логика карточки с SLA, прогресс-степпер, welcome-баннеры 5 концепций.</span></div>
+    <div class="concept-row"><span class="concept-n">→</span><span class="concept-t"><strong>Из старого HTML:</strong> качество карточек, chat UI, price lock state, bilingual brand detail "Надом / Nadom", статусный timeline, нейтральные дисклеймеры, ощущение закрытого технологичного интерфейса.</span></div>
+    <div class="concept-row"><span class="concept-n">✕</span><span class="concept-t"><strong>Меняем:</strong> палитру — полностью. Старый стальной #4A7FA5 заменён на Void + Signal (тёмный олива с акцентом). Главный знак — отказ от "Н из 3 узлов", новый символ — маршрутная точка-капля с дугой. Типографика — Unbounded + Onest.</span></div>
+    <div class="concept-row"><span class="concept-n">+</span><span class="concept-t"><strong>Новое:</strong> визуальный концепт "Тёмное окно" — сервис работает в пространстве между ночью и помощью. Палитра Void-Sage-Signal. Иконки переработаны в единую систему 2px stroke. 5 вариантов символа — выбран символ "капля с дугой прибытия".</span></div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 02 ПАЛИТРЫ ═══ -->
+<div class="sec">
+  <div class="sec-tag">02 — Палитры</div>
+  <div class="sec-h">3 направления, 1 выбор</div>
+  <div class="sec-sub">Предлагаю три цветовые системы. Выбор — направление A.</div>
+
+  <div class="g3" style="margin-bottom:16px;">
+
+    <!-- A — SELECTED -->
+    <div class="pal-dir pal-selected">
+      <div>
+        <div class="pal-name">A · Void — Signal — Sage</div>
+        <div style="font-size:10px;color:var(--signal2);font-family:var(--font-mono);letter-spacing:0.08em;margin-bottom:10px;">ВЫБРАНО ✓</div>
+      </div>
+      <div class="pal-swatches">
+        <div class="ps" style="background:#080807;" title="Void"></div>
+        <div class="ps" style="background:#0E0E0C;" title="Void2"></div>
+        <div class="ps" style="background:#161614;" title="Void3"></div>
+        <div class="ps" style="background:#F2F1EB;" title="Cream"></div>
+        <div class="ps" style="background:#3D7AB5;" title="Signal"></div>
+        <div class="ps" style="background:#5A94CC;" title="Signal2"></div>
+        <div class="ps" style="background:#3A7A68;" title="Sage"></div>
+        <div class="ps" style="background:#A05030;" title="Ember"></div>
+      </div>
+      <div class="pal-verdict">Почти чёрный оливковый фон + стальной синий акцент + сажевый зелёный как второй акцент для подтверждений. Ember — только для экстренных кнопок. Технологично, закрыто, взрослое. Не больничное. Не wellness.</div>
+    </div>
+
+    <!-- B -->
+    <div class="pal-dir">
+      <div class="pal-name">B · Midnight Copper</div>
+      <div class="pal-swatches">
+        <div class="ps" style="background:#0A0A0F;" title="Deep Night"></div>
+        <div class="ps" style="background:#14141C;" title="Night2"></div>
+        <div class="ps" style="background:#F4F3EE;" title="Paper"></div>
+        <div class="ps" style="background:#7A5B3D;" title="Copper"></div>
+        <div class="ps" style="background:#A87A50;" title="Copper2"></div>
+        <div class="ps" style="background:#3D7A7A;" title="Teal"></div>
+        <div class="ps" style="background:#6A3A3A;" title="Crimson dim"></div>
+      </div>
+      <div class="pal-verdict">Глубокий синевато-чёрный + медный акцент + дымчатый чирок. Более тёплый, дорогой, но рискует уйти в luxury-wellness. Меньше читается как tech.</div>
+    </div>
+
+    <!-- C -->
+    <div class="pal-dir">
+      <div class="pal-name">C · Graphite Mineral</div>
+      <div class="pal-swatches">
+        <div class="ps" style="background:#0C0C0C;" title="Graphite"></div>
+        <div class="ps" style="background:#EFEDE6;" title="Bone"></div>
+        <div class="ps" style="background:#4A7A6A;" title="Mineral green"></div>
+        <div class="ps" style="background:#6A9A88;" title="Mineral2"></div>
+        <div class="ps" style="background:#5A5A7A;" title="Slate blue"></div>
+        <div class="ps" style="background:#7A7A9A;" title="Slate2"></div>
+        <div class="ps" style="background:#7A3A3A;" title="Crimson"></div>
+      </div>
+      <div class="pal-verdict">Чистый графит + минеральный зелёный + шиферный синий. Лаконично, но слишком нейтрально — ощущение утилиты, не технологичного сервиса.</div>
+    </div>
+  </div>
+
+  <!-- Full palette detail -->
+  <div class="hoff">
+    <div style="font-size:12px;font-weight:600;color:var(--white);margin-bottom:16px;font-family:var(--font-display);letter-spacing:-0.02em;">Полная палитра — Направление A (выбрано)</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#080807;border:0.5px solid var(--void5);"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">080807<br/>void</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#0E0E0C;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">0E0E0C<br/>void-2</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#161614;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">161614<br/>void-3</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#272724;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">272724<br/>void-5</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#F2F1EB;border:0.5px solid #E0DFD0;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">F2F1EB<br/>cream</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#E0DFD0;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">E0DFD0<br/>cream-3</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#3D7AB5;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">3D7AB5<br/>signal</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#5A94CC;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">5A94CC<br/>signal-2</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#8DB8E0;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">8DB8E0<br/>signal-3</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#3A7A68;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">3A7A68<br/>sage</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#5A9980;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">5A9980<br/>sage-2</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#A05030;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">A05030<br/>ember</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;">
+        <div style="width:40px;height:40px;border-radius:var(--r1);background:#7A3030;"></div>
+        <div style="font-family:var(--font-mono);font-size:7px;color:var(--stone3);text-align:center;">7A3030<br/>err</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--stone3);line-height:1.7;max-width:560px;">
+      <strong style="color:var(--stone5);">Правила применения:</strong> Void — фон всего. Cream — фон Mini App экранов. Signal — главный CTA и акцент. Sage — подтверждение, выезд, "хорошее состояние". Ember — только emergency кнопки 103/112. Err — только ошибки. Stone — типографика и разделители.
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 03 СИМВОЛ ═══ -->
+<div class="sec">
+  <div class="sec-tag">03 — Главный символ</div>
+  <div class="sec-h">7 направлений, 1 финал</div>
+  <div class="sec-sub">Отказ от "Н из 3 узлов". Новый символ — маршрутная капля с дугой прибытия.</div>
+
+  <div class="sym-grid">
+
+    <!-- 1: Drop + Arc -->
+    <div class="sym-opt winner">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M26 8C26 8 14 20 14 28C14 35 19.5 40 26 40C32.5 40 38 35 38 28C38 20 26 8 26 8Z" stroke="#5A94CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.08)"/>
+          <circle cx="26" cy="28" r="4" fill="#3D7AB5"/>
+          <path d="M10 46 Q18 38 26 40 Q34 42 42 46" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Капля+дуга<br/>ФИНАЛ ✓</div>
+    </div>
+
+    <!-- 2: Route node -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="12" cy="26" r="5" fill="rgba(61,122,181,0.15)" stroke="#5A94CC" stroke-width="1.5"/>
+          <circle cx="40" cy="14" r="5" fill="rgba(61,122,181,0.15)" stroke="#5A94CC" stroke-width="1.5"/>
+          <circle cx="40" cy="38" r="7" fill="#3D7AB5"/>
+          <path d="M17 26 Q28 20 35 17" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M17 26 Q28 32 33 36" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M37 36 L37 40 L41 40" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Маршрут<br/>к точке</div>
+    </div>
+
+    <!-- 3: Drip single abstract -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="20" r="8" fill="rgba(61,122,181,0.12)" stroke="#5A94CC" stroke-width="1.5"/>
+          <line x1="26" y1="28" x2="26" y2="40" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="26" cy="43" r="3" fill="#3D7AB5"/>
+          <circle cx="14" cy="18" r="3" fill="rgba(90,148,204,0.5)" stroke="#5A94CC" stroke-width="1"/>
+          <path d="M17 18 L18 20" stroke="#5A94CC" stroke-width="1" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Капельница<br/>abstract</div>
+    </div>
+
+    <!-- 4: Circle route -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="14" stroke="#5A94CC" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
+          <circle cx="26" cy="12" r="4" fill="#3D7AB5"/>
+          <circle cx="26" cy="40" r="5" fill="rgba(61,122,181,0.15)" stroke="#5A94CC" stroke-width="1.5"/>
+          <line x1="26" y1="16" x2="26" y2="35" stroke="#5A94CC" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22 34 L26 39 L30 34" fill="none" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Круговой<br/>маршрут</div>
+    </div>
+
+    <!-- 5: Home node -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M26 10 L10 24 L10 42 L20 42 L20 32 L32 32 L32 42 L42 42 L42 24 Z" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.07)"/>
+          <circle cx="26" cy="22" r="4" fill="#3D7AB5"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Дом·узел<br/>(слишком прямо)</div>
+    </div>
+
+    <!-- 6: Bubble path -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <path d="M26 8 Q40 8 40 20 Q40 30 26 32 L22 38 L20 32 Q12 30 12 20 Q12 8 26 8Z" stroke="#5A94CC" stroke-width="1.5" fill="rgba(61,122,181,0.07)"/>
+          <circle cx="20" cy="22" r="2.5" fill="#3D7AB5"/>
+          <circle cx="28" cy="18" r="2.5" fill="#5A94CC"/>
+          <circle cx="33" cy="24" r="2" fill="rgba(90,148,204,0.6)"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Чат-пузырь<br/>с узлами</div>
+    </div>
+
+    <!-- 7: Flow minimal -->
+    <div class="sym-opt">
+      <div class="sym-wrap" style="background:var(--void3);border:0.5px solid var(--void5);">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <circle cx="10" cy="22" r="4" fill="rgba(90,148,204,0.5)" stroke="#5A94CC" stroke-width="1.2"/>
+          <circle cx="26" cy="14" r="6" fill="#3D7AB5"/>
+          <circle cx="42" cy="22" r="4" fill="rgba(90,148,204,0.5)" stroke="#5A94CC" stroke-width="1.2"/>
+          <path d="M14 22 Q18 16 21 14" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M31 14 Q35 16 38 22" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          <path d="M10 26 Q18 32 26 34 Q34 32 42 26" stroke="rgba(90,148,204,0.25)" stroke-width="1" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/>
+        </svg>
+      </div>
+      <div class="sym-lbl">Дуга·связь<br/>(близко к старому)</div>
+    </div>
+
+  </div>
+
+  <!-- Winner detail -->
+  <div class="g2" style="gap:32px;">
+    <div>
+      <div style="font-size:11px;color:var(--stone3);font-family:var(--font-mono);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.1em;">ФИНАЛЬНЫЙ СИМВОЛ · Варианты применения</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+
+        <!-- Dark bg -->
+        <div class="sym-opt">
+          <div style="width:96px;height:96px;background:var(--void3);border-radius:20px;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--void5);">
+            <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+              <path d="M30 6C30 6 14 24 14 34C14 43 21 50 30 50C39 50 46 43 46 34C46 24 30 6 30 6Z" stroke="#5A94CC" stroke-width="2.5" stroke-linecap="round" fill="rgba(61,122,181,0.1)"/>
+              <circle cx="30" cy="34" r="6" fill="#3D7AB5"/>
+              <path d="M8 56 Q18 46 30 50 Q42 54 52 56" stroke="#5A94CC" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="4 4"/>
+            </svg>
+          </div>
+          <div class="sym-lbl">96px<br/>dark</div>
+        </div>
+
+        <!-- Signal bg (TG avatar) -->
+        <div class="sym-opt">
+          <div style="width:80px;height:80px;background:var(--signal);border-radius:18px;display:flex;align-items:center;justify-content:center;">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <path d="M24 4C24 4 10 18 10 27C10 34.5 16.5 40 24 40C31.5 40 38 34.5 38 27C38 18 24 4 24 4Z" stroke="rgba(255,255,255,0.8)" stroke-width="2" fill="rgba(255,255,255,0.15)"/>
+              <circle cx="24" cy="28" r="5" fill="white"/>
+              <path d="M5 46 Q14 38 24 40 Q34 42 43 46" stroke="rgba(255,255,255,0.5)" stroke-width="1.5" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/>
+            </svg>
+          </div>
+          <div class="sym-lbl">TG Avatar<br/>signal bg</div>
+        </div>
+
+        <!-- Light bg -->
+        <div class="sym-opt">
+          <div style="width:72px;height:72px;background:var(--cream);border-radius:14px;display:flex;align-items:center;justify-content:center;border:0.5px solid var(--cream3);">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <path d="M22 4C22 4 10 16 10 24C10 30.5 15.5 36 22 36C28.5 36 34 30.5 34 24C34 16 22 4 22 4Z" stroke="#3D7AB5" stroke-width="2" fill="rgba(61,122,181,0.08)"/>
+              <circle cx="22" cy="25" r="4.5" fill="#3D7AB5"/>
+              <path d="M4 42 Q12 36 22 38 Q32 40 40 42" stroke="rgba(61,122,181,0.4)" stroke-width="1.5" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/>
+            </svg>
+          </div>
+          <div class="sym-lbl">Mini App<br/>light</div>
+        </div>
+
+        <!-- Favicon 32 -->
+        <div class="sym-opt">
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+            <div style="width:32px;height:32px;background:var(--void);border-radius:6px;display:flex;align-items:center;justify-content:center;">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2C11 2 5 8 5 12C5 15 7.7 18 11 18C14.3 18 17 15 17 12C17 8 11 2 11 2Z" stroke="#5A94CC" stroke-width="1.5" fill="rgba(61,122,181,0.15)"/>
+                <circle cx="11" cy="13" r="2.5" fill="#3D7AB5"/>
+              </svg>
+            </div>
+            <div style="width:16px;height:16px;background:var(--signal);border-radius:3px;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M5 1C5 1 2 4 2 6C2 7.5 3.3 9 5 9C6.7 9 8 7.5 8 6C8 4 5 1 5 1Z" fill="rgba(255,255,255,0.8)"/>
+              </svg>
+            </div>
+          </div>
+          <div class="sym-lbl">32px<br/>16px</div>
+        </div>
+
+        <!-- Horizontal -->
+        <div class="sym-opt">
+          <div style="width:160px;height:56px;background:var(--void2);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:10px;border:0.5px solid rgba(61,122,181,0.2);">
+            <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+              <path d="M14 2C14 2 4 12 4 19C4 24.5 8.5 29 14 29C19.5 29 24 24.5 24 19C24 12 14 2 14 2Z" stroke="#5A94CC" stroke-width="1.8" fill="rgba(61,122,181,0.1)"/>
+              <circle cx="14" cy="20" r="4" fill="#3D7AB5"/>
+              <path d="M1 34 Q7 29 14 31 Q21 33 27 34" stroke="rgba(90,148,204,0.4)" stroke-width="1.2" stroke-linecap="round" fill="none" stroke-dasharray="2.5 2.5"/>
+            </svg>
+            <span style="font-family:var(--font-display);font-size:17px;font-weight:600;color:white;letter-spacing:-0.04em;">Надом</span>
+          </div>
+          <div class="sym-lbl">Горизонт.<br/>версия</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="concept">
+      <div style="font-size:12px;color:var(--stone3);line-height:1.8;">
+        <div style="color:var(--signal2);font-weight:600;margin-bottom:8px;font-family:var(--font-display);font-size:13px;">Логика символа</div>
+        <div>Капля — форма, которая возникает сама: тянется вниз, к точке назначения. Не медицинская капля, не капельница в лоб — маршрут движения, вектор прибытия.</div>
+        <br/>
+        <div>Центральный круг — точка соединения: пользователь нашёл медслужбу.</div>
+        <br/>
+        <div>Пунктирная дуга снизу — след прибытия, движение специалиста к адресу. Тонкая, ненавязчивая.</div>
+        <br/>
+        <div>Намёк на капельницу считывается со второго взгляда (вертикальная ось + точка).</div>
+        <br/>
+        <div style="color:var(--stone4);font-size:11px;">Не дом. Не крест. Не пульс. Не молекула. Не "Н".</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 04 BRAND HERO ═══ -->
+<div class="sec">
+  <div class="sec-tag">04 — Бренд / Логотип</div>
+
+  <div class="brand-hero">
+    <div>
+      <div class="brand-wm">Над<span>о</span>м</div>
+      <div style="font-size:11px;color:var(--stone3);margin-top:8px;font-family:var(--font-mono);letter-spacing:0.08em;">NADOM · МЕДСЛУЖБА С ВЫЕЗДОМ НА ДОМ</div>
+    </div>
+    <svg width="140" height="140" viewBox="0 0 140 140" fill="none">
+      <path d="M70 10C70 10 28 50 28 76C28 103 47 120 70 120C93 120 112 103 112 76C112 50 70 10 70 10Z" stroke="#5A94CC" stroke-width="3" stroke-linecap="round" fill="rgba(61,122,181,0.08)"/>
+      <circle cx="70" cy="78" r="14" fill="#3D7AB5"/>
+      <circle cx="70" cy="78" r="7" fill="rgba(255,255,255,0.2)"/>
+      <path d="M16 132 Q38 116 70 122 Q102 128 124 132" stroke="#5A94CC" stroke-width="2.5" stroke-linecap="round" fill="none" stroke-dasharray="5 5"/>
+    </svg>
+    <div>
+      <div style="font-size:11px;color:var(--stone3);margin-bottom:12px;font-family:var(--font-mono);letter-spacing:0.1em;text-transform:uppercase;">Taglines</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:14px;color:var(--white);line-height:1.5;">Медслужба с выездом на дом</div>
+        <div style="font-size:12px;color:var(--stone3);">Приватно · По времени · По условиям</div>
+        <div style="font-size:11px;color:var(--stone3);">Анонимный подбор без лишних звонков</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 05 WELCOME BANNERS ═══ -->
+<div class="sec">
+  <div class="sec-tag">05 — Welcome Banners · BotFather Assets</div>
+  <div class="sec-h">Welcome banners</div>
+  <div class="sec-sub">5 концепций welcome-баннеров и BotFather-пакет.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px;">
+
+    <!-- Banner 1: Main -->
+    <div class="wb">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <svg width="28" height="36" viewBox="0 0 28 36" fill="none">
+          <path d="M14 2C14 2 4 12 4 19C4 24.5 8.5 29 14 29C19.5 29 24 24.5 24 19C24 12 14 2 14 2Z" stroke="#5A94CC" stroke-width="1.8" fill="rgba(61,122,181,0.15)"/>
+          <circle cx="14" cy="20" r="4" fill="#3D7AB5"/>
+        </svg>
+        <span style="font-family:var(--font-mono);font-size:10px;color:rgba(90,148,204,0.7);letter-spacing:0.1em;">НАДОМ · NADOM</span>
+      </div>
+      <div>
+        <div style="font-family:var(--font-display);font-size:34px;font-weight:600;color:white;line-height:1.1;letter-spacing:-0.04em;">Медслужба<br/>дома</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:10px;line-height:1.7;">· анонимный подбор<br/>· приватно<br/>· без лишних звонков</div>
+      </div>
+      <div style="font-size:9px;color:rgba(255,255,255,0.18);">При угрозе жизни — 103 или 112</div>
+    </div>
+
+    <!-- Banner 2: Steps -->
+    <div class="wb">
+      <div style="font-family:var(--font-display);font-size:12px;color:var(--signal2);letter-spacing:-0.01em;">3 шага к решению</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="4" cy="8" r="2" fill="#5A94CC"/><circle cx="8" cy="4" r="2" fill="#3D7AB5"/><circle cx="12" cy="8" r="2" fill="#5A94CC"/><line x1="6" y1="7" x2="7" y2="5" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round"/><line x1="9" y1="5" x2="10" y2="7" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="height:1.5px;flex:1;background:rgba(90,148,204,0.2);"></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="3" y="4" width="10" height="8" rx="2" stroke="#5A94CC" stroke-width="1.2"/><line x1="6" y1="8" x2="10" y2="8" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </div>
+        <div style="height:1.5px;flex:1;background:rgba(90,148,204,0.2);"></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--sage-dim);display:flex;align-items:center;justify-content:center;">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8.5L6.5 11L12 5.5" stroke="#3A7A68" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.05em;text-transform:uppercase;font-family:var(--font-mono);">
+        <span>Параметры</span><span>Выбор</span><span>Подтверждение</span>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.3);">Детали подтверждает медслужба</div>
+    </div>
+
+    <!-- Banner 3: Dark full -->
+    <div style="background:#080807;border:0.5px solid var(--void5);border-radius:var(--r5);padding:44px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;">
+        <div style="font-family:var(--font-display);font-size:42px;font-weight:700;color:white;letter-spacing:-0.05em;line-height:1;">Надом</div>
+        <div style="font-size:12px;color:var(--stone3);margin-top:8px;">Подбор медслужбы с выездом на дом</div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <span class="pill pill-b">Приватно</span>
+          <span class="pill pill-n">По времени</span>
+          <span class="pill pill-n">По условиям</span>
+        </div>
+      </div>
+      <svg width="80" height="100" viewBox="0 0 80 100" fill="none">
+        <path d="M40 6C40 6 10 34 10 54C10 73 23.5 86 40 86C56.5 86 70 73 70 54C70 34 40 6 40 6Z" stroke="#5A94CC" stroke-width="2.5" fill="rgba(61,122,181,0.08)"/>
+        <circle cx="40" cy="56" r="10" fill="#3D7AB5"/>
+        <circle cx="40" cy="56" r="5" fill="rgba(255,255,255,0.2)"/>
+        <path d="M6 96 Q20 88 40 92 Q60 96 74 96" stroke="rgba(90,148,204,0.3)" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="4 4"/>
+      </svg>
+    </div>
+
+    <!-- Banner 4: Compact info -->
+    <div style="background:var(--void3);border:0.5px solid var(--void5);border-radius:var(--r5);padding:36px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:40px;height:40px;background:var(--signal);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <svg width="22" height="28" viewBox="0 0 22 28" fill="none"><path d="M11 1C11 1 2 9 2 15C2 20 6 24 11 24C16 24 20 20 20 15C20 9 11 1 11 1Z" fill="rgba(255,255,255,0.9)"/></svg>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-size:16px;font-weight:600;color:white;letter-spacing:-0.03em;">Надом</div>
+          <div style="font-size:10px;color:var(--stone3);">Medservice at home · Moscow</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone5);">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 5L4.5 6.5L7 3.5" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          Время прибытия
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone5);">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 5L4.5 6.5L7 3.5" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          Стоимость
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--stone5);">
+          <div style="width:20px;height:20px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 5L4.5 6.5L7 3.5" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          Условия выезда
+        </div>
+      </div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.15);">При острых симптомах — 103 или 112</div>
+    </div>
+  </div>
+
+  <!-- BotFather -->
+  <div class="sec-tag" style="margin-top:32px;">BotFather Package</div>
+  <div class="g2">
+    <div>
+      <div style="font-size:10px;color:var(--stone3);margin-bottom:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;">BOTFATHER · TELEGRAM PREVIEW</div>
+      <div class="bf-scr">
+        <div class="bf-hd">
+          <div class="bf-av">
+            <svg width="26" height="32" viewBox="0 0 26 32" fill="none">
+              <path d="M13 1C13 1 4 10 4 16C4 21 8 25 13 25C18 25 22 21 22 16C22 10 13 1 13 1Z" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="13" cy="17" r="4" fill="rgba(255,255,255,0.4)"/>
+            </svg>
+          </div>
+          <div>
+            <div class="bf-name">Надом</div>
+            <div class="bf-handle">@nadombot · бот</div>
+          </div>
+          <div style="margin-left:auto;font-size:10px;color:#708A9E;">Онлайн</div>
+        </div>
+        <div style="background:#1E2C3A;border-radius:10px;padding:12px 14px;">
+          <div style="color:#CDD9E5;font-size:12px;font-weight:600;margin-bottom:6px;">🫧 Привет</div>
+          <div style="color:#A8B9CA;font-size:11px;line-height:1.65;">Надом — приватный подбор медслужбы с выездом на дом.<br/>Быстро. Без объяснений. Анонимно.</div>
+        </div>
+        <div style="background:#3D7AB5;border-radius:10px;padding:11px 14px;text-align:center;font-size:13px;font-weight:600;color:white;">Открыть Надом</div>
+        <div style="font-size:10px;color:#708A9E;text-align:center;line-height:1.6;">При угрозе жизни — <span style="color:#9A4040;">103</span> или <span style="color:#9A4040;">112</span></div>
+      </div>
+    </div>
+
+    <div class="hoff">
+      <div style="font-size:12px;font-weight:600;color:var(--white);margin-bottom:14px;font-family:var(--font-display);">BotFather Settings</div>
+      <div class="token-row"><span class="tok-n">Bot name</span><span class="tok-v">Надом</span></div>
+      <div class="token-row"><span class="tok-n">Username</span><span class="tok-v">@nadombot</span></div>
+      <div class="token-row"><span class="tok-n">Short description</span><span class="tok-v">Медслужба с выездом на дом</span></div>
+      <div class="token-row"><span class="tok-n">About</span><span class="tok-v">Приватный подбор. Без лишних звонков.</span></div>
+      <div class="token-row"><span class="tok-n">Commands</span><span class="tok-v">/start /status /support</span></div>
+      <div style="margin-top:14px;font-size:11px;color:var(--stone3);line-height:1.7;">
+        <div style="color:var(--stone4);margin-bottom:6px;">/start — открыть Надом</div>
+        <div style="color:var(--stone4);margin-bottom:6px;">/status — проверить статус заявки</div>
+        <div style="color:var(--stone4);">/support — написать в поддержку</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 06 SCREENS MINI APP ═══ -->
+<div class="sec">
+  <div class="sec-tag">06 — Экраны Mini App</div>
+  <div class="sec-h">21 экран / состояние</div>
+  <div class="sec-sub">Один экран — одно действие. Cream фон. Крупный шрифт. Минимум контента.</div>
+
+  <div class="scr-scroll">
+
+    <!-- 1. WELCOME -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 22px;gap:20px;text-align:center;">
+            <svg width="68" height="84" viewBox="0 0 68 84" fill="none">
+              <path d="M34 8C34 8 10 32 10 48C10 65 20.5 76 34 76C47.5 76 58 65 58 48C58 32 34 8 34 8Z" stroke="#5A94CC" stroke-width="2.5" fill="rgba(61,122,181,0.08)"/>
+              <circle cx="34" cy="50" r="10" fill="#3D7AB5"/>
+              <path d="M4 82 Q16 74 34 78 Q52 82 64 82" stroke="rgba(90,148,204,0.35)" stroke-width="2" stroke-linecap="round" fill="none" stroke-dasharray="4 4"/>
+            </svg>
+            <div>
+              <div style="font-family:var(--font-display);font-size:28px;font-weight:600;letter-spacing:-0.04em;color:var(--void);line-height:1.1;">Надом</div>
+              <div style="font-size:12px;color:var(--stone2);margin-top:8px;line-height:1.6;">Медслужба с выездом<br/>на дом · Москва</div>
+            </div>
+            <div style="background:var(--cream2);border-radius:var(--r2);padding:14px 16px;align-self:stretch;text-align:left;">
+              <div style="font-size:11px;color:var(--stone2);line-height:1.7;">· анонимный подбор<br/>· без публичного поиска<br/>· без лишних звонков</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Начать</button>
+            <div style="text-align:center;font-size:9px;color:var(--stone4);">При угрозе жизни — <span style="color:var(--err);">103</span> или <span style="color:var(--err);">112</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">01 · Welcome</div>
+    </div>
+
+    <!-- 2. CONSENT -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-title" style="font-size:17px;">Прежде чем начать</div>
+          </div>
+          <div class="s-body" style="gap:12px;">
+            <div style="font-size:12px;color:var(--stone2);line-height:1.7;">Надом — сервис подбора медслужбы. Мы не оказываем медицинские услуги.</div>
+            <div style="font-size:12px;color:var(--stone2);line-height:1.7;">Выбранная медслужба может запросить данные, необходимые для выезда.</div>
+            <div style="display:flex;flex-direction:column;gap:9px;margin-top:4px;">
+              <div class="chk-row">
+                <div class="chk-box on"><svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <span>Соглашаюсь на передачу необходимых данных выбранной медслужбе</span>
+              </div>
+              <div class="chk-row">
+                <div class="chk-box on"><svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <span>Ознакомился с <span style="color:var(--signal2);">условиями сервиса</span></span>
+              </div>
+            </div>
+            <div style="background:var(--cream2);border-radius:var(--r1);padding:10px 12px;font-size:10px;color:var(--stone3);line-height:1.6;">
+              Надом хранит минимум данных. Точный адрес и телефон — только при подтверждении заявки.
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Продолжить</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">02 · Consent</div>
+    </div>
+
+    <!-- 3. EMERGENCY -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-title" style="font-size:16px;">Сначала о безопасности</div>
+            <div class="s-desc">Надом не оценивает тяжесть состояния. При сомнениях — скорая.</div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div style="background:var(--cream2);border-radius:var(--r2);padding:12px 14px;">
+              <div style="font-size:10px;color:var(--stone3);margin-bottom:5px;">Требует скорой, если есть:</div>
+              <div style="font-size:11px;color:var(--stone2);line-height:1.7;">потеря сознания · судороги · нарушение дыхания · синюшность · сильная боль в груди</div>
+            </div>
+            <button class="btn btn-err" style="width:100%;">Позвонить 103</button>
+            <button class="btn btn-err" style="width:100%;">Позвонить 112</button>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-s" style="width:100%;">Продолжить подбор</button>
+            <div style="text-align:center;font-size:9px;color:var(--stone4);">Надом не блокирует подбор</div>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">03 · Emergency</div>
+    </div>
+
+    <!-- 4. ПРОФИЛЬ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Назад</div>
+            <div class="s-title">Что нужно?</div>
+            <div class="s-desc">Выберите ближайшее</div>
+          </div>
+          <div class="s-body">
+            <div class="choice-list">
+              <div class="choice-item sel">
+                <div class="c-dot on"></div>
+                <div><div class="c-main">Похмелье / интоксикация</div><div class="c-sub">алкоголь, восстановление</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">Запой / около-запойная</div><div class="c-sub">вывод, наблюдение</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">Другая интоксикация</div><div class="c-sub">вещества, отравление</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">Специалист на дом</div><div class="c-sub">срочный или плановый выезд</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Далее</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">04 · Профиль</div>
+    </div>
+
+    <!-- 5. РАЙОН -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Назад</div>
+            <div class="s-title">Район</div>
+            <div class="s-desc">Точный адрес — позже</div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <input class="s-inp foc" placeholder="Поиск района..." value="Центр"/>
+            <div class="area-grid">
+              <div class="area-chip sel">ЦАО</div>
+              <div class="area-chip">СЗАО</div>
+              <div class="area-chip">САО</div>
+              <div class="area-chip">СВАО</div>
+              <div class="area-chip">ВАО</div>
+              <div class="area-chip">ЮВАО</div>
+              <div class="area-chip">ЮАО</div>
+              <div class="area-chip">ЮЗАО</div>
+              <div class="area-chip">ЗАО</div>
+              <div class="area-chip">ЗЕЛАО</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Выбрать ЦАО</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">05 · Район</div>
+    </div>
+
+    <!-- 6. СРОЧНОСТЬ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Назад</div>
+            <div class="s-title">Когда нужен выезд?</div>
+          </div>
+          <div class="s-body">
+            <div class="choice-list">
+              <div class="choice-item sel">
+                <div class="c-dot on"></div>
+                <div><div class="c-main">Как можно скорее</div><div class="c-sub">сейчас или в течение часа</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">В течение 2–4 часов</div><div class="c-sub">сегодня</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">Сегодня вечером</div><div class="c-sub">18:00–23:00</div></div>
+              </div>
+              <div class="choice-item">
+                <div class="c-dot"></div>
+                <div><div class="c-main">Завтра или позже</div><div class="c-sub">плановый выезд</div></div>
+              </div>
+            </div>
+            <!-- Progress stepper -->
+            <div style="margin-top:8px;">
+              <div class="prog-bar"><div class="prog-fill" style="width:40%;"></div></div>
+              <div style="font-size:9px;color:var(--stone3);margin-top:4px;font-family:var(--font-mono);">Шаг 3 из 7</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Далее</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">06 · Срочность</div>
+    </div>
+
+    <!-- 7. СПИСОК МЕДСЛУЖБ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd" style="padding-bottom:8px;">
+            <div class="s-back">← Изменить</div>
+            <div class="s-title" style="font-size:16px;">Медслужбы · ЦАО</div>
+            <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;">
+              <span class="pill pill-b">Сейчас</span>
+              <span class="pill pill-n">Похмелье</span>
+              <span class="pill pill-n">3 варианта</span>
+            </div>
+          </div>
+          <div class="s-body" style="gap:8px;padding:10px 16px;">
+            <div class="svc-card">
+              <div class="svc-hd">
+                <div><div class="svc-name">МедЭкспресс</div><div class="svc-lic">✓ лицензия проверена</div></div>
+                <span class="pill pill-sage">4.8 ★</span>
+              </div>
+              <div class="svc-body">
+                <div class="eta-row">
+                  <div class="eta-col"><div class="eta-k">Ответ</div><div class="eta-v" style="font-size:13px;">~10 мин</div></div>
+                  <div class="eta-col"><div class="eta-k">Прибытие</div><div class="eta-v" style="font-size:13px;color:var(--sage);">~35 мин</div></div>
+                </div>
+                <div class="svc-row"><span class="svc-k">Ориентировочно</span><span class="svc-v">от 8 000 ₽</span></div>
+                <div class="svc-note">Детали подтверждает медслужба</div>
+              </div>
+            </div>
+            <div class="svc-card">
+              <div class="svc-hd">
+                <div><div class="svc-name">СитиДок</div><div class="svc-lic">✓ лицензия проверена</div></div>
+                <span class="pill pill-sage">4.6 ★</span>
+              </div>
+              <div class="svc-body">
+                <div class="eta-row">
+                  <div class="eta-col"><div class="eta-k">Ответ</div><div class="eta-v" style="font-size:13px;">~15 мин</div></div>
+                  <div class="eta-col"><div class="eta-k">Прибытие</div><div class="eta-v" style="font-size:13px;color:var(--sage);">~50 мин</div></div>
+                </div>
+                <div class="svc-row"><span class="svc-k">Ориентировочно</span><span class="svc-v">от 7 200 ₽</span></div>
+                <div class="svc-note">Детали подтверждает медслужба</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">07 · Список</div>
+    </div>
+
+    <!-- 8. КАРТОЧКА -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Список</div>
+            <div class="s-title" style="font-size:16px;">МедЭкспресс</div>
+            <div style="display:flex;align-items:center;gap:7px;margin-top:4px;">
+              <span style="font-size:10px;color:var(--sage);font-weight:600;">✓ Лицензия Л041-01137</span>
+              <span class="pill pill-sage">4.8 ★</span>
+            </div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div style="background:var(--cream2);border-radius:var(--r1);padding:10px 12px;font-size:11px;color:var(--stone2);line-height:1.6;">
+              Выездная медслужба. Работает в ЦАО, СЗАО, САО. Круглосуточно.
+            </div>
+            <div class="sla-label">Время</div>
+            <div class="eta-row">
+              <div class="eta-col">
+                <div class="eta-k">Ответ / подтверждение</div>
+                <div class="eta-v">~10 мин</div>
+                <div class="eta-sub">после заявки</div>
+              </div>
+              <div class="eta-col" style="border-left:0.5px solid var(--cream3);">
+                <div class="eta-k">Прибытие</div>
+                <div class="eta-v" style="color:var(--sage);">~35 мин</div>
+                <div class="eta-sub">после подтверждения</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;padding:8px 0;border-top:0.5px solid var(--cream3);border-bottom:0.5px solid var(--cream3);">
+              <span style="color:var(--stone3);">Ориентировочно</span>
+              <span style="font-weight:700;color:var(--void);">от 8 000 ₽</span>
+            </div>
+            <div style="font-size:9px;color:var(--stone3);">Состав услуги и итоговую стоимость подтверждает выбранная медслужба</div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-sage" style="width:100%;font-size:12px;">Написать специалисту</button>
+            <button class="btn btn-p" style="width:100%;font-size:12px;">Подтвердить заявку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">08 · Карточка</div>
+    </div>
+
+    <!-- 9. ЧАТ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd" style="padding-bottom:8px;">
+            <div class="s-back">← Карточка</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="width:28px;height:28px;background:var(--sage);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="14" height="18" viewBox="0 0 14 18" fill="none"><path d="M7 1C7 1 2 6 2 9.5C2 12.5 4.2 15 7 15C9.8 15 12 12.5 12 9.5C12 6 7 1 7 1Z" fill="rgba(255,255,255,0.9)"/></svg>
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--void);">Специалист МедЭкспресс</div>
+                <div style="font-size:9px;color:var(--sage);">онлайн</div>
+              </div>
+            </div>
+            <div style="font-size:9px;color:var(--stone3);margin-top:6px;padding:5px 9px;background:var(--cream2);border-radius:5px;line-height:1.4;">🔒 Чат приватный. Детали не в уведомлениях.</div>
+          </div>
+          <div class="s-body" style="display:flex;flex-direction:column;gap:8px;justify-content:flex-end;">
+            <div>
+              <div class="chat-in">Добрый день. Чем могу помочь?</div>
+              <div class="chat-meta" style="margin-left:4px;">14:32</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;">
+              <div class="chat-out">Как всё проходит с выездом?</div>
+              <div class="chat-meta" style="margin-right:4px;">14:33</div>
+            </div>
+            <div>
+              <div class="chat-in">Специалист осмотрит, предложит состав. Коротко.</div>
+              <div class="chat-meta" style="margin-left:4px;">14:34</div>
+            </div>
+          </div>
+          <div class="chat-bar">
+            <input class="chat-input" placeholder="Напишите вопрос..."/>
+            <div style="width:26px;height:26px;background:var(--signal);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M1 5.5H10M10 5.5L6.5 2M10 5.5L6.5 9" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+          </div>
+          <div style="padding:8px 14px;border-top:0.5px solid var(--cream3);">
+            <button class="btn btn-s" style="width:100%;font-size:11px;">Пропустить и подтвердить →</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">09 · Чат</div>
+    </div>
+
+    <!-- 10. ПОДТВЕРЖДЕНИЕ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Назад</div>
+            <div class="s-title">Подтвердить заявку</div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div class="card">
+              <div style="font-size:10px;color:var(--stone3);margin-bottom:5px;">Медслужба</div>
+              <div style="font-size:14px;font-weight:700;color:var(--void);font-family:var(--font-display);letter-spacing:-0.02em;">МедЭкспресс</div>
+              <div style="font-size:10px;color:var(--sage);margin-top:2px;">✓ лицензия проверена</div>
+            </div>
+            <div class="card">
+              <div class="svc-row"><span class="svc-k">Район</span><span class="svc-v">ЦАО</span></div>
+              <div class="svc-row" style="margin-top:5px;"><span class="svc-k">Срочность</span><span class="svc-v">как можно скорее</span></div>
+              <div class="svc-row" style="margin-top:5px;"><span class="svc-k">Ориентировочно</span><span class="svc-v">от 8 000 ₽</span></div>
+            </div>
+            <div style="font-size:10px;color:var(--stone3);padding:9px 11px;background:var(--cream2);border-radius:var(--r1);line-height:1.6;">
+              Медслужба уточнит адрес после подтверждения. Стоимость фиксируется до выезда.
+            </div>
+            <div style="padding:8px 0;border-top:0.5px solid var(--cream3);">
+              <div style="font-size:10px;color:var(--stone3);margin-bottom:5px;">Контакт для выезда</div>
+              <input class="s-inp" placeholder="Телефон (только для медслужбы)" style="margin-bottom:5px;"/>
+              <input class="s-inp" placeholder="Адрес (улица, дом, квартира)"/>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Отправить заявку</button>
+            <div style="font-size:9px;color:var(--stone4);text-align:center;">Телефон и адрес видит только медслужба</div>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">10 · Подтверждение</div>
+    </div>
+
+    <!-- 11. ОЖИДАНИЕ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;gap:18px;text-align:center;">
+            <div style="position:relative;width:64px;height:64px;">
+              <div style="position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--cream3);"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--signal);animation:sp 1.6s linear infinite;"></div>
+              <div style="position:absolute;inset:9px;border-radius:50%;background:var(--signal-dim);display:flex;align-items:center;justify-content:center;">
+                <svg width="20" height="24" viewBox="0 0 20 24" fill="none"><path d="M10 2C10 2 3 8.5 3 13C3 17 6.1 20 10 20C13.9 20 17 17 17 13C17 8.5 10 2 10 2Z" fill="#3D7AB5" fill-opacity="0.6"/><circle cx="10" cy="13.5" r="3" fill="#3D7AB5"/></svg>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:600;color:var(--void);font-family:var(--font-display);">🧊 Ожидайте</div>
+              <div style="font-size:12px;color:var(--stone2);margin-top:7px;line-height:1.6;">МедЭкспресс подтверждает заявку.<br/>Обычно до 10 минут.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;align-self:stretch;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:7px 11px;background:var(--cream2);border-radius:var(--r1);">
+                <span style="color:var(--stone3);">Заявка отправлена</span>
+                <span style="color:var(--stone2);font-weight:500;">14:35</span>
+              </div>
+              <div style="font-size:10px;color:var(--stone4);text-align:center;">Уведомление придёт в Telegram</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-s" style="width:100%;font-size:11px;">Написать в поддержку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">11 · Ожидание</div>
+    </div>
+
+    <!-- 12. PRICE LOCK -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;gap:14px;text-align:center;">
+            <div style="width:56px;height:56px;background:var(--sage-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M18 10V8a6 6 0 10-12 0v2M6 10h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8a2 2 0 012-2z" stroke="#3A7A68" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="16" r="1.8" fill="#3A7A68"/></svg>
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:600;color:var(--void);font-family:var(--font-display);">Стоимость зафиксирована</div>
+              <div style="font-size:30px;font-weight:700;color:var(--sage);letter-spacing:-0.04em;margin-top:7px;font-family:var(--font-display);">8 500 ₽</div>
+              <div style="font-size:10px;color:var(--stone3);margin-top:3px;">подтверждена медслужбой</div>
+            </div>
+            <div class="card" style="align-self:stretch;text-align:left;">
+              <div class="svc-row"><span class="svc-k">Медслужба</span><span class="svc-v">МедЭкспресс</span></div>
+              <div class="svc-row" style="margin-top:5px;"><span class="svc-k">Прибытие</span><span class="svc-v" style="color:var(--sage);">~35 мин</span></div>
+            </div>
+            <div style="font-size:10px;color:var(--stone3);line-height:1.6;">Сумма не изменится без вашего согласия</div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Ожидать специалиста</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">12 · Price Lock</div>
+    </div>
+
+    <!-- 13. ВЫЕЗД -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;gap:14px;text-align:center;">
+            <div style="font-size:38px;">🪽</div>
+            <div>
+              <div style="font-size:18px;font-weight:600;color:var(--void);font-family:var(--font-display);">Специалист выехал</div>
+              <div style="font-size:12px;color:var(--stone2);margin-top:6px;">МедЭкспресс · ожидаемое прибытие</div>
+              <div style="font-size:32px;font-weight:700;color:var(--sage);letter-spacing:-0.04em;margin-top:5px;font-family:var(--font-display);">~35 мин</div>
+            </div>
+            <div class="card" style="align-self:stretch;text-align:left;">
+              <div class="track">
+                <div class="track-item">
+                  <div class="track-line"><div class="tr-dot done"></div><div class="tr-conn done"></div></div>
+                  <div class="tr-txt"><div class="tr-name">Заявка подтверждена</div><div class="tr-time">14:41</div></div>
+                </div>
+                <div class="track-item">
+                  <div class="track-line"><div class="tr-dot active"></div><div class="tr-conn"></div></div>
+                  <div class="tr-txt"><div class="tr-name">Специалист выехал</div><div class="tr-time">14:43</div></div>
+                </div>
+                <div class="track-item">
+                  <div class="track-line"><div class="tr-dot off"></div></div>
+                  <div class="tr-txt"><div class="tr-name" style="color:var(--stone3);">Прибытие</div><div class="tr-time">~15:18</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-s" style="width:100%;font-size:11px;">Связаться со специалистом</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">13 · Выезд</div>
+    </div>
+
+    <!-- 14. ЗАВЕРШЕНИЕ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 22px;gap:14px;text-align:center;">
+            <div style="font-size:36px;">🩵</div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--void);letter-spacing:-0.03em;">Готово</div>
+              <div style="font-size:12px;color:var(--stone2);margin-top:7px;line-height:1.6;">Выезд МедЭкспресс завершён.<br/>Надеемся, что стало лучше.</div>
+            </div>
+            <div class="card" style="align-self:stretch;text-align:left;">
+              <div class="svc-row"><span class="svc-k">Медслужба</span><span class="svc-v">МедЭкспресс</span></div>
+              <div class="svc-row" style="margin-top:5px;"><span class="svc-k">Итого</span><span class="svc-v">8 500 ₽</span></div>
+              <div class="svc-row" style="margin-top:5px;"><span class="svc-k">Дата</span><span class="svc-v">31 мая 2026</span></div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Оценить визит</button>
+            <button class="btn btn-g" style="width:100%;">Пропустить</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">14 · Завершение</div>
+    </div>
+
+    <!-- 15. РЕЙТИНГ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-title">Оцените визит</div>
+            <div class="s-desc">МедЭкспресс · 31 мая</div>
+          </div>
+          <div class="s-body" style="align-items:center;justify-content:center;gap:16px;">
+            <div class="stars">
+              <span class="star lit">★</span>
+              <span class="star lit">★</span>
+              <span class="star lit">★</span>
+              <span class="star lit">★</span>
+              <span class="star">★</span>
+            </div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;">
+              <span class="chip on">Быстро приехали</span>
+              <span class="chip on">Понятно объяснили</span>
+              <span class="chip">Была проблема</span>
+              <span class="chip">Дорого</span>
+            </div>
+            <textarea style="width:100%;height:64px;background:var(--white);border:0.5px solid var(--cream3);border-radius:var(--r1);padding:9px 11px;font-size:11px;font-family:var(--font-body);color:var(--stone3);resize:none;" placeholder="Комментарий (необязательно)"></textarea>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Отправить</button>
+            <button class="btn btn-g" style="width:100%;">Пропустить</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">15 · Рейтинг</div>
+    </div>
+
+    <!-- 16. ПОДДЕРЖКА -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-back">← Назад</div>
+            <div class="s-title">Поддержка</div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div class="card" style="display:flex;gap:10px;align-items:flex-start;">
+              <div style="font-size:16px;">🩵</div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:var(--void);">Что-то пошло не так?</div>
+                <div style="font-size:11px;color:var(--stone2);margin-top:2px;line-height:1.5;">Напишите нам. Ответим быстро.</div>
+              </div>
+            </div>
+            <div class="choice-list">
+              <div class="choice-item" style="padding:10px 13px;"><div class="c-main">Вопрос по заявке</div></div>
+              <div class="choice-item" style="padding:10px 13px;"><div class="c-main">Проблема с медслужбой</div></div>
+              <div class="choice-item" style="padding:10px 13px;"><div class="c-main">Другой вопрос</div></div>
+            </div>
+            <textarea style="width:100%;height:64px;background:var(--white);border:0.5px solid var(--cream3);border-radius:var(--r1);padding:9px 11px;font-size:11px;font-family:var(--font-body);color:var(--stone3);resize:none;" placeholder="Опишите ситуацию..."></textarea>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Отправить</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">16 · Поддержка</div>
+    </div>
+
+    <!-- 17. EMPTY STATE -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-title">Медслужбы · ЗЕЛАО</div>
+          </div>
+          <div class="s-body">
+            <div class="state-ill">
+              <div style="width:52px;height:52px;background:var(--cream2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8" stroke="#C8C8BC" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="12" cy="12" r="3" fill="#C8C8BC"/></svg>
+              </div>
+              <div style="font-size:15px;font-weight:600;color:var(--void);font-family:var(--font-display);">Нет медслужб</div>
+              <div style="font-size:12px;color:var(--stone2);line-height:1.6;">В выбранном районе сейчас<br/>нет доступных вариантов</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Выбрать другой район</button>
+            <button class="btn btn-s" style="width:100%;">Написать в поддержку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">17 · Empty</div>
+    </div>
+
+    <!-- 18. ERROR -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-body">
+            <div class="state-ill" style="flex:1;">
+              <div style="width:52px;height:52px;background:var(--err-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 7v5M11 15h.01M9.27 3.15L1.7 17a2 2 0 001.73 3h15.14a2 2 0 001.73-3L12.73 3.15a2 2 0 00-3.46 0z" stroke="#7A3030" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div style="font-size:15px;font-weight:600;color:var(--void);font-family:var(--font-display);">Что-то пошло не так</div>
+              <div style="font-size:12px;color:var(--stone2);line-height:1.6;">Не удалось отправить заявку.<br/>Попробуйте ещё раз.</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Попробовать снова</button>
+            <button class="btn btn-s" style="width:100%;">Написать в поддержку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">18 · Error</div>
+    </div>
+
+    <!-- 19. ПОВТОРНЫЙ ЗАПРОС -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div class="s-hd">
+            <div class="s-title">Новая заявка</div>
+            <div class="s-desc">Последний выезд: МедЭкспресс · 31 мая</div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div style="font-size:12px;color:var(--stone2);">Повторить тот же сценарий?</div>
+            <div class="card" style="border:0.5px solid var(--signal);">
+              <div style="font-size:11px;color:var(--signal2);font-weight:600;margin-bottom:7px;">Быстрый повтор</div>
+              <div class="svc-row"><span class="svc-k">Тип</span><span class="svc-v">Похмелье / интоксикация</span></div>
+              <div class="svc-row" style="margin-top:4px;"><span class="svc-k">Район</span><span class="svc-v">ЦАО</span></div>
+            </div>
+            <div style="text-align:center;font-size:11px;color:var(--stone4);padding:3px 0;">или</div>
+            <button class="btn btn-s" style="width:100%;">Начать заново</button>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Повторить заявку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">19 · Повтор</div>
+    </div>
+
+    <!-- 20. СТАТУС ЗАЯВКИ (admin/medservice) -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr dark">
+          <div class="s-hd dark-hd">
+            <div class="s-title lgt" style="font-size:16px;">Статус заявки</div>
+            <div style="display:flex;gap:5px;margin-top:6px;">
+              <span class="pill pill-b">Обрабатывается</span>
+            </div>
+          </div>
+          <div class="s-body" style="gap:8px;">
+            <div style="background:var(--void4);border-radius:var(--r2);padding:12px 14px;">
+              <div style="font-size:10px;color:var(--stone3);margin-bottom:6px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.08em;">Текущий статус</div>
+              <div style="font-size:14px;font-weight:600;color:var(--stone5);font-family:var(--font-display);letter-spacing:-0.02em;">Передали медслужбе</div>
+              <div style="font-size:11px;color:var(--stone3);margin-top:3px;">МедЭкспресс · ожидаем ответ ~10 мин</div>
+            </div>
+            <div style="background:var(--void4);border-radius:var(--r2);padding:12px 14px;display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:var(--stone3);">Район</span><span style="color:var(--stone5);">ЦАО</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:var(--stone3);">Профиль</span><span style="color:var(--stone5);">Похмелье</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:var(--stone3);">Срочность</span><span style="color:var(--stone5);">Как можно скорее</span></div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-p" style="width:100%;">Открыть заявку</button>
+            <button class="btn btn-s" style="width:100%;color:var(--stone4);border-color:var(--void5);">Написать в поддержку</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">20 · Статус (dark)</div>
+    </div>
+
+    <!-- 21. СПЕЦИАЛИСТ НА МЕСТЕ -->
+    <div class="scr-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-scr">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px 22px;gap:14px;text-align:center;">
+            <div style="width:56px;height:56px;background:var(--sage-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17L4 12" stroke="#3A7A68" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <div style="font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--void);">Специалист на месте</div>
+              <div style="font-size:12px;color:var(--stone2);margin-top:6px;line-height:1.6;">МедЭкспресс · прибыл в 15:14</div>
+            </div>
+            <div class="card" style="align-self:stretch;">
+              <div class="svc-row"><span class="svc-k">Итоговая стоимость</span><span class="svc-v" style="color:var(--sage);font-weight:700;">8 500 ₽</span></div>
+              <div style="font-size:9px;color:var(--stone3);margin-top:6px;">Зафиксирована до выезда</div>
+            </div>
+          </div>
+          <div class="s-foot">
+            <button class="btn btn-sage" style="width:100%;">Хорошо</button>
+            <button class="btn btn-s" style="width:100%;font-size:11px;">Открыть чат</button>
+          </div>
+        </div>
+      </div>
+      <div class="scr-lbl">21 · На месте</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 07 TG BOT ═══ -->
+<div class="sec">
+  <div class="sec-tag">07 — Telegram Bot · Сообщения</div>
+  <div class="g3">
+
+    <!-- /start -->
+    <div>
+      <div style="font-size:10px;color:var(--stone3);margin-bottom:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;">/start · Welcome</div>
+      <div class="tg-bg">
+        <div class="tg-msg">
+          <div class="tg-hd">
+            <div class="tg-av">
+              <svg width="14" height="18" viewBox="0 0 14 18" fill="none"><path d="M7 1C7 1 2 6 2 9.5C2 12.5 4.2 15 7 15C9.8 15 12 12.5 12 9.5C12 6 7 1 7 1Z" fill="rgba(255,255,255,0.9)"/></svg>
+            </div>
+            <div><div class="tg-bname">Надом</div><div class="tg-vrf">✓ Верифицирован</div></div>
+          </div>
+          <div class="tg-txt">🫧 Привет<br/><br/>Надом — приватный подбор медслужбы с выездом на дом.<br/><br/>Быстро. Без объяснений. Анонимно.</div>
+          <div class="tg-btns">
+            <div class="tg-btn">Открыть Надом</div>
+          </div>
+          <div class="tg-time">14:30 · ✓✓</div>
+        </div>
+        <div style="margin-top:8px;text-align:center;font-size:9px;color:#708A9E;">При угрозе жизни — 103 или 112</div>
+      </div>
+    </div>
+
+    <!-- Status messages -->
+    <div>
+      <div style="font-size:10px;color:var(--stone3);margin-bottom:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;">Status Notifications</div>
+      <div class="tg-bg" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="tg-msg">
+          <div class="tg-txt" style="font-size:11px;">✓ <strong>Заявка подтверждена</strong><br/><span style="color:#708A9E;font-size:10px;">МедЭкспресс · 14:41</span></div>
+          <div style="margin-top:7px;padding:7px 9px;background:#F2F1EB;border-radius:7px;font-size:10px;color:#161614;">Стоимость зафиксирована: <strong>8 500 ₽</strong><br/>Прибытие: ~35 мин</div>
+          <div class="tg-time" style="font-size:9px;">14:41</div>
+        </div>
+        <div class="tg-msg">
+          <div class="tg-txt" style="font-size:11px;">🪽 <strong>Специалист выехал</strong><br/><span style="color:#708A9E;font-size:10px;">МедЭкспресс · 14:43</span></div>
+          <div style="margin-top:5px;font-size:10px;color:#708A9E;">Ожидаемое прибытие: ~15:18</div>
+          <div class="tg-time" style="font-size:9px;">14:43</div>
+        </div>
+        <div class="tg-msg">
+          <div class="tg-txt" style="font-size:11px;">🩵 <strong>Выезд завершён</strong></div>
+          <div class="tg-btns"><div class="tg-btn" style="font-size:10px;">Оценить визит</div></div>
+          <div class="tg-time" style="font-size:9px;">16:05</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support + Repeat -->
+    <div>
+      <div style="font-size:10px;color:var(--stone3);margin-bottom:10px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;">Support · Repeat</div>
+      <div class="tg-bg" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="tg-msg">
+          <div class="tg-txt" style="font-size:11px;">🩵 <strong>Поддержка</strong><br/><br/>Напишите — разберёмся быстро.</div>
+          <div class="tg-btns"><div class="tg-btn" style="font-size:10px;">Написать</div></div>
+          <div class="tg-time" style="font-size:9px;">14:35</div>
+        </div>
+        <div class="tg-msg">
+          <div class="tg-txt" style="font-size:11px;"><strong>Повторная заявка?</strong><br/><span style="color:#708A9E;font-size:10px;">Последний выезд: МедЭкспресс</span></div>
+          <div class="tg-btns">
+            <div class="tg-btn" style="font-size:10px;margin-bottom:4px;">Повторить</div>
+            <div class="tg-btn" style="background:#F2F1EB;color:#5A5A54;font-size:10px;">Новая заявка</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 08 ICONS ═══ -->
+<div class="sec">
+  <div class="sec-tag">08 — Icon System · 20+ иконок</div>
+  <div class="g6" style="gap:8px;">
+
+    <div class="ico-box">
+      <svg width="26" height="32" viewBox="0 0 26 32" fill="none"><path d="M13 2C13 2 4 10 4 16C4 21 8 25 13 25C18 25 22 21 22 16C22 10 13 2 13 2Z" stroke="#5A94CC" stroke-width="1.8" stroke-linecap="round" fill="rgba(61,122,181,0.1)"/><circle cx="13" cy="17" r="4" fill="#3D7AB5"/><path d="M2 30 Q7 26 13 28 Q19 30 24 30" stroke="rgba(90,148,204,0.35)" stroke-width="1.4" stroke-linecap="round" fill="none" stroke-dasharray="3 3"/></svg>
+      <div class="ico-lbl">Логотип</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#5A94CC" stroke-width="1.5"/><path d="M10 9.5l6 3.5-6 3.5V9.5z" fill="#5A94CC"/></svg>
+      <div class="ico-lbl">Старт</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 2L4 6.5v6c0 5 3.7 9.7 9 10.9C18.3 22.2 22 17.5 22 12.5v-6L13 2z" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="12" r="2" fill="#5A94CC"/><line x1="13" y1="14" x2="13" y2="16.5" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="ico-lbl">Приватность</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 2a8 8 0 100 16A8 8 0 0013 2z" stroke="#5A94CC" stroke-width="1.5"/><circle cx="13" cy="10" r="2.5" fill="#5A94CC"/><path d="M13 12.5C9 14 8 17.5 13 23c5-5.5 4-9 0-10.5z" fill="#5A94CC" fill-opacity="0.4"/></svg>
+      <div class="ico-lbl">Район</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#5A94CC" stroke-width="1.5"/><path d="M13 7v6l3.5 2" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ico-lbl">Время</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="3" y="4" width="20" height="6" rx="2" stroke="#5A94CC" stroke-width="1.5"/><rect x="3" y="13" width="20" height="6" rx="2" stroke="#5A94CC" stroke-width="1.5" stroke-opacity="0.5"/></svg>
+      <div class="ico-lbl">Список</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="3" y="5" width="20" height="16" rx="3" stroke="#5A94CC" stroke-width="1.5"/><line x1="3" y1="11" x2="23" y2="11" stroke="#5A94CC" stroke-width="1.5"/><circle cx="8" cy="16" r="2" fill="#5A94CC" fill-opacity="0.5"/></svg>
+      <div class="ico-lbl">Карточка</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M7 3h12a2 2 0 012 2v16a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" stroke="#5A94CC" stroke-width="1.5"/><path d="M9 10l2.5 2.5L17 7" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ico-lbl">Лицензия</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 2l2.7 5.5 6 .52-4.35 4.23 1.03 5.97L13 15.38l-5.38 2.84 1.03-5.97L4.3 8.02l6-.52L13 2z" stroke="#5A94CC" stroke-width="1.5" stroke-linejoin="round"/><path d="M13 2l2.7 5.5 6 .52-4.35 4.23 1.03 5.97L13 15.38V2z" fill="#5A94CC" fill-opacity="0.3"/></svg>
+      <div class="ico-lbl">Рейтинг</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M22 13c0 4.4-4 8-9 8a10.5 10.5 0 01-3.7-.65L3 22l2-4.7C3.8 16.1 3 14.7 3 13c0-4.4 4-8 9-8s10 3.6 10 8z" stroke="#5A94CC" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <div class="ico-lbl">Чат</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#5A94CC" stroke-width="1.5"/><path d="M8.5 13l3 3 6-6" stroke="#5A94CC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ico-lbl">Подтверж-<br/>дение</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#5A94CC" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="13" cy="13" r="4" fill="#5A94CC" fill-opacity="0.25"/><circle cx="13" cy="13" r="2" fill="#5A94CC"/></svg>
+      <div class="ico-lbl">Ожидание</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 19l4.5-4.5 4 3 4.5-6.5 4.5 4.5" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="21" cy="13" r="2.5" fill="#5A94CC" fill-opacity="0.3" stroke="#5A94CC" stroke-width="1"/></svg>
+      <div class="ico-lbl">Выезд</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M18 11V9a5 5 0 10-10 0v2M7 11h12a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8a2 2 0 012-2z" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="13" cy="16.5" r="1.5" fill="#5A94CC"/></svg>
+      <div class="ico-lbl">Price Lock</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" stroke="#B89090" stroke-width="1.5"/><path d="M10.5 10a2.5 2.5 0 115 0c0 2-2.5 2.5-2.5 2.5" stroke="#B89090" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="17" r="1" fill="#B89090"/></svg>
+      <div class="ico-lbl">Поддержка</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="9" fill="rgba(122,48,48,0.1)" stroke="#7A3030" stroke-width="1"/><text x="13" y="17" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" font-weight="700" fill="#7A3030">103</text></svg>
+      <div class="ico-lbl">103 · 112</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 4L2.5 22h21L13 4z" stroke="#7A3030" stroke-width="1.5" stroke-linejoin="round"/><line x1="13" y1="11" x2="13" y2="16" stroke="#7A3030" stroke-width="1.5" stroke-linecap="round"/><circle cx="13" cy="19" r="1" fill="#7A3030"/></svg>
+      <div class="ico-lbl">Ошибка</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="12" r="6" stroke="#5A5A54" stroke-width="1.5" stroke-dasharray="3 2.5"/><circle cx="13" cy="12" r="2.5" stroke="#5A5A54" stroke-width="1"/><line x1="9" y1="21" x2="17" y2="21" stroke="#5A5A54" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="ico-lbl">Empty</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M4 13a9 9 0 0115.4-6.4" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round"/><path d="M22 13a9 9 0 01-15.4 6.4" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.5"/><polyline points="17,2.5 20.4,6.4 16.5,7" fill="none" stroke="#5A94CC" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <div class="ico-lbl">Повтор</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="6" cy="6" r="3.5" stroke="#5A94CC" stroke-width="1.5"/><circle cx="20" cy="13" r="3.5" fill="#3D7AB5"/><circle cx="6" cy="20" r="3.5" stroke="#5A94CC" stroke-width="1.5" stroke-opacity="0.5"/><line x1="9.2" y1="7.5" x2="16.8" y2="11" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round"/><line x1="9.2" y1="18.5" x2="16.8" y2="15" stroke="#5A94CC" stroke-width="1.2" stroke-linecap="round" stroke-opacity="0.5"/></svg>
+      <div class="ico-lbl">Маршрут</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M3 19l4-8 5 4 4-6 5 4" stroke="#3A7A68" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4.5" cy="19" r="2" fill="#3A7A68"/><circle cx="22" cy="13" r="2" fill="#3A7A68"/></svg>
+      <div class="ico-lbl">ETA</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M13 3C13 3 5 10 5 15C5 19 8.6 22.5 13 22.5C17.4 22.5 21 19 21 15C21 10 13 3 13 3Z" stroke="#5A94CC" stroke-width="1.5" fill="rgba(61,122,181,0.08)"/><circle cx="13" cy="16" r="3" fill="#3D7AB5"/></svg>
+      <div class="ico-lbl">Символ<br/>знак</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="3" y="14" width="7" height="9" rx="2" stroke="#5A94CC" stroke-width="1.5"/><rect x="9.5" y="9" width="7" height="14" rx="2" stroke="#5A94CC" stroke-width="1.5"/><rect x="16" y="5" width="7" height="18" rx="2" fill="#5A94CC" fill-opacity="0.15" stroke="#5A94CC" stroke-width="1.5"/></svg>
+      <div class="ico-lbl">Стоимость</div>
+    </div>
+
+    <div class="ico-box">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="10" r="4" stroke="#5A94CC" stroke-width="1.5"/><path d="M5 22c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#5A94CC" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div class="ico-lbl">Специалист</div>
+    </div>
+
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 09 UI COMPONENTS ═══ -->
+<div class="sec">
+  <div class="sec-tag">09 — UI Components</div>
+  <div class="g2" style="gap:28px;">
+
+    <div class="hoff" style="display:flex;flex-direction:column;gap:18px;">
+      <div>
+        <div style="font-size:9px;color:var(--stone3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Кнопки</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="btn btn-p" style="align-self:flex-start;min-width:200px;">Подтвердить заявку</button>
+          <button class="btn btn-sage" style="align-self:flex-start;min-width:200px;">Написать специалисту</button>
+          <button class="btn btn-s" style="align-self:flex-start;min-width:200px;border-color:var(--void5);color:var(--stone3);">Продолжить подбор</button>
+          <button class="btn btn-err" style="align-self:flex-start;min-width:200px;">Позвонить 103</button>
+          <button class="btn btn-g" style="align-self:flex-start;">Пропустить →</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;color:var(--stone3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Бейджи / статусы</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="pill pill-b">Сейчас</span>
+          <span class="pill pill-sage">Подтверждено</span>
+          <span class="pill pill-ok">Выехал</span>
+          <span class="pill pill-ember">Ожидание</span>
+          <span class="pill pill-err">Отменено</span>
+          <span class="pill pill-n">ЦАО</span>
+          <span class="pill pill-sage">4.8 ★</span>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;color:var(--stone3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Карточка медслужбы (compact)</div>
+        <div style="background:var(--cream);border-radius:var(--r2);padding:12px 14px;border:0.5px solid var(--cream3);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:700;color:var(--void);font-family:var(--font-display);letter-spacing:-0.02em;">МедЭкспресс</div>
+            <span class="pill pill-sage">4.8 ★</span>
+          </div>
+          <div style="display:flex;gap:7px;">
+            <div style="flex:1;padding:7px;background:var(--cream2);border-radius:var(--r1);">
+              <div style="font-size:9px;color:var(--stone3);">Ответ</div>
+              <div style="font-size:12px;font-weight:700;color:var(--void);">~10 мин</div>
+            </div>
+            <div style="flex:1;padding:7px;background:var(--cream2);border-radius:var(--r1);">
+              <div style="font-size:9px;color:var(--stone3);">Прибытие</div>
+              <div style="font-size:12px;font-weight:700;color:var(--sage);">~35 мин</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;color:var(--stone3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Скругления</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="width:24px;height:24px;background:var(--signal);border-radius:6px;"></div>
+          <div style="width:32px;height:32px;background:var(--sage);border-radius:12px;"></div>
+          <div style="width:40px;height:40px;background:var(--ember);border-radius:18px;"></div>
+          <div style="width:48px;height:48px;background:var(--stone2);border-radius:24px;"></div>
+          <div style="width:48px;height:48px;background:var(--stone3);border-radius:50%;"></div>
+        </div>
+        <div style="font-size:9px;color:var(--stone3);font-family:var(--font-mono);margin-top:5px;">6 · 12 · 18 · 24 · 50%</div>
+      </div>
+    </div>
+
+    <div class="hoff">
+      <div style="font-size:12px;font-weight:600;color:var(--white);margin-bottom:16px;font-family:var(--font-display);">Design Tokens</div>
+      <div class="token-row"><span class="tok-n">--void</span><span class="tok-v">#080807</span></div>
+      <div class="token-row"><span class="tok-n">--void-2</span><span class="tok-v">#0E0E0C</span></div>
+      <div class="token-row"><span class="tok-n">--void-3</span><span class="tok-v">#161614</span></div>
+      <div class="token-row"><span class="tok-n">--void-5</span><span class="tok-v">#272724</span></div>
+      <div class="token-row"><span class="tok-n">--cream</span><span class="tok-v">#F2F1EB</span></div>
+      <div class="token-row"><span class="tok-n">--cream-2</span><span class="tok-v">#EBEBDE</span></div>
+      <div class="token-row"><span class="tok-n">--cream-3</span><span class="tok-v">#E0DFD0</span></div>
+      <div class="token-row"><span class="tok-n">--signal</span><span class="tok-v">#3D7AB5</span></div>
+      <div class="token-row"><span class="tok-n">--signal-2</span><span class="tok-v">#5A94CC</span></div>
+      <div class="token-row"><span class="tok-n">--signal-3</span><span class="tok-v">#8DB8E0</span></div>
+      <div class="token-row"><span class="tok-n">--sage</span><span class="tok-v">#3A7A68</span></div>
+      <div class="token-row"><span class="tok-n">--sage-2</span><span class="tok-v">#5A9980</span></div>
+      <div class="token-row"><span class="tok-n">--ember</span><span class="tok-v">#A05030</span></div>
+      <div class="token-row"><span class="tok-n">--err</span><span class="tok-v">#7A3030</span></div>
+      <div class="token-row"><span class="tok-n">--stone</span><span class="tok-v">#3D3D39</span></div>
+      <div class="token-row"><span class="tok-n">--stone-3</span><span class="tok-v">#7A7A72</span></div>
+      <div class="token-row"><span class="tok-n">--stone-5</span><span class="tok-v">#C8C8BC</span></div>
+      <div class="token-row"><span class="tok-n">--radius-sm</span><span class="tok-v">6px</span></div>
+      <div class="token-row"><span class="tok-n">--radius-md</span><span class="tok-v">12px</span></div>
+      <div class="token-row"><span class="tok-n">--radius-lg</span><span class="tok-v">18px</span></div>
+      <div class="token-row"><span class="tok-n">--radius-xl</span><span class="tok-v">24px</span></div>
+      <div class="token-row"><span class="tok-n">--font-display</span><span class="tok-v">'Unbounded'</span></div>
+      <div class="token-row"><span class="tok-n">--font-body</span><span class="tok-v">'Onest'</span></div>
+      <div class="token-row"><span class="tok-n">--font-mono</span><span class="tok-v">'SF Mono' / 'Fira Code'</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 10 UI TEXTS ═══ -->
+<div class="sec">
+  <div class="sec-tag">10 — Готовые UI-тексты</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;">
+    <div class="txt-block"><div class="txt-tag">welcome</div><div class="txt-body">🫧 Привет<br/>Надом — приватный подбор медслужбы с выездом на дом. Быстро. Без объяснений. Анонимно.</div></div>
+    <div class="txt-block"><div class="txt-tag">emergency</div><div class="txt-body">Если есть сомнения в тяжести состояния — лучше позвонить в 103 или 112. Надом не оценивает и не ставит диагноз.</div></div>
+    <div class="txt-block"><div class="txt-tag">price lock</div><div class="txt-body">Стоимость зафиксирована. Сумма не изменится без вашего согласия.</div></div>
+    <div class="txt-block"><div class="txt-tag">service card note</div><div class="txt-body">Состав услуги и итоговую стоимость подтверждает выбранная медслужба.</div></div>
+    <div class="txt-block"><div class="txt-tag">privacy note</div><div class="txt-body">Телефон и адрес видит только выбранная медслужба. Надом хранит минимум данных.</div></div>
+    <div class="txt-block"><div class="txt-tag">chat privacy</div><div class="txt-body">🔒 Чат приватный. Детали не сохраняются в уведомлениях.</div></div>
+    <div class="txt-block"><div class="txt-tag">done</div><div class="txt-body">🩵 Готово. Надеемся, что стало лучше.</div></div>
+    <div class="txt-block"><div class="txt-tag">empty state</div><div class="txt-body">В выбранном районе сейчас нет доступных вариантов.</div></div>
+    <div class="txt-block"><div class="txt-tag">waiting</div><div class="txt-body">🧊 Ожидайте. Медслужба подтверждает заявку. Обычно до 10–15 минут.</div></div>
+    <div class="txt-block"><div class="txt-tag">specialist en route</div><div class="txt-body">🪽 Специалист выехал. Ожидаемое прибытие — {ETA}. Уточните адрес при необходимости.</div></div>
+    <div class="txt-block"><div class="txt-tag">tg status neutral</div><div class="txt-body">Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.</div></div>
+    <div class="txt-block"><div class="txt-tag">repeat request</div><div class="txt-body">Повторная заявка? Последний выезд: {medservice}.</div></div>
+  </div>
+</div>
+
+<div class="div"></div>
+
+<!-- ═══ 11 CODEX HANDOFF ═══ -->
+<div class="sec">
+  <div class="sec-tag">11 — Codex Handoff</div>
+  <div class="g2" style="gap:28px;">
+
+    <div class="hoff">
+      <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:16px;font-family:var(--font-display);">PR Sequence · 10 шагов</div>
+      <div class="pr-row"><span class="pr-n">PR-01</span><div><div class="pr-t">design-tokens + fonts</div><div class="pr-d">CSS-переменные, Unbounded + Onest, глобальный reset. packages/shared/styles/tokens.css</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-02</span><div><div class="pr-t">nadom-symbol SVG assets</div><div class="pr-d">logo.svg, icon-drop.svg, favicon.svg, splash.svg. apps/mini-app/public/brand/</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-03</span><div><div class="pr-t">ui-components base</div><div class="pr-d">Button, Pill, Card, ChoiceItem, ETABlock, ServiceCard. apps/mini-app/src/components/ui/</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-04</span><div><div class="pr-t">screens 1–4 shell</div><div class="pr-d">Welcome, Consent, Emergency, HelpProfile. Вёрстка + переход. Без API.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-05</span><div><div class="pr-t">screens 5–7 flow</div><div class="pr-d">District, Urgency, ServiceList (mock). Chip-grid, radio-list, progress stepper.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-06</span><div><div class="pr-t">ServiceCard + SLA</div><div class="pr-d">Карточка с разделёнными SLA. Кнопки чата и подтверждения. ETABlock разделён.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-07</span><div><div class="pr-t">SpecialistChat screen</div><div class="pr-d">Chat UI, privacy note, кнопка пропустить. Заглушка. Содержимое не в TG-уведомления.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-08</span><div><div class="pr-t">Confirm + Status + PriceLock</div><div class="pr-d">Подтверждение, ожидание, price lock, выезд. StatusTrack компонент. Поля encrypted at rest.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-09</span><div><div class="pr-t">Complete + Rating + Repeat</div><div class="pr-d">Завершение, рейтинг, повтор. Chip-мультиселект. Не хранить медицинские детали.</div></div></div>
+      <div class="pr-row"><span class="pr-n">PR-10</span><div><div class="pr-t">TG Bot messages + BotFather</div><div class="pr-d">/start, /status, /support шаблоны. BotFather: name, description, about, commands, photo.</div></div></div>
+      <div style="margin-top:14px;padding:10px 12px;background:rgba(61,122,181,0.06);border-radius:var(--r1);border:0.5px solid rgba(61,122,181,0.15);">
+        <div style="font-size:10px;color:var(--signal2);line-height:1.7;font-family:var(--font-mono);">ПРАВИЛА: draft PR только · не мержить без ревью · нет "врач Надом"/"партнёр" в UI · нет secrets · phone/address не логировать · чат не в TG-уведомления</div>
+      </div>
+    </div>
+
+    <div class="hoff">
+      <div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:16px;font-family:var(--font-display);">PR Review Checklist</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Нет .env, токенов, secrets в коде</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Telegram initData validation включена</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Нет логирования адресов, телефонов, медданных</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Sensitive fields не plain text</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ UI использует "Надом", не IVhome</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Нет "партнёр" в пользовательском UI</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Нет "врач Надом", "клиника Надом", "наш врач"</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Нет medical claims: "лечим", "назначаем"</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Emergency не блокирует подбор</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ SLA разделены: ответ ≠ прибытие</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Чат со специалистом присутствует после карточки</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ TG-уведомления нейтральные, без деталей</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;border-bottom:0.5px solid var(--void5);">☐ Аудит лог для смены статусов, цены, подтверждений</div>
+        <div style="font-size:11px;color:var(--stone3);padding:5px 0;">☐ Нет красных крестов, сирен, generic gradients</div>
+      </div>
+
+      <div style="margin-top:18px;border-top:0.5px solid var(--void5);padding-top:14px;">
+        <div style="font-size:10px;color:var(--stone3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">MVP Priority Screens</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="pill pill-sage">01 Welcome</span>
+          <span class="pill pill-sage">02 Consent</span>
+          <span class="pill pill-sage">03 Emergency</span>
+          <span class="pill pill-sage">04 Профиль</span>
+          <span class="pill pill-sage">05 Район</span>
+          <span class="pill pill-sage">06 Срочность</span>
+          <span class="pill pill-sage">07 Список</span>
+          <span class="pill pill-sage">08 Карточка</span>
+          <span class="pill pill-sage">10 Подтверждение</span>
+          <span class="pill pill-sage">11 Ожидание</span>
+          <span class="pill pill-sage">12 Price Lock</span>
+          <span class="pill pill-sage">13 Выезд</span>
+          <span class="pill pill-n">09 Чат — фаза 2</span>
+          <span class="pill pill-n">15 Рейтинг — фаза 2</span>
+          <span class="pill pill-n">19 Повтор — фаза 2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div style="text-align:center;padding:40px;font-size:10px;color:var(--void5);font-family:var(--font-mono);letter-spacing:0.1em;">
+  НАДОМ · NADOM · DESIGN PACKAGE v2 · 2026-05-31
+</div>
+
+</div>
+</body>
+</html>
