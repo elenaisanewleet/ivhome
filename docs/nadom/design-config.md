@@ -16,7 +16,7 @@ Read the available sources in this order before any Nadom UI, Mini App, Telegram
 4. `docs/nadom/references/design/nadom-design-package.html` — v1 visual benchmark for palette, color combinations, badges/buttons/status colors, and medservice-card feeling.
 5. `docs/nadom/references/design/nadom-design-package-v3.html` — final synthesis/reference only when it does not conflict with the rule that v2 owns typography, icons, UI structure, and component logic.
 6. `docs/nadom/references/design/Nadom Design Guide.pdf` — compact supporting design instruction.
-7. Canva workflow PNG in `docs/nadom/references/design/` — workflow completeness checklist: screens, states, BotFather/welcome assets, bot messages, icons, components, price lock, empty/error/repeat states.
+7. `docs/nadom/references/design/nadom-workflow-board.png` — workflow completeness checklist: screens, states, BotFather/welcome assets, bot messages, icons, components, price lock, empty/error/repeat states.
 8. Older supporting docs only as historical context.
 
 If sources conflict, follow the priority above. Do not invent a new visual style.
