@@ -1,0 +1,71 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="32%" r="72%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#5A94CC"/>
+      <stop offset="100%" stop-color="#243E5E"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="40%" r="50%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.07)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+    </radialGradient>
+    <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#glow)"/>
+
+  <!-- Soft ambient glow behind symbol -->
+  <ellipse cx="256" cy="250" rx="160" ry="200" fill="rgba(255,255,255,0.06)" filter="url(#softBlur)"/>
+
+  <!--
+    Symbol: Капля + дуга прибытия (v2 winner — "маршрутная капля с дугой прибытия")
+    Scaled from v2 48×48 reference to ~300×300 area in 512×512 canvas.
+    Transform: translate(83.2, 56.0) scale(7.2)
+    stroke-width uses vector-effect non-scaling-stroke for pixel-perfect output.
+  -->
+  <g transform="translate(83.2, 56.0) scale(7.2)">
+    <!-- Drop / teardrop body -->
+    <path
+      d="M24 4 C24 4 10 18 10 27 C10 34.5 16.5 40 24 40 C31.5 40 38 34.5 38 27 C38 18 24 4 24 4 Z"
+      stroke="rgba(255,255,255,0.82)"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="rgba(255,255,255,0.13)"
+      vector-effect="non-scaling-stroke"
+    />
+    <!-- Core destination dot -->
+    <circle
+      cx="24"
+      cy="28"
+      r="4.8"
+      fill="white"
+    />
+    <!-- Arrival arc (dashed) -->
+    <path
+      d="M5 46 Q14 38 24 40 Q34 42 43 46"
+      stroke="rgba(255,255,255,0.48)"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      fill="none"
+      stroke-dasharray="2.8 2.2"
+      vector-effect="non-scaling-stroke"
+    />
+  </g>
+
+  <!-- Wordmark "надом" in Unbounded — bottom third -->
+  <text
+    x="256"
+    y="462"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="44"
+    font-weight="700"
+    letter-spacing="-1.8"
+    fill="rgba(255,255,255,0.88)"
+    text-anchor="middle"
+    dominant-baseline="auto"
+  >надом</text>
+</svg>
