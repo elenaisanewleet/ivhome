@@ -1,0 +1,209 @@
+/* Nadom Mini App visual polish layer.
+   Small CSS-only pass: tighter welcome composition, stronger offer cards,
+   calmer Telegram-native rhythm. No backend/API behavior changes. */
+
+.phone-frame {
+  border-color: rgba(15, 15, 14, 0.22);
+  box-shadow:
+    0 42px 110px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(250, 250, 248, 0.03) inset;
+}
+
+.screen-card {
+  gap: 14px;
+}
+
+.screen-card:not(.screen-card--subflow) {
+  padding-top: 18px;
+}
+
+.node-icon--welcome {
+  width: 62px;
+  height: 78px;
+  margin: 2px 0 2px;
+  justify-self: start;
+}
+
+.node-icon--welcome .nadom-symbol {
+  filter: drop-shadow(0 12px 22px rgba(74, 127, 165, 0.14));
+}
+
+.eyebrow {
+  color: var(--accent);
+  opacity: 0.92;
+}
+
+h1 {
+  max-width: 15.5ch;
+  font-size: clamp(24px, 6vw, 33px);
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+}
+
+.screen-copy {
+  max-width: 31ch;
+  gap: 9px;
+  color: rgba(42, 42, 40, 0.7);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.screen-copy p:first-child {
+  color: rgba(15, 15, 14, 0.68);
+}
+
+.choice-chip,
+.text-field input,
+.privacy-note,
+.list-state,
+.offer-subflow,
+.chat-window,
+.conditions-panel,
+.selected-offer-badge,
+.status-callout,
+.support-panel {
+  box-shadow: 0 10px 30px rgba(15, 15, 14, 0.035);
+}
+
+.choice-chip {
+  min-height: 46px;
+  transition:
+    border-color 0.16s ease,
+    background 0.16s ease,
+    transform 0.1s ease;
+}
+
+.choice-chip:active {
+  transform: translateY(1px);
+}
+
+.choice-chip--selected {
+  box-shadow: 0 12px 28px rgba(74, 127, 165, 0.12);
+}
+
+.offer-card {
+  border-color: rgba(15, 15, 14, 0.09);
+  box-shadow:
+    0 18px 42px rgba(15, 15, 14, 0.055),
+    0 0 0 1px rgba(255, 255, 255, 0.52) inset;
+}
+
+.offer-card__header {
+  padding: 15px 15px 12px;
+  background:
+    linear-gradient(180deg, rgba(250, 250, 248, 0.92), rgba(245, 244, 240, 0.72));
+}
+
+.offer-card h2 {
+  margin-top: 5px;
+  font-size: 15px;
+  line-height: 1.14;
+}
+
+.status-label {
+  color: var(--teal);
+}
+
+.status-dot {
+  background: var(--teal);
+  box-shadow: 0 0 0 3px rgba(58, 138, 130, 0.1);
+}
+
+.rating-pill {
+  color: var(--ink-2);
+  background: rgba(184, 144, 144, 0.18);
+}
+
+.offer-zone {
+  padding-top: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.sla-grid {
+  gap: 9px;
+}
+
+.sla-box {
+  min-height: 64px;
+  padding: 12px 11px;
+  border-color: rgba(15, 15, 14, 0.08);
+  background: rgba(245, 244, 240, 0.78);
+}
+
+.sla-box span {
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sla-box strong {
+  font-size: 14px;
+}
+
+.price-row {
+  margin-top: 12px;
+  padding: 11px 0;
+}
+
+.price-row strong {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: -0.045em;
+}
+
+.offer-actions {
+  gap: 8px;
+  padding-top: 12px;
+}
+
+.button {
+  min-height: 46px;
+  border-radius: 16px;
+}
+
+.button--primary {
+  background:
+    linear-gradient(180deg, rgba(126, 184, 212, 0.28), transparent),
+    var(--accent);
+  box-shadow: 0 14px 30px rgba(74, 127, 165, 0.18);
+}
+
+.button--teal {
+  background:
+    linear-gradient(180deg, rgba(200, 232, 228, 0.22), transparent),
+    var(--teal);
+  box-shadow: 0 14px 30px rgba(58, 138, 130, 0.14);
+}
+
+.button--secondary {
+  background: rgba(250, 250, 248, 0.58);
+}
+
+.screen-footer {
+  padding-top: 12px;
+  border-top: 0.5px solid rgba(228, 227, 220, 0.75);
+}
+
+@media (max-width: 420px) {
+  .screen-card:not(.screen-card--subflow) {
+    padding-top: 20px;
+  }
+
+  .node-icon--welcome {
+    width: 60px;
+    height: 74px;
+    margin-top: 0;
+  }
+
+  h1 {
+    max-width: 15ch;
+    font-size: clamp(28px, 8.2vw, 36px);
+  }
+
+  .screen-copy {
+    max-width: 30ch;
+    font-size: 14px;
+  }
+}

@@ -95,11 +95,11 @@ export function createFallbackMessage() {
 
 export function createStatusUpdateMessage(kind: StatusNotificationKind = "updated") {
   const texts: Record<StatusNotificationKind, string> = {
-    updated: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
-    quote_provided: "Стоимость уточнена. Откройте Надом, чтобы подтвердить.",
-    booked: "Заявка подтверждена. Откройте Надом, чтобы посмотреть детали.",
-    en_route: "Специалист выбранной медслужбы выезжает. Откройте Надом.",
-    completed: "Визит завершён. Откройте Надом, чтобы оставить оценку.",
+    updated: "статус заявки обновлён · детали в приложении",
+    quote_provided: "стоимость уточнена · откройте, чтобы подтвердить",
+    booked: "заявка подтверждена · медслужба взяла в работу",
+    en_route: "специалист выехал · время приезда в приложении",
+    completed: "готово · можно оставить оценку в приложении",
   };
 
   return {

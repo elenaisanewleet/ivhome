@@ -42,7 +42,8 @@ export function useTelegramButtons({
       cleanupMain?.();
       cleanupBack?.();
     };
-    // onMain / onBack are recreated each render; we intentionally re-bind them
-    // alongside the state they close over.
+    // Re-sync only when meaningful state changes. onMain/onBack are recreated
+    // every render but capture fresh state each time the effect re-runs, so they
+    // are intentionally excluded to avoid re-binding the native button per render.
   }, [active, mainLabel, mainDisabled, mainSpinner, showBack]);
 }

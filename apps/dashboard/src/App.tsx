@@ -81,6 +81,7 @@ function BrandMark() {
       <circle cx="32" cy="8" r="4" fill="none" stroke="var(--accent-mid)" strokeWidth="3.4" />
       <path d="M32 12 V14" stroke="var(--accent-mid)" strokeWidth="3.4" strokeLinecap="round" />
       <rect x="18" y="14" width="28" height="30" rx="9" fill="rgba(126,184,212,0.12)" stroke="var(--accent-mid)" strokeWidth="3.4" />
+      <path d="M19.5 32 Q32 27 44.5 32 L44.5 35.5 Q44.5 42.5 37.5 42.5 L26.5 42.5 Q19.5 42.5 19.5 35.5 Z" fill="var(--accent-mid)" />
       <path d="M32 44 V50" stroke="var(--accent-mid)" strokeWidth="3.4" strokeLinecap="round" />
       <path d="M32 50 C36 54.5 36 58.5 32 61 C28 58.5 28 54.5 32 50 Z" fill="var(--accent-mid)" />
     </svg>

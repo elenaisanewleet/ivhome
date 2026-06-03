@@ -103,59 +103,13 @@ button:disabled {
 }
 
 .brand-mark {
-  position: relative;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   margin-bottom: 4px;
-  border: 1px solid rgb(126 184 212 / 45%);
+  padding: 7px;
+  border: 1px solid rgb(126 184 212 / 32%);
   border-radius: 16px;
-  background: rgb(250 250 248 / 5%);
-}
-
-.brand-mark span {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--accent-mid);
-}
-
-.brand-mark span:nth-child(1) {
-  left: 11px;
-  top: 13px;
-}
-
-.brand-mark span:nth-child(2) {
-  right: 11px;
-  top: 13px;
-}
-
-.brand-mark span:nth-child(3) {
-  left: 18px;
-  bottom: 11px;
-  background: var(--teal);
-}
-
-.brand-mark::before,
-.brand-mark::after {
-  position: absolute;
-  height: 1px;
-  background: rgb(126 184 212 / 56%);
-  content: "";
-  transform-origin: left center;
-}
-
-.brand-mark::before {
-  left: 18px;
-  top: 18px;
-  width: 14px;
-}
-
-.brand-mark::after {
-  left: 20px;
-  top: 21px;
-  width: 16px;
-  transform: rotate(58deg);
+  background: rgb(126 184 212 / 6%);
 }
 
 nav {

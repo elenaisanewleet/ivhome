@@ -53,6 +53,37 @@
 
 /* ── Dark mode ───────────────────────────────────────────────────── */
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:   #f0efe9;
+    --ink-2: #d8d7d0;
+    --ink-3: #9e9d96;
+    --ink-4: #6a6960;
+    --ink-5: #3e3e3a;
+
+    --paper:   #1c2b38;
+    --paper-2: #22333f;
+    --paper-3: #2c3f4d;
+    --white:   #1a2835;
+
+    --accent:       #7eb8d4;
+    --accent-light: rgba(126,184,212,0.14);
+    --teal:         #4ec4b8;
+    --teal-light:   rgba(58,138,130,0.16);
+    --dust:         #c8a0a0;
+    --dust-light:   rgba(184,144,144,0.16);
+    --ok:           #5abf8a;
+    --ok-light:     rgba(58,122,90,0.18);
+    --err:          #e07070;
+    --err-light:    rgba(138,48,48,0.18);
+    --warn-light:   rgba(138,96,32,0.18);
+    --shadow-card: 0 2px 10px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
+    --shadow-lift: 0 8px 28px rgba(0,0,0,0.36), 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  body { background: var(--paper); }
+}
+
 [data-tg-scheme="dark"] {
   --ink:   #f0efe9;
   --ink-2: #d8d7d0;
@@ -188,11 +219,18 @@ button { border: 0; cursor: pointer; }
   background: var(--paper);
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--paper-3) transparent;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
-.screen-card::-webkit-scrollbar { display: none; }
+.screen-card::-webkit-scrollbar { width: 4px; }
+.screen-card::-webkit-scrollbar-track { background: transparent; }
+.screen-card::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: var(--paper-3);
+}
 
 /* ── Node icon ───────────────────────────────────────────────────── */
 
@@ -213,13 +251,15 @@ button { border: 0; cursor: pointer; }
 }
 
 .node-icon--welcome {
-  width: 72px;
-  height: 86px;
-  margin: 4px auto 6px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
+  width: 78px;
+  height: 78px;
+  margin: 6px auto 4px;
+  border: 0.5px solid rgba(74,127,165,0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(74,127,165,0.1), transparent 62%),
+    var(--white);
+  box-shadow: 0 10px 26px rgba(15,15,14,0.05);
 }
 
 .node-icon--emergency {
@@ -289,6 +329,43 @@ h1 {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.06em;
+}
+
+/* Trust / transparency chips — what the user sees before sending a request. */
+.trust-chips {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--r-md);
+  border: 0.5px solid var(--paper-3);
+  overflow: hidden;
+  background: var(--white);
+}
+
+.trust-chips li {
+  position: relative;
+  padding: 11px 14px 11px 32px;
+  border-bottom: 0.5px solid var(--paper-3);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.trust-chips li:last-child { border-bottom: 0; }
+
+.trust-chips li::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  border: 2px solid var(--teal);
+  transform: translateY(-50%);
 }
 
 /* ── FAQ accordion ───────────────────────────────────────────────── */
@@ -1155,7 +1232,7 @@ h1 {
     background: var(--paper);
   }
 
-  body { overflow: hidden; }
+  html, body { overflow: hidden; touch-action: none; }
 
   .app-shell {
     width: 100vw;
@@ -1186,10 +1263,14 @@ h1 {
   .screen-card {
     padding: 18px 20px 14px;
     gap: 14px;
+    touch-action: pan-y;
+    scrollbar-width: none;
   }
 
+  .screen-card::-webkit-scrollbar { display: none; }
+
   .node-icon { width: 52px; height: 52px; margin-top: 0; }
-  .node-icon--welcome { width: 68px; height: 84px; }
+  .node-icon--welcome { width: 74px; height: 74px; }
 
   h1 {
     max-width: 18ch;

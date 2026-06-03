@@ -4,6 +4,11 @@ import { STATUS_ITEMS } from "./data";
 import { FAQ_ITEMS } from "./data";
 import type { Offer, StatusStage, Step, SymbolTone } from "./types";
 
+/**
+ * Nadom brand symbol — the IV / drip chamber (капельница-мешок): hang loop,
+ * bag with liquid level, tube and a falling drop. Private medical-tech mood,
+ * reads as an infusion line on a second look. Matches the @nadom_bot avatar.
+ */
 export function NadomSymbol({
   size = 52,
   tone = "default",
@@ -13,42 +18,37 @@ export function NadomSymbol({
 }) {
   const palette = SYMBOL_TONES[tone];
   const isWelcome = tone === "welcome";
-  const height = isWelcome ? Math.round(size * 1.24) : size;
-  const dropPath = isWelcome
-    ? "M34 8C34 8 10 32 10 48C10 65 20.5 76 34 76C47.5 76 58 65 58 48C58 32 34 8 34 8Z"
-    : "M26 8C26 8 14 20 14 28C14 35 19.5 40 26 40C32.5 40 38 35 38 28C38 20 26 8 26 8Z";
-  const dotCy = isWelcome ? 50 : 28;
-  const dotR = isWelcome ? 10 : 4;
-  const arcPath = isWelcome
-    ? "M4 82 Q16 74 34 78 Q52 82 64 82"
-    : "M10 46 Q18 38 26 40 Q34 42 42 46";
-  const viewBox = isWelcome ? "0 0 68 84" : "0 0 52 52";
+  const stroke = isWelcome ? 3.2 : 3.4;
 
   return (
     <svg
       aria-hidden="true"
       className={`nadom-symbol nadom-symbol--${tone}`}
-      height={height}
-      viewBox={viewBox}
+      height={size}
+      viewBox="0 0 64 64"
       width={size}
     >
-      <path
-        d={dropPath}
+      {/* hang loop */}
+      <circle cx="32" cy="8" r="4" fill="none" stroke={palette.stroke} strokeWidth={stroke} />
+      {/* neck */}
+      <path d="M32 12 V14" fill="none" stroke={palette.stroke} strokeWidth={stroke} strokeLinecap="round" />
+      {/* bag */}
+      <rect
+        x="18"
+        y="14"
+        width="28"
+        height="30"
+        rx="9"
         fill={palette.fill}
         stroke={palette.stroke}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={isWelcome ? 2.5 : 2}
+        strokeWidth={stroke}
       />
-      <circle cx={isWelcome ? 34 : 26} cy={dotCy} fill={palette.dot} r={dotR} />
-      <path
-        d={arcPath}
-        fill="none"
-        stroke={palette.arc}
-        strokeDasharray="3 3"
-        strokeLinecap="round"
-        strokeWidth={isWelcome ? 2 : 1.5}
-      />
+      {/* liquid level */}
+      <path d="M19.5 32 Q32 27 44.5 32 L44.5 35.5 Q44.5 42.5 37.5 42.5 L26.5 42.5 Q19.5 42.5 19.5 35.5 Z" fill={palette.dot} />
+      {/* tube */}
+      <path d="M32 44 V50" fill="none" stroke={palette.stroke} strokeWidth={stroke} strokeLinecap="round" />
+      {/* falling drop */}
+      <path d="M32 50 C36 54.5 36 58.5 32 61 C28 58.5 28 54.5 32 50 Z" fill={palette.dot} />
     </svg>
   );
 }

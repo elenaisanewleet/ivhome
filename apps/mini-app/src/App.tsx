@@ -366,6 +366,11 @@ export function App() {
                     <span>быстро</span>
                     <span>удобно</span>
                   </div>
+                  <ul className="trust-chips" aria-label="Что видно до заявки">
+                    <li>Ответ медслужбы</li>
+                    <li>Прибытие после подтверждения</li>
+                    <li>Стоимость до выезда</li>
+                  </ul>
                   <FaqAccordion />
                 </>
               ) : null}
