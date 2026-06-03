@@ -1,0 +1,52 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    VARIANT 1 — SIGNAL
+    Signal blue gradient. White drop+arc. Default bot avatar.
+    Works at 40px–512px. Clean, immediately recognisable.
+  -->
+  <defs>
+    <radialGradient id="bg1" cx="38%" cy="30%" r="80%">
+      <stop offset="0%"   stop-color="#6BA3D6"/>
+      <stop offset="55%"  stop-color="#3D7AB5"/>
+      <stop offset="100%" stop-color="#1E4A78"/>
+    </radialGradient>
+    <filter id="glow1" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg1)"/>
+
+  <!-- Ambient inner glow -->
+  <ellipse cx="200" cy="160" rx="190" ry="160"
+    fill="rgba(255,255,255,0.07)" filter="url(#glow1)"/>
+
+  <!-- Drop symbol — centered, tip at y=92, base at y=370 -->
+  <path
+    d="M256 92
+       C 256 92, 148 202, 148 272
+       C 148 334, 197 376, 256 376
+       C 315 376, 364 334, 364 272
+       C 364 202, 256 92, 256 92 Z"
+    stroke="rgba(255,255,255,0.88)"
+    stroke-width="11"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="rgba(255,255,255,0.12)"
+  />
+
+  <!-- Core destination dot -->
+  <circle cx="256" cy="295" r="34" fill="white"/>
+
+  <!-- Arrival arc — dashed, below the drop -->
+  <path
+    d="M112 432 Q184 362 256 378 Q328 394 400 432"
+    stroke="rgba(255,255,255,0.42)"
+    stroke-width="8"
+    stroke-linecap="round"
+    fill="none"
+    stroke-dasharray="16 13"
+  />
+</svg>

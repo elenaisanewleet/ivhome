@@ -1,0 +1,402 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Welcome / promo banner — 1280×720
+    Left panel (560px): brand, headline, features on dark graphite
+    Right panel (720px): Telegram bot message mockup on #17212B
+    v2 visual system: Void+Signal+Sage, Unbounded display, Onest body
+    Colors: v1 canonical palette (--ink, --paper, --accent, --teal)
+  -->
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;700&amp;family=Onest:wght@300;400;500;600&amp;display=swap');
+    </style>
+
+    <!-- Left panel background gradient -->
+    <linearGradient id="leftBg" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#0E0E0C"/>
+      <stop offset="100%" stop-color="#080807"/>
+    </linearGradient>
+
+    <!-- Signal blue glow (top-right of left panel) -->
+    <radialGradient id="signalGlow" cx="100%" cy="0%" r="80%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="rgba(61,122,181,0.14)"/>
+      <stop offset="60%" stop-color="rgba(61,122,181,0.04)"/>
+      <stop offset="100%" stop-color="rgba(61,122,181,0)"/>
+    </radialGradient>
+
+    <!-- Right panel (TG bg) -->
+    <linearGradient id="rightBg" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#192533"/>
+      <stop offset="100%" stop-color="#17212B"/>
+    </linearGradient>
+
+    <!-- Card shadow for bot message -->
+    <filter id="cardShadow" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="rgba(0,0,0,0.35)"/>
+    </filter>
+
+    <!-- Soft blur for ambient elements -->
+    <filter id="ambientBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+  </defs>
+
+  <!-- ════════════════════════════════════
+       LEFT PANEL — 0 to 560
+       ════════════════════════════════════ -->
+
+  <rect width="560" height="720" fill="url(#leftBg)"/>
+  <rect width="560" height="720" fill="url(#signalGlow)"/>
+
+  <!-- Ambient signal glow blob -->
+  <ellipse cx="520" cy="80" rx="180" ry="140" fill="rgba(61,122,181,0.08)" filter="url(#ambientBlur)"/>
+
+  <!-- Top label -->
+  <text
+    x="56" y="72"
+    font-family="'SF Mono', 'Fira Code', monospace"
+    font-size="9"
+    font-weight="400"
+    letter-spacing="0.20em"
+    fill="#7A7A72"
+    text-transform="uppercase"
+  >НАДОМ · NADOM</text>
+
+  <!-- Thin separator after label -->
+  <line x1="200" y1="66" x2="504" y2="66" stroke="#272724" stroke-width="0.5"/>
+
+  <!--
+    Main symbol: Капля + дуга
+    v2 winner, scaled to 180×180 area, placed at (56, 110)
+    v2 48×48 → scale 3.75x → 180px max dimension
+    x_offset = 56 (left align), y_offset = 110
+    center at x = 56 + 24*3.75 = 56 + 90 = 146
+    tip top at y = 110 + 4*3.75 = 110 + 15 = 125
+    bottom at y = 110 + 40*3.75 = 110 + 150 = 260
+  -->
+  <g transform="translate(56, 110) scale(3.75)">
+    <path
+      d="M24 4 C24 4 10 18 10 27 C10 34.5 16.5 40 24 40 C31.5 40 38 34.5 38 27 C38 18 24 4 24 4 Z"
+      stroke="rgba(90,148,204,0.75)"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="rgba(61,122,181,0.10)"
+      vector-effect="non-scaling-stroke"
+    />
+    <circle cx="24" cy="28" r="4.8" fill="#3D7AB5"/>
+    <path
+      d="M5 46 Q14 38 24 40 Q34 42 43 46"
+      stroke="rgba(90,148,204,0.40)"
+      stroke-width="1.4"
+      stroke-linecap="round"
+      fill="none"
+      stroke-dasharray="2.6 2.0"
+      vector-effect="non-scaling-stroke"
+    />
+  </g>
+
+  <!-- Large wordmark "надом" -->
+  <text
+    x="56" y="370"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="84"
+    font-weight="700"
+    letter-spacing="-4.0"
+    fill="#FAFAF4"
+  >надом</text>
+
+  <!-- Sub-wordmark "/ nadom" dim -->
+  <text
+    x="56" y="406"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="16"
+    font-weight="300"
+    letter-spacing="0.04em"
+    fill="#5A5A54"
+  >/ nadom</text>
+
+  <!-- Separator -->
+  <line x1="56" y1="440" x2="504" y2="440" stroke="#272724" stroke-width="0.5"/>
+
+  <!-- Tagline -->
+  <text
+    x="56" y="476"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="18"
+    font-weight="400"
+    letter-spacing="-0.01em"
+    fill="#C8C8BC"
+  >сравниваем лицензированные медслужбы</text>
+  <text
+    x="56" y="502"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="18"
+    font-weight="400"
+    letter-spacing="-0.01em"
+    fill="#C8C8BC"
+  >для выезда на дом</text>
+
+  <!-- Feature points -->
+  <!-- Point 1 -->
+  <circle cx="68" cy="555" r="3" fill="#3D7AB5"/>
+  <text
+    x="84" y="560"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="500"
+    fill="#9F9F95"
+  >Ответ и прибытие — отдельные SLA</text>
+
+  <!-- Point 2 -->
+  <circle cx="68" cy="591" r="3" fill="#3A7A68"/>
+  <text
+    x="84" y="596"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="500"
+    fill="#9F9F95"
+  >Лицензированные организации</text>
+
+  <!-- Point 3 -->
+  <circle cx="68" cy="627" r="3" fill="#5A94CC"/>
+  <text
+    x="84" y="632"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="500"
+    fill="#9F9F95"
+  >Детали подтверждает выбранная медслужба</text>
+
+  <!-- Bottom emergency note -->
+  <text
+    x="56" y="690"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="10"
+    font-weight="400"
+    letter-spacing="0.01em"
+    fill="#3D3D39"
+  >при экстренных симптомах — 103 или 112</text>
+
+  <!-- ════════════════════════════════════
+       DIVIDER — at x=560
+       ════════════════════════════════════ -->
+
+  <line x1="560" y1="0" x2="560" y2="720" stroke="#1E1E1B" stroke-width="1"/>
+
+  <!-- ════════════════════════════════════
+       RIGHT PANEL — 560 to 1280 (Telegram dark bg)
+       ════════════════════════════════════ -->
+
+  <rect x="560" width="720" height="720" fill="url(#rightBg)"/>
+
+  <!-- Subtle top gradient on right panel -->
+  <rect x="560" width="720" height="160" fill="rgba(255,255,255,0.015)"/>
+
+  <!-- Chat header simulation -->
+  <rect x="560" width="720" height="60" fill="rgba(0,0,0,0.25)"/>
+
+  <!-- Bot avatar in header (signal blue circle with drop symbol) -->
+  <circle cx="612" cy="30" r="18" fill="#3D7AB5"/>
+  <g transform="translate(600, 18) scale(1.0)">
+    <!-- Small drop symbol at 24×24 -->
+    <g transform="translate(0,0) scale(0.5)">
+      <path
+        d="M24 4 C24 4 10 18 10 27 C10 34.5 16.5 40 24 40 C31.5 40 38 34.5 38 27 C38 18 24 4 24 4 Z"
+        stroke="rgba(255,255,255,0.8)"
+        stroke-width="2"
+        stroke-linecap="round"
+        fill="rgba(255,255,255,0.15)"
+        vector-effect="non-scaling-stroke"
+      />
+      <circle cx="24" cy="28" r="5" fill="white"/>
+    </g>
+  </g>
+
+  <!-- Bot name in header -->
+  <text
+    x="638" y="25"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="600"
+    letter-spacing="-0.4"
+    fill="#EAEAEA"
+  >Надом</text>
+
+  <text
+    x="638" y="42"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="10"
+    font-weight="400"
+    fill="#708A9E"
+  >бот · @nadom_bot</text>
+
+  <!-- ── Bot message card ── -->
+  <!-- Message bubble: white card on TG dark bg -->
+  <rect
+    x="602" y="108"
+    width="460" height="196"
+    rx="14" ry="14"
+    fill="#F2F1EB"
+    filter="url(#cardShadow)"
+  />
+  <!-- Bottom-left corner flat (messenger style) -->
+  <rect x="602" y="274" width="18" height="30" fill="#F2F1EB"/>
+
+  <!-- Bot name in message -->
+  <text
+    x="620" y="135"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="11"
+    font-weight="700"
+    letter-spacing="-0.3"
+    fill="#3D7AB5"
+  >Надом</text>
+
+  <!-- Verified dot -->
+  <circle cx="695" cy="131" r="5" fill="rgba(58,122,104,0.15)" stroke="#3A7A68" stroke-width="1"/>
+  <text x="691.5" y="135" font-family="serif" font-size="8" fill="#3A7A68">✓</text>
+
+  <!-- Thin separator under bot name -->
+  <line x1="620" y1="146" x2="1044" y2="146" stroke="#E0DFD0" stroke-width="0.5"/>
+
+  <!-- Message body — line 1 -->
+  <text
+    x="620" y="170"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#0E0E0C"
+  >привет, я Надом 🫧</text>
+
+  <!-- Message body — line 2 -->
+  <text
+    x="620" y="196"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#0E0E0C"
+  >если нужен медицинский выезд на дом —</text>
+
+  <text
+    x="620" y="214"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#0E0E0C"
+  >помогу найти подходящий вариант</text>
+
+  <!-- Message body — line 3 -->
+  <text
+    x="620" y="242"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="11"
+    font-weight="400"
+    fill="#7A7A72"
+  >детали подтверждает выбранная организация</text>
+
+  <!-- Timestamp -->
+  <text
+    x="1024" y="295"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="10"
+    font-weight="400"
+    fill="#9F9F95"
+    text-anchor="end"
+  >14:32</text>
+
+  <!-- ── Inline button ── -->
+  <rect
+    x="602" y="314"
+    width="460" height="44"
+    rx="10" ry="10"
+    fill="rgba(61,122,181,0.15)"
+  />
+  <text
+    x="832" y="342"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="600"
+    letter-spacing="-0.2"
+    fill="#5A94CC"
+    text-anchor="middle"
+  >подобрать вариант</text>
+
+  <!-- ── Second message: status notification ── -->
+  <rect
+    x="602" y="386"
+    width="460" height="108"
+    rx="14" ry="14"
+    fill="#F2F1EB"
+    filter="url(#cardShadow)"
+  />
+  <rect x="602" y="464" width="18" height="30" fill="#F2F1EB"/>
+
+  <!-- Bot name in second message -->
+  <text
+    x="620" y="413"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="11"
+    font-weight="700"
+    letter-spacing="-0.3"
+    fill="#3D7AB5"
+  >Надом</text>
+
+  <line x1="620" y1="424" x2="1044" y2="424" stroke="#E0DFD0" stroke-width="0.5"/>
+
+  <text
+    x="620" y="448"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#0E0E0C"
+  >Заявка подтверждена. Откройте Надом,</text>
+
+  <text
+    x="620" y="468"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#0E0E0C"
+  >чтобы посмотреть детали.</text>
+
+  <text
+    x="1024" y="484"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="10"
+    font-weight="400"
+    fill="#9F9F95"
+    text-anchor="end"
+  >15:07</text>
+
+  <!-- Status notification button -->
+  <rect
+    x="602" y="504"
+    width="460" height="44"
+    rx="10" ry="10"
+    fill="rgba(58,122,104,0.13)"
+  />
+  <text
+    x="832" y="532"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="600"
+    letter-spacing="-0.2"
+    fill="#3A7A68"
+    text-anchor="middle"
+  >открыть Надом</text>
+
+  <!-- ── Bottom: chat input simulation ── -->
+  <rect x="560" y="660" width="720" height="60" fill="rgba(0,0,0,0.20)"/>
+  <rect x="576" y="672" width="576" height="36" rx="18" fill="rgba(255,255,255,0.06)" stroke="#2A3542" stroke-width="0.5"/>
+  <text
+    x="610" y="695"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="13"
+    font-weight="400"
+    fill="#4A5A6A"
+  >Сообщение…</text>
+
+  <!-- Right panel decorative ambient glow -->
+  <ellipse cx="1100" cy="600" rx="200" ry="160" fill="rgba(58,122,104,0.05)" filter="url(#ambientBlur)"/>
+</svg>

@@ -1,0 +1,66 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    АВАТАР БОТА — финальная версия
+    Рекомендован к загрузке в BotFather (/setuserpic).
+    Экспортировать как PNG 512×512.
+
+    Вариант: Signal (icon-signal.svg) — без текста, символ читается в 40px.
+    Цвета: v2 direction A — Void+Signal+Sage.
+  -->
+  <defs>
+    <radialGradient id="av-bg" cx="38%" cy="30%" r="80%">
+      <stop offset="0%"   stop-color="#6BA3D6"/>
+      <stop offset="55%"  stop-color="#3D7AB5"/>
+      <stop offset="100%" stop-color="#1E4A78"/>
+    </radialGradient>
+    <filter id="av-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="24" result="b"/>
+      <feComposite in="SourceGraphic" in2="b" operator="over"/>
+    </filter>
+    <clipPath id="circle-mask">
+      <circle cx="256" cy="256" r="256"/>
+    </clipPath>
+  </defs>
+
+  <!-- Round background (square — TG will crop to circle) -->
+  <rect width="512" height="512" fill="url(#av-bg)"/>
+
+  <!-- Ambient inner glow -->
+  <ellipse cx="200" cy="155" rx="195" ry="165"
+    fill="rgba(255,255,255,0.07)" filter="url(#av-glow)"/>
+
+  <!--
+    Drop + arc symbol, centered.
+    Tip at y=86, base at y=374. Visual center of symbol ≈ y=248.
+    Composition center (including arc at y=430) ≈ y=258 — on-center.
+  -->
+
+  <!-- Drop / teardrop body -->
+  <path
+    d="M256 86
+       C 256 86, 144 204, 144 274
+       C 144 338, 196 378, 256 378
+       C 316 378, 368 338, 368 274
+       C 368 204, 256 86, 256 86 Z"
+    stroke="rgba(255,255,255,0.90)"
+    stroke-width="11"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="rgba(255,255,255,0.12)"
+  />
+
+  <!-- Core destination dot -->
+  <circle cx="256" cy="297" r="35" fill="white"/>
+  <!-- Subtle inner highlight -->
+  <circle cx="246" cy="286" r="11" fill="rgba(255,255,255,0.22)"/>
+
+  <!-- Arrival arc — dashed -->
+  <path
+    d="M108 432 Q182 358 256 374 Q330 390 404 432"
+    stroke="rgba(255,255,255,0.40)"
+    stroke-width="8"
+    stroke-linecap="round"
+    fill="none"
+    stroke-dasharray="15 12"
+  />
+</svg>

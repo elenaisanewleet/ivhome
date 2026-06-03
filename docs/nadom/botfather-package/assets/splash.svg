@@ -1,0 +1,103 @@
+<svg width="320" height="600" viewBox="0 0 320 600" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Mini App launch / splash screen — 320×600 (phone viewport)
+    Background: cream (#F2F1EB) — matches Mini App surface from v2
+    Symbol: drop+arc in signal blue, centered slightly above midpoint
+    Wordmark: "надом" in Unbounded below symbol
+    Loading indicator: three dots in stone4 below wordmark
+  -->
+  <defs>
+    <radialGradient id="splashBg" cx="50%" cy="45%" r="65%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#FAFAF4"/>
+      <stop offset="100%" stop-color="#EBEBDE"/>
+    </radialGradient>
+    <radialGradient id="symbolGlow" cx="50%" cy="50%" r="50%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="rgba(61,122,181,0.10)"/>
+      <stop offset="100%" stop-color="rgba(61,122,181,0)"/>
+    </radialGradient>
+    <filter id="glowBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+
+    <!-- Pulse animation for loading dots -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@700&amp;family=Onest:wght@400&amp;display=swap');
+      .dot1 { animation: dotPulse 1.6s ease-in-out 0s infinite; }
+      .dot2 { animation: dotPulse 1.6s ease-in-out 0.28s infinite; }
+      .dot3 { animation: dotPulse 1.6s ease-in-out 0.56s infinite; }
+      @keyframes dotPulse {
+        0%, 100% { opacity: 0.25; r: 4; }
+        50%       { opacity: 0.72; r: 5; }
+      }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="320" height="600" fill="url(#splashBg)"/>
+
+  <!-- Ambient glow behind symbol -->
+  <ellipse cx="160" cy="256" rx="120" ry="130" fill="rgba(61,122,181,0.07)" filter="url(#glowBlur)"/>
+
+  <!--
+    Drop + arc symbol: centered at x=160
+    v2 48×48 path scaled ×4.2, translate to center
+    x_offset = 160 - 24*4.2 = 160 - 100.8 = 59.2
+    y_offset = target_top_y - 4*4.2 = 176 - 16.8 = 159.2
+    (symbol tip at y=176, bottom of drop at y=176 + 36*4.2 = 327.2)
+  -->
+  <g transform="translate(59.2, 159.2) scale(4.2)">
+    <!-- Teardrop body -->
+    <path
+      d="M24 4 C24 4 10 18 10 27 C10 34.5 16.5 40 24 40 C31.5 40 38 34.5 38 27 C38 18 24 4 24 4 Z"
+      stroke="#3D7AB5"
+      stroke-width="1.8"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="rgba(61,122,181,0.09)"
+      vector-effect="non-scaling-stroke"
+    />
+    <!-- Core destination dot -->
+    <circle cx="24" cy="28" r="4.8" fill="#3D7AB5"/>
+    <!-- Arrival arc (dashed) -->
+    <path
+      d="M5 46 Q14 38 24 40 Q34 42 43 46"
+      stroke="rgba(61,122,181,0.45)"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      fill="none"
+      stroke-dasharray="2.6 2.0"
+      vector-effect="non-scaling-stroke"
+    />
+  </g>
+
+  <!-- Wordmark "надом" -->
+  <text
+    x="160"
+    y="376"
+    font-family="'Unbounded', 'system-ui', sans-serif"
+    font-size="28"
+    font-weight="700"
+    letter-spacing="-1.0"
+    fill="#0E0E0C"
+    text-anchor="middle"
+    dominant-baseline="auto"
+  >надом</text>
+
+  <!-- Subtitle / tagline -->
+  <text
+    x="160"
+    y="406"
+    font-family="'Onest', 'system-ui', sans-serif"
+    font-size="12"
+    font-weight="400"
+    letter-spacing="0.02em"
+    fill="#7A7A72"
+    text-anchor="middle"
+    dominant-baseline="auto"
+  >медицинский выезд на дом</text>
+
+  <!-- Loading dots -->
+  <circle class="dot1" cx="146" cy="448" r="4" fill="#9F9F95"/>
+  <circle class="dot2" cx="160" cy="448" r="4" fill="#9F9F95"/>
+  <circle class="dot3" cx="174" cy="448" r="4" fill="#9F9F95"/>
+</svg>
