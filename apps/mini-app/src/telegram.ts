@@ -5,6 +5,32 @@
 type HapticStyle = "light" | "medium" | "heavy" | "rigid" | "soft";
 type HapticNotice = "error" | "success" | "warning";
 
+type TgButton = {
+  text: string;
+  color: string;
+  textColor: string;
+  isVisible: boolean;
+  isActive: boolean;
+  isProgressVisible: boolean;
+  setText: (text: string) => TgButton;
+  onClick: (fn: () => void) => TgButton;
+  offClick: (fn: () => void) => TgButton;
+  show: () => TgButton;
+  hide: () => TgButton;
+  enable: () => TgButton;
+  disable: () => TgButton;
+  showProgress: (leaveActive?: boolean) => TgButton;
+  hideProgress: () => TgButton;
+};
+
+type TgBackButton = {
+  isVisible: boolean;
+  onClick: (fn: () => void) => TgBackButton;
+  offClick: (fn: () => void) => TgBackButton;
+  show: () => TgBackButton;
+  hide: () => TgBackButton;
+};
+
 type TelegramWebApp = {
   ready: () => void;
   expand: () => void;
@@ -12,6 +38,8 @@ type TelegramWebApp = {
   setBackgroundColor?: (color: string) => void;
   themeParams?: Record<string, string>;
   colorScheme?: "light" | "dark";
+  MainButton?: TgButton;
+  BackButton?: TgBackButton;
   HapticFeedback?: {
     impactOccurred: (style: HapticStyle) => void;
     notificationOccurred: (type: HapticNotice) => void;
@@ -74,4 +102,82 @@ export function hapticNotice(type: HapticNotice): void {
   } catch {
     // ignore
   }
+}
+
+/** Returns true when running inside Telegram Mini App. */
+export function isInsideTelegram(): boolean {
+  return getWebApp() !== null;
+}
+
+/**
+ * Configure and show the native Telegram MainButton.
+ * Pass `showSpinner: true` while an async action is pending.
+ * Returns a cleanup function that hides the button and removes the listener.
+ */
+export function setupMainButton(
+  label: string,
+  onClick: () => void,
+  options: { disabled?: boolean; showSpinner?: boolean } = {},
+): (() => void) | null {
+  const btn = getWebApp()?.MainButton;
+  if (!btn) {
+    return null;
+  }
+
+  try {
+    btn.setText(label);
+
+    if (options.showSpinner) {
+      btn.showProgress(false);
+    } else {
+      btn.hideProgress();
+    }
+
+    if (options.disabled) {
+      btn.disable();
+    } else {
+      btn.enable();
+    }
+
+    btn.onClick(onClick);
+    btn.show();
+  } catch {
+    // ignore
+  }
+
+  return () => {
+    try {
+      btn.offClick(onClick);
+      btn.hide();
+    } catch {
+      // ignore
+    }
+  };
+}
+
+/**
+ * Show the native Telegram BackButton and attach a listener.
+ * Returns a cleanup function that hides the button and removes the listener.
+ */
+export function setupBackButton(onClick: () => void): (() => void) | null {
+  const btn = getWebApp()?.BackButton;
+  if (!btn) {
+    return null;
+  }
+
+  try {
+    btn.onClick(onClick);
+    btn.show();
+  } catch {
+    // ignore
+  }
+
+  return () => {
+    try {
+      btn.offClick(onClick);
+      btn.hide();
+    } catch {
+      // ignore
+    }
+  };
 }
