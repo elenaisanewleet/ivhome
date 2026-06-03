@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import "./App.css";
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
+type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
 
 type MvpRequestRecord = {
   requestId: string;
@@ -15,8 +16,29 @@ type MvpRequestRecord = {
   updatedAt: string;
 };
 
+type MvpDbRequestRecord = {
+  id: string;
+  offerId: string;
+  clinicId: string | null;
+  district: string;
+  desiredTime: string;
+  profile: string;
+  status: MvpDbStatus;
+  priceMin: number | null;
+  priceMax: number | null;
+  priceCurrency: string;
+  etaMinutes: number | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type MvpRequestListResponse = {
   requests: MvpRequestRecord[];
+};
+
+type MvpDbRequestListResponse = {
+  requests: MvpDbRequestRecord[];
 };
 
 type MvpRequestStatusResponse = {
@@ -25,14 +47,23 @@ type MvpRequestStatusResponse = {
   updatedAt: string;
 };
 
-const statusLabels = {
+const statusLabels: Record<MvpRequestStatus, string> = {
   waiting: "Ожидаем",
   "price-lock": "Стоимость подтверждена",
   dispatched: "Специалист выехал",
   completed: "Завершено",
-} satisfies Record<MvpRequestStatus, string>;
+};
+
+const dbStatusLabels: Record<MvpDbStatus, string> = {
+  WAITING: "Ожидаем",
+  PRICE_LOCK: "Стоимость подтверждена",
+  DISPATCHED: "Специалист выехал",
+  COMPLETED: "Завершено",
+  DECLINED: "Отклонено",
+};
 
 const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", "completed"];
+const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
 
 const offerNames: Record<string, string> = {
   "medservice-north": "Медслужба «Север»",
@@ -58,9 +89,33 @@ function BrandMark() {
 }
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
+const configuredAdminToken = import.meta.env.VITE_ADMIN_TOKEN ?? "";
+const configuredClinicToken = import.meta.env.VITE_CLINIC_TOKEN ?? "";
 
-async function requestJson<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, options);
+// ─── Auth storage ─────────────────────────────────────────────────────────────
+
+function readStoredToken(key: string): string {
+  return sessionStorage.getItem(key) ?? "";
+}
+
+function writeStoredToken(key: string, value: string): void {
+  sessionStorage.setItem(key, value);
+}
+
+// ─── HTTP helpers ─────────────────────────────────────────────────────────────
+
+async function requestJson<T>(
+  path: string,
+  options?: RequestInit,
+  extraHeaders?: Record<string, string>,
+): Promise<T> {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    ...options,
+    headers: {
+      ...(options?.headers as Record<string, string> | undefined),
+      ...extraHeaders,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(`Nadom dashboard request failed with status ${response.status}`);
@@ -69,26 +124,128 @@ async function requestJson<T>(path: string, options?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-async function loadRequests() {
-  const response = await requestJson<MvpRequestListResponse>("/mvp/dev/requests");
+async function loadRequests(adminToken: string) {
+  const response = await requestJson<MvpRequestListResponse>("/mvp/dev/requests", undefined, {
+    Authorization: `Bearer ${adminToken}`,
+  });
 
   return response.requests;
 }
 
-async function updateRequestStatus(requestId: string, status: MvpRequestStatus) {
-  return requestJson<MvpRequestStatusResponse>(`/mvp/dev/requests/${encodeURIComponent(requestId)}/status`, {
-    method: "PATCH",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ status }),
+async function loadDbRequests(adminToken: string) {
+  const response = await requestJson<MvpDbRequestListResponse>("/mvp/admin/requests", undefined, {
+    Authorization: `Bearer ${adminToken}`,
   });
+
+  return response.requests;
 }
 
+async function updateRequestStatus(requestId: string, status: MvpRequestStatus, adminToken: string) {
+  return requestJson<MvpRequestStatusResponse>(
+    `/mvp/dev/requests/${encodeURIComponent(requestId)}/status`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status }),
+    },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function updateDbRequestStatus(id: string, status: MvpDbStatus, adminToken: string) {
+  return requestJson<MvpDbRequestRecord>(
+    `/mvp/admin/requests/${encodeURIComponent(id)}/status`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status }),
+    },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function loadClinicRequests(clinicId: string) {
+  const response = await requestJson<MvpDbRequestListResponse>("/mvp/clinic/requests", undefined, {
+    "X-Clinic-Id": clinicId,
+  });
+
+  return response.requests;
+}
+
+// ─── Auth gate component ─────────────────────────────────────────────────────
+
+interface AuthGateProps {
+  storageKey: string;
+  label: string;
+  onAuth: (token: string) => void;
+}
+
+function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // If VITE token is pre-configured, auto-authenticate
+  useEffect(() => {
+    const preset =
+      storageKey === "nadom_admin_token" ? configuredAdminToken : configuredClinicToken;
+
+    if (preset) {
+      writeStoredToken(storageKey, preset);
+      onAuth(preset);
+    }
+  }, [storageKey, onAuth]);
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+
+    const value = input.trim();
+
+    if (!value) {
+      setError(true);
+      inputRef.current?.focus();
+
+      return;
+    }
+
+    writeStoredToken(storageKey, value);
+    onAuth(value);
+  }
+
+  return (
+    <div className="auth-gate">
+      <BrandMark />
+      <h2>{label}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          <span>Токен доступа</span>
+          <input
+            autoComplete="current-password"
+            onChange={(e) => {
+              setInput(e.target.value);
+              setError(false);
+            }}
+            placeholder="Введите токен"
+            ref={inputRef}
+            type="password"
+            value={input}
+          />
+        </label>
+        {error ? <p className="auth-error">Укажите токен доступа</p> : null}
+        <button type="submit">Войти</button>
+      </form>
+    </div>
+  );
+}
+
+// ─── Route helpers ────────────────────────────────────────────────────────────
+
 function routeTitle(pathname: string) {
-  if (pathname === "/clinic") {
+  if (pathname.startsWith("/clinic")) {
     return "Кабинет медслужбы";
   }
 
-  if (pathname === "/admin") {
+  if (pathname.startsWith("/admin")) {
     return "Надом Admin";
   }
 
@@ -96,15 +253,15 @@ function routeTitle(pathname: string) {
 }
 
 function routeDescription(pathname: string) {
-  if (pathname === "/clinic") {
-    return "Preview-экран для уполномоченных сотрудников медслужбы.";
+  if (pathname.startsWith("/clinic")) {
+    return "Экран для уполномоченных сотрудников медслужбы.";
   }
 
-  if (pathname === "/admin") {
-    return "Внутренний preview-экран для ручной проверки статусов заявок.";
+  if (pathname.startsWith("/admin")) {
+    return "Внутренний экран для управления заявками.";
   }
 
-  return "Выберите маршрут /admin или /clinic. В preview оба маршрута показывают один список заявок.";
+  return "Выберите маршрут /admin или /clinic.";
 }
 
 function formatDate(value: string) {
@@ -120,17 +277,23 @@ function formatDate(value: string) {
   }
 }
 
-export function App() {
+// ─── Admin view ───────────────────────────────────────────────────────────────
+
+function AdminView() {
+  const storageKey = "nadom_admin_token";
+  const [token, setToken] = useState(() => readStoredToken(storageKey));
   const [requests, setRequests] = useState<MvpRequestRecord[]>([]);
+  const [dbRequests, setDbRequests] = useState<MvpDbRequestRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [updatingRequestId, setUpdatingRequestId] = useState<string | null>(null);
-  const pathname = window.location.pathname;
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const isConfigured = Boolean(apiBaseUrl);
-  const title = useMemo(() => routeTitle(pathname), [pathname]);
-  const description = useMemo(() => routeDescription(pathname), [pathname]);
 
-  async function refreshRequests() {
+  function handleAuth(newToken: string) {
+    setToken(newToken);
+  }
+
+  async function refreshRequests(authToken: string) {
     if (!isConfigured) {
       return;
     }
@@ -139,49 +302,330 @@ export function App() {
     setMessage(null);
 
     try {
-      setRequests(await loadRequests());
+      const [legacy, db] = await Promise.allSettled([
+        loadRequests(authToken),
+        loadDbRequests(authToken),
+      ]);
+
+      if (legacy.status === "fulfilled") {
+        setRequests(legacy.value);
+      }
+
+      if (db.status === "fulfilled") {
+        setDbRequests(db.value);
+      } else {
+        // DB might not be migrated yet — show a note but don't fail hard
+        setMessage("Postgres-заявки недоступны (проверьте миграции). Показаны preview-заявки из памяти.");
+      }
     } catch {
-      setMessage("Не удалось загрузить preview-заявки. Проверьте VITE_API_BASE_URL и ENABLE_MVP_DEV_API=true на API.");
+      setMessage("Не удалось загрузить заявки. Проверьте VITE_API_BASE_URL и токен.");
     } finally {
       setIsLoading(false);
     }
   }
 
+  useEffect(() => {
+    if (token) {
+      void refreshRequests(token);
+    }
+  }, [token, isConfigured]);
+
   async function changeStatus(request: MvpRequestRecord, status: MvpRequestStatus) {
-    setUpdatingRequestId(request.requestId);
+    setUpdatingId(request.requestId);
     setMessage(null);
 
     try {
-      const response = await updateRequestStatus(request.requestId, status);
+      const response = await updateRequestStatus(request.requestId, status, token);
 
       setRequests((current) =>
         current.map((item) =>
           item.requestId === request.requestId
-            ? {
-                ...item,
-                status: response.status,
-                updatedAt: response.updatedAt,
-              }
+            ? { ...item, status: response.status, updatedAt: response.updatedAt }
             : item,
         ),
       );
     } catch {
       setMessage("Не удалось обновить статус preview-заявки.");
     } finally {
-      setUpdatingRequestId(null);
+      setUpdatingId(null);
+    }
+  }
+
+  async function changeDbStatus(req: MvpDbRequestRecord, status: MvpDbStatus) {
+    setUpdatingId(req.id);
+    setMessage(null);
+
+    try {
+      const updated = await updateDbRequestStatus(req.id, status, token);
+
+      setDbRequests((current) =>
+        current.map((item) => (item.id === req.id ? updated : item)),
+      );
+    } catch {
+      setMessage("Не удалось обновить статус Postgres-заявки.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  if (!token) {
+    return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={handleAuth} />;
+  }
+
+  return (
+    <section className="dashboard-card">
+      <div className="dashboard-toolbar">
+        <div>
+          <p className="meta-label">Заявки (Postgres)</p>
+          <h2>DB-заявки</h2>
+          <p>Заявки, сохранённые в Postgres. Статус обновляется здесь и остаётся после перезапуска.</p>
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">
+            {isLoading ? "Обновляем…" : "Обновить"}
+          </button>
+          <button
+            onClick={() => {
+              writeStoredToken(storageKey, "");
+              setToken("");
+              setRequests([]);
+              setDbRequests([]);
+            }}
+            type="button"
+          >
+            Выйти
+          </button>
+        </div>
+      </div>
+
+      {message ? <p className="dashboard-message">{message}</p> : null}
+
+      {dbRequests.length === 0 && !isLoading ? (
+        <div className="dashboard-empty-list">
+          <p className="meta-label">Пусто</p>
+          <h3>Postgres-заявок пока нет</h3>
+          <p>Создайте заявку в Mini App, затем обновите список.</p>
+        </div>
+      ) : null}
+
+      <div className="request-list">
+        {dbRequests.map((req) => (
+          <article className="request-card" key={req.id}>
+            <div className="request-card__head">
+              <div>
+                <span className="request-id">{req.id}</span>
+                <h3>{offerName(req.offerId)}</h3>
+              </div>
+              <strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>
+                {dbStatusLabels[req.status]}
+              </strong>
+            </div>
+
+            <dl className="request-fields">
+              <div><dt>Район</dt><dd>{req.district}</dd></div>
+              <div><dt>Время</dt><dd>{req.desiredTime}</dd></div>
+              <div><dt>Формат</dt><dd>{req.profile}</dd></div>
+              {req.priceMin !== null ? (
+                <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div>
+              ) : null}
+              {req.etaMinutes !== null ? (
+                <div><dt>ETA</dt><dd>{req.etaMinutes} мин</dd></div>
+              ) : null}
+              <div><dt>Обновлено</dt><dd>{formatDate(req.updatedAt)}</dd></div>
+            </dl>
+
+            <div className="status-actions" aria-label="Изменить статус заявки">
+              {dbStatusOrder.map((status) => (
+                <button
+                  disabled={updatingId === req.id || req.status === status}
+                  key={status}
+                  onClick={() => void changeDbStatus(req, status)}
+                  type="button"
+                >
+                  {dbStatusLabels[status]}
+                </button>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      {requests.length > 0 ? (
+        <>
+          <div className="dashboard-toolbar" style={{ marginTop: "24px" }}>
+            <div>
+              <p className="meta-label">Preview-заявки (в памяти)</p>
+              <h2>In-memory заявки</h2>
+              <p>Сбрасываются при перезапуске API. Для совместимости с предыдущей версией.</p>
+            </div>
+          </div>
+
+          <div className="request-list">
+            {requests.map((request) => (
+              <article className="request-card" key={request.requestId}>
+                <div className="request-card__head">
+                  <div>
+                    <span className="request-id">{request.requestId}</span>
+                    <h3>{offerName(request.offerId)}</h3>
+                  </div>
+                  <strong className={`status-pill status-pill--${request.status}`}>{statusLabels[request.status]}</strong>
+                </div>
+
+                <dl className="request-fields">
+                  <div><dt>Район</dt><dd>{request.district}</dd></div>
+                  <div><dt>Время</dt><dd>{request.desiredTime}</dd></div>
+                  <div><dt>Формат</dt><dd>{request.profile}</dd></div>
+                  <div><dt>Обновлено</dt><dd>{formatDate(request.updatedAt)}</dd></div>
+                </dl>
+
+                <div className="status-actions" aria-label="Изменить статус заявки">
+                  {statusOrder.map((status) => (
+                    <button
+                      disabled={updatingId === request.requestId || request.status === status}
+                      key={status}
+                      onClick={() => void changeStatus(request, status)}
+                      type="button"
+                    >
+                      {statusLabels[status]}
+                    </button>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
+      ) : null}
+    </section>
+  );
+}
+
+// ─── Clinic view ──────────────────────────────────────────────────────────────
+
+function ClinicView() {
+  const storageKey = "nadom_clinic_token";
+  const [clinicId, setClinicId] = useState(() => readStoredToken(storageKey));
+  const [requests, setRequests] = useState<MvpDbRequestRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const isConfigured = Boolean(apiBaseUrl);
+
+  function handleAuth(token: string) {
+    setClinicId(token);
+  }
+
+  async function refreshRequests(id: string) {
+    if (!isConfigured) {
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage(null);
+
+    try {
+      const loaded = await loadClinicRequests(id);
+
+      setRequests(loaded);
+    } catch {
+      setMessage("Не удалось загрузить заявки. Проверьте ID медслужбы и настройки API.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    void refreshRequests();
-  }, [isConfigured]);
+    if (clinicId) {
+      void refreshRequests(clinicId);
+    }
+  }, [clinicId, isConfigured]);
+
+  if (!clinicId) {
+    return (
+      <AuthGate
+        storageKey={storageKey}
+        label="Кабинет медслужбы — вход"
+        onAuth={handleAuth}
+      />
+    );
+  }
+
+  return (
+    <section className="dashboard-card">
+      <div className="dashboard-toolbar">
+        <div>
+          <p className="meta-label">Медслужба: {clinicId}</p>
+          <h2>Заявки вашей медслужбы</h2>
+          <p>Заявки, направленные выбранной медслужбе. Без телефона, адреса и личных данных пациента.</p>
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button disabled={isLoading} onClick={() => void refreshRequests(clinicId)} type="button">
+            {isLoading ? "Обновляем…" : "Обновить"}
+          </button>
+          <button
+            onClick={() => {
+              writeStoredToken(storageKey, "");
+              setClinicId("");
+              setRequests([]);
+            }}
+            type="button"
+          >
+            Выйти
+          </button>
+        </div>
+      </div>
+
+      {message ? <p className="dashboard-message">{message}</p> : null}
+
+      {requests.length === 0 && !isLoading ? (
+        <div className="dashboard-empty-list">
+          <p className="meta-label">Пусто</p>
+          <h3>Заявок для этой медслужбы пока нет</h3>
+          <p>Создайте заявку в Mini App с выбором этой медслужбы.</p>
+        </div>
+      ) : null}
+
+      <div className="request-list">
+        {requests.map((req) => (
+          <article className="request-card" key={req.id}>
+            <div className="request-card__head">
+              <div>
+                <span className="request-id">{req.id}</span>
+                <h3>{offerName(req.offerId)}</h3>
+              </div>
+              <strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>
+                {dbStatusLabels[req.status]}
+              </strong>
+            </div>
+
+            <dl className="request-fields">
+              <div><dt>Район</dt><dd>{req.district}</dd></div>
+              <div><dt>Время</dt><dd>{req.desiredTime}</dd></div>
+              <div><dt>Формат</dt><dd>{req.profile}</dd></div>
+              <div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Main App ─────────────────────────────────────────────────────────────────
+
+export function App() {
+  const pathname = window.location.pathname;
+  const isConfigured = Boolean(apiBaseUrl);
+  const title = useMemo(() => routeTitle(pathname), [pathname]);
+  const description = useMemo(() => routeDescription(pathname), [pathname]);
+
+  const isAdmin = pathname.startsWith("/admin");
+  const isClinic = pathname.startsWith("/clinic");
 
   return (
     <main className="dashboard-shell">
       <section className="dashboard-frame" aria-labelledby="dashboard-title">
         <header className="dashboard-header">
           <BrandMark />
-          <p className="dashboard-kicker">Надом · controlled preview</p>
+          <p className="dashboard-kicker">Надом · операционная панель</p>
           <h1 id="dashboard-title">{title}</h1>
           <p>{description}</p>
           <nav aria-label="Маршруты dashboard">
@@ -193,77 +637,18 @@ export function App() {
         {!isConfigured ? (
           <section className="dashboard-card dashboard-card--empty">
             <p className="meta-label">Настройка</p>
-            <h2>Preview API не подключён</h2>
-            <p>Укажите VITE_API_BASE_URL, чтобы подключить preview API.</p>
+            <h2>API не подключён</h2>
+            <p>Укажите VITE_API_BASE_URL, чтобы подключить API.</p>
           </section>
+        ) : isAdmin ? (
+          <AdminView />
+        ) : isClinic ? (
+          <ClinicView />
         ) : (
-          <section className="dashboard-card">
-            <div className="dashboard-toolbar">
-              <div>
-                <p className="meta-label">Заявки</p>
-                <h2>Preview-заявки</h2>
-                <p>Минимальный набор полей: район, время, формат запроса и статус. Без телефона, адреса, меддеталей и чата.</p>
-              </div>
-              <button disabled={isLoading} onClick={() => void refreshRequests()} type="button">
-                {isLoading ? "Обновляем…" : "Обновить"}
-              </button>
-            </div>
-
-            {message ? <p className="dashboard-message">{message}</p> : null}
-
-            {requests.length === 0 && !isLoading ? (
-              <div className="dashboard-empty-list">
-                <p className="meta-label">Пусто</p>
-                <h3>Заявок пока нет</h3>
-                <p>Создайте заявку в Mini App, затем обновите список.</p>
-              </div>
-            ) : null}
-
-            <div className="request-list">
-              {requests.map((request) => (
-                <article className="request-card" key={request.requestId}>
-                  <div className="request-card__head">
-                    <div>
-                      <span className="request-id">{request.requestId}</span>
-                      <h3>{offerName(request.offerId)}</h3>
-                    </div>
-                    <strong className={`status-pill status-pill--${request.status}`}>{statusLabels[request.status]}</strong>
-                  </div>
-
-                  <dl className="request-fields">
-                    <div>
-                      <dt>Район</dt>
-                      <dd>{request.district}</dd>
-                    </div>
-                    <div>
-                      <dt>Время</dt>
-                      <dd>{request.desiredTime}</dd>
-                    </div>
-                    <div>
-                      <dt>Формат</dt>
-                      <dd>{request.profile}</dd>
-                    </div>
-                    <div>
-                      <dt>Обновлено</dt>
-                      <dd>{formatDate(request.updatedAt)}</dd>
-                    </div>
-                  </dl>
-
-                  <div className="status-actions" aria-label="Изменить статус заявки">
-                    {statusOrder.map((status) => (
-                      <button
-                        disabled={updatingRequestId === request.requestId || request.status === status}
-                        key={status}
-                        onClick={() => void changeStatus(request, status)}
-                        type="button"
-                      >
-                        {statusLabels[status]}
-                      </button>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
+          <section className="dashboard-card dashboard-card--empty">
+            <p className="meta-label">Маршрут</p>
+            <h2>Выберите маршрут</h2>
+            <p>Перейдите на <a href="/admin">/admin</a> или <a href="/clinic">/clinic</a>.</p>
           </section>
         )}
       </section>
