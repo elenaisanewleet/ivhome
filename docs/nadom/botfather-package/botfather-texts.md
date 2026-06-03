@@ -49,15 +49,11 @@
 Вводить через BotFather построчно:
 
 ```
-start - открыть Надом
-help - как это работает
-support - поддержка
-status - статус заявки
-new - новый подбор
-cancel - отменить заявку
+start - начать
+help - помощь
 ```
 
-Команды остаются короткими. Основной сценарий всё равно живёт в Mini App.
+Два пункта для MVP. Основной сценарий живёт в Mini App.
 
 ---
 
@@ -123,7 +119,7 @@ nadom.onrender.com
 | 2 | `/setname` → Надом | ☐ |
 | 3 | `/setdescription` → текст выше | ☐ |
 | 4 | `/setabouttext` → текст выше | ☐ |
-| 5 | `/setcommands` → команды выше | ☐ |
+| 5 | `/setcommands` → start, help | ☐ |
 | 6 | `/setprivacy` → Enabled | ☐ |
 | 7 | `/setmenubutton` → Web App → `https://nadom.onrender.com` | ☐ |
 | 8 | `/setuserpic` → PNG 512×512 из avatar.svg | ☐ |
