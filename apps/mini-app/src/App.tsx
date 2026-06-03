@@ -50,31 +50,31 @@ type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";
 const STEPS: Step[] = [
   {
     id: "welcome",
-    eyebrow: "Надом 🫧",
-    title: "Подберём медслужбу с выездом на дом",
+    eyebrow: "Надом",
+    title: "Медслужба с выездом на дом",
     body: [
-      "Конфиденциальный подбор вариантов медицинского выезда на дом.",
-      "Сравните время, условия и ориентировочную стоимость. Детали подтверждает выбранная медслужба.",
+      "Конфиденциальный подбор вариантов выезда на дом в Москве.",
+      "Сравните ответ, прибытие и ориентировочную стоимость. Детали подтверждает выбранная медслужба.",
     ],
     iconLabel: "welcome",
   },
   {
     id: "consent",
     eyebrow: "Шаг 1 из 6",
-    title: "Сначала — согласие",
+    title: "Прежде чем начать",
     body: [
-      "Для подбора нужны только район, удобное время и формат запроса.",
-      "Продолжая, вы соглашаетесь на обработку этих данных для подбора вариантов. Точный адрес и телефон сейчас не нужны.",
+      "Надом — сервис подбора медслужбы. Мы не оказываем медицинские услуги.",
+      "Для подбора нужны район, удобное время и формат запроса. Точный адрес и телефон сейчас не нужны.",
     ],
     iconLabel: "privacy",
   },
   {
     id: "emergency",
     eyebrow: "Шаг 2 из 6",
-    title: "Когда лучше позвонить 103 или 112",
+    title: "Сначала о безопасности",
     body: [
-      "Если состояние кажется острым или быстро ухудшается — лучше обратиться за экстренной помощью: 103 или 112.",
-      "Надом может показать доступные варианты выезда, но детали и возможность помощи подтверждает выбранная медслужба.",
+      "Надом не оценивает тяжесть состояния. При сомнениях лучше позвонить 103 или 112.",
+      "Можно продолжить подбор вариантов выезда — детали и возможность помощи подтверждает выбранная медслужба.",
     ],
     iconLabel: "signal",
   },
@@ -235,20 +235,97 @@ function isLikelyMobileRuntime() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 }
 
+type SymbolTone = "default" | "emergency" | "offers" | "welcome";
+
+const SYMBOL_TONES: Record<
+  SymbolTone,
+  { stroke: string; fill: string; dot: string; arc: string }
+> = {
+  default: {
+    stroke: "#4A7FA5",
+    fill: "rgba(74,127,165,0.08)",
+    dot: "#4A7FA5",
+    arc: "#7EB8D4",
+  },
+  emergency: {
+    stroke: "#8A3030",
+    fill: "rgba(138,48,48,0.06)",
+    dot: "#8A3030",
+    arc: "rgba(138,48,48,0.35)",
+  },
+  offers: {
+    stroke: "#3A8A82",
+    fill: "rgba(58,138,130,0.06)",
+    dot: "#3A8A82",
+    arc: "rgba(58,138,130,0.35)",
+  },
+  welcome: {
+    stroke: "#4A7FA5",
+    fill: "rgba(74,127,165,0.08)",
+    dot: "#4A7FA5",
+    arc: "rgba(126,184,212,0.35)",
+  },
+};
+
+function NadomSymbol({
+  size = 52,
+  tone = "default",
+}: {
+  size?: number;
+  tone?: SymbolTone;
+}) {
+  const palette = SYMBOL_TONES[tone];
+  const isWelcome = tone === "welcome";
+  const height = isWelcome ? Math.round(size * 1.24) : size;
+  const dropPath = isWelcome
+    ? "M34 8C34 8 10 32 10 48C10 65 20.5 76 34 76C47.5 76 58 65 58 48C58 32 34 8 34 8Z"
+    : "M26 8C26 8 14 20 14 28C14 35 19.5 40 26 40C32.5 40 38 35 38 28C38 20 26 8 26 8Z";
+  const dotCy = isWelcome ? 50 : 28;
+  const dotR = isWelcome ? 10 : 4;
+  const arcPath = isWelcome
+    ? "M4 82 Q16 74 34 78 Q52 82 64 82"
+    : "M10 46 Q18 38 26 40 Q34 42 42 46";
+  const viewBox = isWelcome ? "0 0 68 84" : "0 0 52 52";
+
+  return (
+    <svg
+      aria-hidden="true"
+      className={`nadom-symbol nadom-symbol--${tone}`}
+      height={height}
+      viewBox={viewBox}
+      width={size}
+    >
+      <path
+        d={dropPath}
+        fill={palette.fill}
+        stroke={palette.stroke}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={isWelcome ? 2.5 : 2}
+      />
+      <circle cx={isWelcome ? 34 : 26} cy={dotCy} fill={palette.dot} r={dotR} />
+      <path
+        d={arcPath}
+        fill="none"
+        stroke={palette.arc}
+        strokeDasharray="3 3"
+        strokeLinecap="round"
+        strokeWidth={isWelcome ? 2 : 1.5}
+      />
+    </svg>
+  );
+}
+
 function NodeIcon({ variant }: { variant: Step["iconLabel"] }) {
-  const isEmergency = variant === "signal";
-  const isOffers = variant === "offers";
+  const tone: SymbolTone =
+    variant === "signal" ? "emergency" : variant === "offers" ? "offers" : variant === "welcome" ? "welcome" : "default";
 
   return (
     <div
-      className={`node-icon ${isEmergency ? "node-icon--emergency" : ""} ${isOffers ? "node-icon--offers" : ""}`}
+      className={`node-icon ${tone !== "default" ? `node-icon--${tone}` : ""}`}
       aria-hidden="true"
     >
-      <span className="node-icon__dot node-icon__dot--main" />
-      <span className="node-icon__line node-icon__line--first" />
-      <span className="node-icon__dot node-icon__dot--second" />
-      <span className="node-icon__line node-icon__line--second" />
-      <span className="node-icon__dot node-icon__dot--third" />
+      <NadomSymbol size={tone === "welcome" ? 68 : 52} tone={tone} />
     </div>
   );
 }
@@ -274,7 +351,7 @@ function SlaGrid({ offer }: { offer: Offer }) {
         <strong>{offer.responseTime}</strong>
       </div>
       <div className="sla-box sla-box--eta">
-        <span>Прибытие после подтверждения</span>
+        <span>Прибытие</span>
         <strong>{offer.arrivalTime}</strong>
       </div>
     </div>
@@ -284,7 +361,7 @@ function SlaGrid({ offer }: { offer: Offer }) {
 function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) => void }) {
   return (
     <article className="offer-card">
-      <div className="offer-card__header">
+      <button className="offer-card__header" onClick={() => onOpen("details")} type="button">
         <div>
           <p className="status-label">
             <span className="status-dot" />
@@ -293,7 +370,7 @@ function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) 
           <h2>{offer.name}</h2>
         </div>
         <span className="rating-pill">⋆ {offer.rating}</span>
-      </div>
+      </button>
 
       <p className="offer-zone">{offer.zone}</p>
       <SlaGrid offer={offer} />
@@ -312,9 +389,6 @@ function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) 
       <p className="offer-note">{offer.note}</p>
 
       <div className="offer-actions">
-        <button className="button button--secondary" onClick={() => onOpen("details")} type="button">
-          Смотреть детали
-        </button>
         <button className="button button--teal" onClick={() => onOpen("chat")} type="button">
           Написать специалисту
         </button>
@@ -461,17 +535,21 @@ function ChatView({
       <SubflowHeader
         eyebrow="Чат со специалистом"
         title={offer.name}
-        body="Можно уточнить формат помощи, время, условия или личный вопрос."
+        body="Детали выезда, условия и возможность помощи уточняет специалист выбранной медслужбы. Надом не даёт медицинских рекомендаций."
       />
 
+      <p className="chat-privacy-banner">
+        Чат приватный. Сообщения не попадают в Telegram-уведомления.
+      </p>
+
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
-        <p className="chat-window__date">Сегодня · локальный макет</p>
+        <p className="chat-window__date">Сегодня</p>
         <div className="chat-bubble chat-bubble--service">
           Здравствуйте. Я специалист выбранной медслужбы. Можно уточнить условия выезда.
         </div>
         <div className="chat-bubble chat-bubble--user">Подскажите, когда сможете подтвердить время?</div>
         <div className="chat-bubble chat-bubble--service">
-          Обычно отвечаем в течение {offer.responseTime}. Возможность выезда подтвердим отдельно.
+          Обычно отвечаем в течение {offer.responseTime}. Возможность выезда подтверждаем отдельно.
         </div>
         {messages.map((message) => (
           <div className="chat-bubble chat-bubble--user" key={message.id}>
@@ -500,16 +578,12 @@ function ChatView({
           ↑
         </button>
       </form>
-      <p className="privacy-note">
-        Сообщение сохраняется только в этом локальном макете и не отправляется в Telegram-уведомления.
-      </p>
-
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onContinue} type="button">
-          Продолжить к подтверждению
+          Подтвердить заявку
         </button>
         <button className="button button--secondary" onClick={onContinue} type="button">
-          Пропустить чат
+          Пропустить и подтвердить
         </button>
         <button className="button button--ghost" onClick={onBack} type="button">
           Назад к карточке
@@ -544,7 +618,7 @@ function ConfirmationView({
     ["Время", time],
     ["Ориентировочная стоимость", offer.price],
     ["Ответ", offer.responseTime],
-    ["Прибытие после подтверждения", offer.arrivalTime],
+    ["Прибытие", offer.arrivalTime],
   ];
 
   return (
@@ -586,37 +660,53 @@ function WaitingView({
   requestId,
   statusNotice,
   usesApi,
+  onChangeOffer,
   onNext,
+  onOpenChat,
   onSupport,
 }: {
   offer: Offer;
   requestId: string | null;
   statusNotice: string | null;
   usesApi: boolean;
+  onChangeOffer: () => void;
   onNext: () => void;
+  onOpenChat: () => void;
   onSupport: () => void;
 }) {
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Ожидаем подтверждение 🧊"
+        eyebrow="Ожидаем подтверждение"
         title="Заявка передана медслужбе"
-        body="Выбранная медслужба проверяет возможность выезда. Ответ и ожидаемое прибытие отслеживаются отдельно."
+        body="Выбранная медслужба проверяет возможность выезда. Ответ и прибытие отслеживаются отдельно."
       />
       <OfferBadge offer={offer} />
       <StatusTrack stage="waiting" />
-      <div className="status-callout">
-        <span>Ожидаемый ответ</span>
-        <strong>{offer.responseTime}</strong>
+      <div className="sla-grid" aria-label="Ожидаемые сроки">
+        <div className="sla-box">
+          <span>Ответ</span>
+          <strong>{offer.responseTime}</strong>
+        </div>
+        <div className="sla-box sla-box--eta">
+          <span>Прибытие</span>
+          <strong>{offer.arrivalTime}</strong>
+        </div>
       </div>
       {requestId ? <p className="request-reference">Номер заявки: {requestId}</p> : null}
       {statusNotice ? <p className="privacy-note">{statusNotice}</p> : null}
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
-          {usesApi ? "Обновить статус" : "Показать демо-подтверждение"}
+          {usesApi ? "Обновить статус" : "Показать подтверждение медслужбы"}
         </button>
-        <button className="button button--ghost" onClick={onSupport} type="button">
-          Нужна поддержка
+        <button className="button button--teal" onClick={onOpenChat} type="button">
+          Открыть чат
+        </button>
+        <button className="button button--secondary" onClick={onSupport} type="button">
+          Написать в поддержку
+        </button>
+        <button className="button button--ghost" onClick={onChangeOffer} type="button">
+          Изменить медслужбу
         </button>
       </div>
     </section>
@@ -638,11 +728,21 @@ function PriceLockView({
         body="Условия согласованы с выбранной медслужбой до выезда специалиста."
       />
       <StatusTrack stage="price-lock" />
+      <div className="sla-grid" aria-label="Подтверждённые сроки">
+        <div className="sla-box">
+          <span>Ответ</span>
+          <strong>{offer.responseTime}</strong>
+        </div>
+        <div className="sla-box sla-box--eta">
+          <span>Прибытие</span>
+          <strong>{offer.arrivalTime}</strong>
+        </div>
+      </div>
       <div className="price-lock">
         <span>Итоговая стоимость</span>
         <strong>{offer.finalPrice}</strong>
       </div>
-      <p className="privacy-note">Итоговую стоимость подтверждает выбранная медслужба.</p>
+      <p className="privacy-note">Итоговую стоимость и время прибытия подтверждает выбранная медслужба.</p>
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
           Продолжить
@@ -664,7 +764,7 @@ function DispatchedView({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Специалист выехал 🪽"
+        eyebrow="Специалист выехал"
         title="Ожидайте специалиста"
         body="Статус обновлён выбранной медслужбой. Ожидаемое прибытие указано отдельно."
       />
@@ -697,7 +797,7 @@ function CompletedView({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Завершено 🩵"
+        eyebrow="Завершено"
         title="Выезд завершён"
         body="Спасибо. Можно оценить взаимодействие с медслужбой или начать новый подбор."
       />
@@ -777,7 +877,7 @@ function SupportView({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Поддержка 🩵"
+        eyebrow="Поддержка"
         title="Поможем разобраться"
         body="Напишите в поддержку сервиса и укажите номер заявки, если он есть. Не отправляйте медицинские детали."
       />
@@ -893,7 +993,9 @@ function OfferSubflow({
     return (
       <WaitingView
         offer={offer}
+        onChangeOffer={() => onChangeView(null)}
         onNext={onUpdateStatus}
+        onOpenChat={() => onChangeView("chat")}
         onSupport={() => onShowSupport("status")}
         requestId={requestId}
         statusNotice={statusNotice}
