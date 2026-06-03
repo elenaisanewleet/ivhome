@@ -56,10 +56,10 @@ test("creates fallback reply", () => {
 
 test("creates neutral protected status notifications without request details", () => {
   assert.deepEqual(createStatusUpdateMessage(), {
-    text: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+    text: "статус заявки обновлён · детали в приложении",
     protect_content: true,
   });
 
   assert.equal(createStatusUpdateMessage("booked").protect_content, true);
-  assert.match(createStatusUpdateMessage("en_route").text, /Специалист выбранной медслужбы выезжает/u);
+  assert.match(createStatusUpdateMessage("en_route").text, /специалист выехал/u);
 });
