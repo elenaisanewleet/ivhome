@@ -139,11 +139,21 @@ h1 {
   border-color: rgba(74, 127, 165, 0.42);
   color: var(--accent);
   background: linear-gradient(135deg, rgba(212, 232, 245, 0.9), rgba(250, 250, 248, 0.92));
+  box-shadow: 0 0 0 2px rgba(74, 127, 165, 0.25);
 }
 
 .offer-card {
   border-radius: 20px;
   box-shadow: 0 16px 40px rgba(15, 15, 14, 0.055);
+  transition: box-shadow 0.15s ease;
+}
+
+.offer-card:has(.offer-card__header:active) {
+  box-shadow: 0 8px 20px rgba(15, 15, 14, 0.08);
+}
+
+.faq-item--open .faq-item__q {
+  color: var(--accent);
 }
 
 .offer-card__header {
@@ -404,11 +414,106 @@ h1 {
   }
 }
 
+/* Pending state inside a button: label + animated dots on one baseline. */
+.nadom-dots-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Live status row — soft pulse + calm caption (waiting / en route). */
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(58, 138, 130, 0.08);
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── Skeletons: calm shimmer while the offer list loads ─────────── */
+
+.offer-card--skeleton {
+  display: grid;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.offer-card--skeleton .offer-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.offer-card--skeleton .offer-card__header > div {
+  display: grid;
+  gap: 8px;
+}
+
+.skeleton {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(
+    100deg,
+    rgba(15, 15, 14, 0.05) 30%,
+    rgba(15, 15, 14, 0.09) 50%,
+    rgba(15, 15, 14, 0.05) 70%
+  );
+  background-size: 200% 100%;
+  animation: nadom-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton--line {
+  height: 11px;
+}
+
+.skeleton--sm {
+  width: 38%;
+}
+
+.skeleton--md {
+  width: 64%;
+}
+
+.skeleton--lg {
+  width: 84%;
+  height: 15px;
+}
+
+.skeleton--pill {
+  width: 46px;
+  height: 22px;
+  border-radius: 999px;
+}
+
+.skeleton--box {
+  height: 46px;
+  border-radius: 12px;
+}
+
+@keyframes nadom-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
 /* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   .screen-card--enter,
   .nadom-dots span,
-  .nadom-pulse::after {
+  .nadom-pulse::after,
+  .skeleton {
     animation: none;
   }
 }
