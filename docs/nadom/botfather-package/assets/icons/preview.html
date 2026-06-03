@@ -3,350 +3,267 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Надом — Icon Variants Preview</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;700&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Надом — иконки</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
 body {
   font-family: 'Onest', system-ui, sans-serif;
   background: #080807;
   color: #C8C8BC;
-  font-size: 13px;
   padding: 48px 40px;
-  min-height: 100vh;
+  line-height: 1.5;
 }
-
 h1 {
   font-family: 'Unbounded', system-ui, sans-serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: #FAFAF4;
-  letter-spacing: -0.04em;
-  margin-bottom: 6px;
+  font-size: 20px; font-weight: 600; color: #FAFAF4;
+  letter-spacing: -0.04em; margin-bottom: 4px;
 }
-
-.sub {
-  font-size: 12px;
-  color: #5A5A54;
-  margin-bottom: 48px;
-  letter-spacing: 0.01em;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 24px;
-  margin-bottom: 56px;
-}
-
-.card {
-  background: #161614;
-  border: 0.5px solid #272724;
-  border-radius: 16px;
-  padding: 28px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.card.recommended {
-  border-color: rgba(61,122,181,0.5);
-  background: #12161E;
-}
-
-.badge {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 8px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #5A94CC;
-  background: rgba(61,122,181,0.12);
-  border-radius: 4px;
-  padding: 2px 8px;
-  align-self: flex-start;
-}
-
-/* Three sizes per icon */
-.sizes {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.size-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.size-wrap img, .size-wrap object {
-  display: block;
-}
-
-.size-lbl {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 8px;
-  color: #5A5A54;
-  letter-spacing: 0.08em;
-}
-
-/* Circle crop preview */
-.circle-crop {
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.card-name {
-  font-family: 'Unbounded', system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #FAFAF4;
-  letter-spacing: -0.02em;
-}
-
-.card-desc {
-  font-size: 11px;
-  color: #5A5A54;
-  text-align: center;
-  line-height: 1.55;
-}
-
-/* Context previews: TG chat list simulation */
-.context-section {
-  margin-bottom: 40px;
-}
+.sub { font-size: 12px; color: #5A5A54; margin-bottom: 48px; }
 
 .section-tag {
-  font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 9px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #5A5A54;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #5A5A54; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 12px;
 }
-.section-tag::after {
-  content: '';
-  flex: 1;
-  height: 0.5px;
-  background: #1E1E1B;
-}
+.section-tag::after { content: ''; flex: 1; height: 0.5px; background: #1E1E1B; }
 
-/* Telegram chat list row simulation */
-.tg-list {
-  background: #17212B;
-  border-radius: 12px;
-  overflow: hidden;
-  max-width: 380px;
-}
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; margin-bottom: 52px; }
 
-.tg-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 0.5px solid #1E2D3D;
+.card {
+  background: #161614; border: 0.5px solid #272724; border-radius: 16px;
+  padding: 24px 16px 18px; display: flex; flex-direction: column;
+  align-items: center; gap: 14px;
 }
+.card.rec { border-color: rgba(61,122,181,0.45); background: #11151D; }
+.badge {
+  font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: #5A94CC; background: rgba(61,122,181,0.12);
+  border-radius: 4px; padding: 2px 8px; align-self: flex-start;
+}
+.sizes { display: flex; align-items: flex-end; gap: 10px; }
+.sz { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.sz span { font-size: 8px; color: #5A5A54; letter-spacing: 0.06em; }
+
+/* Circle crop */
+.c { border-radius: 50%; overflow: hidden; display: block; flex-shrink: 0; }
+.c svg { display: block; }
+
+.card-name { font-family: 'Unbounded', system-ui, sans-serif; font-size: 11px; font-weight: 600; color: #FAFAF4; letter-spacing: -0.02em; }
+.card-desc { font-size: 11px; color: #5A5A54; text-align: center; line-height: 1.5; }
+
+/* TG chat list */
+.tg-list { background: #17212B; border-radius: 12px; overflow: hidden; max-width: 400px; margin-bottom: 48px; }
+.tg-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 0.5px solid #1E2D3D; }
 .tg-row:last-child { border-bottom: none; }
-
-.tg-av {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
+.tg-av { width: 46px; height: 46px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+.tg-av svg { display: block; width: 46px; height: 46px; }
 .tg-meta { flex: 1; min-width: 0; }
 .tg-name { font-size: 14px; font-weight: 600; color: #EAEAEA; margin-bottom: 2px; }
 .tg-preview { font-size: 13px; color: #708A9E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tg-time { font-size: 11px; color: #5A7A90; }
+.tg-time { font-size: 11px; color: #5A7A90; white-space: nowrap; }
 
-/* Comparison row for all 5 at 40px */
-.icon-row {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.icon-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
+/* Small row */
+.icon-row { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.icon-item { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.icon-item span { font-size: 9px; color: #5A5A54; letter-spacing: 0.06em; }
 </style>
 </head>
 <body>
 
 <h1>Надом — иконки бота</h1>
-<p class="sub">5 вариантов · предпросмотр в 3 размерах · в круге (как в Telegram)</p>
+<p class="sub">5 вариантов · 3 размера · кадрирование под круг Telegram · SVG встроены</p>
 
+<!-- ══ ICON DEFINITIONS as inline SVG templates ══ -->
+<!-- Each icon rendered at 3 sizes directly as inline SVG -->
+
+<div class="section-tag">варианты · 80 / 48 / 32 px</div>
 <div class="grid">
 
-  <!-- Signal (recommended) -->
-  <div class="card recommended">
-    <span class="badge">⭐ рекомендован · avatar.svg</span>
+  <!-- 1 SIGNAL -->
+  <div class="card rec">
+    <span class="badge">⭐ рекомендован</span>
     <div class="sizes">
-      <div class="size-wrap">
-        <img src="icon-signal.svg" width="80" height="80" class="circle-crop" alt="Signal 80px">
-        <span class="size-lbl">80px</span>
+      <div class="sz">
+        <div class="c" style="width:80px;height:80px">
+          <svg width="80" height="80" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s1a" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#6BA3D6"/><stop offset="55%" stop-color="#3D7AB5"/><stop offset="100%" stop-color="#1E4A78"/></radialGradient></defs><rect width="512" height="512" fill="url(#s1a)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="rgba(255,255,255,0.88)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><circle cx="256" cy="295" r="34" fill="white"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(255,255,255,0.42)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>80px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-signal.svg" width="48" height="48" class="circle-crop" alt="Signal 48px">
-        <span class="size-lbl">48px</span>
+      <div class="sz">
+        <div class="c" style="width:48px;height:48px">
+          <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s1b" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#6BA3D6"/><stop offset="55%" stop-color="#3D7AB5"/><stop offset="100%" stop-color="#1E4A78"/></radialGradient></defs><rect width="512" height="512" fill="url(#s1b)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="rgba(255,255,255,0.88)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><circle cx="256" cy="295" r="34" fill="white"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(255,255,255,0.42)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>48px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-signal.svg" width="32" height="32" class="circle-crop" alt="Signal 32px">
-        <span class="size-lbl">32px</span>
+      <div class="sz">
+        <div class="c" style="width:32px;height:32px">
+          <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="s1c" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#6BA3D6"/><stop offset="55%" stop-color="#3D7AB5"/><stop offset="100%" stop-color="#1E4A78"/></radialGradient></defs><rect width="512" height="512" fill="url(#s1c)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="rgba(255,255,255,0.88)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><circle cx="256" cy="295" r="34" fill="white"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(255,255,255,0.42)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>32px</span>
       </div>
     </div>
     <div class="card-name">Signal</div>
     <div class="card-desc">Синий градиент + белый символ.<br>Рекомендован для BotFather.</div>
   </div>
 
-  <!-- Void -->
+  <!-- 2 VOID -->
   <div class="card">
     <span class="badge">icon-void.svg</span>
     <div class="sizes">
-      <div class="size-wrap">
-        <img src="icon-void.svg" width="80" height="80" class="circle-crop" alt="Void 80px">
-        <span class="size-lbl">80px</span>
+      <div class="sz">
+        <div class="c" style="width:80px;height:80px">
+          <svg width="80" height="80" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="v2a" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#1A1A17"/><stop offset="100%" stop-color="#080807"/></radialGradient><filter id="gb2a"><feGaussianBlur stdDeviation="32"/></filter></defs><rect width="512" height="512" fill="url(#v2a)"/><ellipse cx="256" cy="260" rx="155" ry="175" fill="rgba(61,122,181,0.18)" filter="url(#gb2a)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#5A94CC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.10)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/><circle cx="248" cy="284" r="10" fill="rgba(255,255,255,0.18)"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(90,148,204,0.38)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>80px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-void.svg" width="48" height="48" class="circle-crop" alt="Void 48px">
-        <span class="size-lbl">48px</span>
+      <div class="sz">
+        <div class="c" style="width:48px;height:48px">
+          <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="v2b" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#1A1A17"/><stop offset="100%" stop-color="#080807"/></radialGradient><filter id="gb2b"><feGaussianBlur stdDeviation="32"/></filter></defs><rect width="512" height="512" fill="url(#v2b)"/><ellipse cx="256" cy="260" rx="155" ry="175" fill="rgba(61,122,181,0.18)" filter="url(#gb2b)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#5A94CC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.10)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(90,148,204,0.38)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>48px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-void.svg" width="32" height="32" class="circle-crop" alt="Void 32px">
-        <span class="size-lbl">32px</span>
+      <div class="sz">
+        <div class="c" style="width:32px;height:32px">
+          <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="v2c" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#1A1A17"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#v2c)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#5A94CC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.10)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/></svg>
+        </div>
+        <span>32px</span>
       </div>
     </div>
     <div class="card-name">Void</div>
-    <div class="card-desc">Тёмный фон + синий символ.<br>Премиальный, тёмная тема.</div>
+    <div class="card-desc">Чёрный фон + синее свечение.<br>Тёмная тема Telegram.</div>
   </div>
 
-  <!-- Cream -->
+  <!-- 3 CREAM -->
   <div class="card">
     <span class="badge">icon-cream.svg</span>
     <div class="sizes">
-      <div class="size-wrap">
-        <img src="icon-cream.svg" width="80" height="80" class="circle-crop" alt="Cream 80px">
-        <span class="size-lbl">80px</span>
+      <div class="sz">
+        <div class="c" style="width:80px;height:80px">
+          <svg width="80" height="80" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cr3a" cx="35%" cy="30%" r="80%"><stop offset="0%" stop-color="#FAFAF4"/><stop offset="100%" stop-color="#E8E7DE"/></radialGradient></defs><rect width="512" height="512" fill="url(#cr3a)"/><circle cx="380" cy="120" r="200" fill="rgba(224,223,208,0.4)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#161614" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="rgba(14,14,12,0.04)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/><circle cx="247" cy="284" r="11" fill="rgba(255,255,255,0.30)"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(14,14,12,0.20)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
+        </div>
+        <span>80px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-cream.svg" width="48" height="48" class="circle-crop" alt="Cream 48px">
-        <span class="size-lbl">48px</span>
+      <div class="sz">
+        <div class="c" style="width:48px;height:48px">
+          <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cr3b" cx="35%" cy="30%" r="80%"><stop offset="0%" stop-color="#FAFAF4"/><stop offset="100%" stop-color="#E8E7DE"/></radialGradient></defs><rect width="512" height="512" fill="url(#cr3b)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#161614" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="rgba(14,14,12,0.04)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/><circle cx="247" cy="284" r="11" fill="rgba(255,255,255,0.30)"/></svg>
+        </div>
+        <span>48px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-cream.svg" width="32" height="32" class="circle-crop" alt="Cream 32px">
-        <span class="size-lbl">32px</span>
+      <div class="sz">
+        <div class="c" style="width:32px;height:32px">
+          <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cr3c" cx="35%" cy="30%" r="80%"><stop offset="0%" stop-color="#FAFAF4"/><stop offset="100%" stop-color="#E8E7DE"/></radialGradient></defs><rect width="512" height="512" fill="url(#cr3c)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#161614" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="rgba(14,14,12,0.04)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/></svg>
+        </div>
+        <span>32px</span>
       </div>
     </div>
     <div class="card-name">Cream</div>
     <div class="card-desc">Тёплый кремовый фон.<br>Светлая тема Telegram.</div>
   </div>
 
-  <!-- Bold -->
+  <!-- 4 BOLD -->
   <div class="card">
     <span class="badge">icon-bold.svg</span>
     <div class="sizes">
-      <div class="size-wrap">
-        <img src="icon-bold.svg" width="80" height="80" class="circle-crop" alt="Bold 80px">
-        <span class="size-lbl">80px</span>
+      <div class="sz">
+        <div class="c" style="width:80px;height:80px">
+          <svg width="80" height="80" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bl4a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A8BC0"/><stop offset="100%" stop-color="#2B5E90"/></linearGradient></defs><rect width="512" height="512" fill="url(#bl4a)"/><path d="M256 100 C256 100,144 210,144 278 C144 340,196 384,256 384 C316 384,368 340,368 278 C368 210,256 100,256 100Z" fill="white"/><path d="M256 148 C256 148,188 222,188 268 C188 306,218 336,256 336 C294 336,324 306,324 268 C324 222,256 148,256 148Z" fill="url(#bl4a)"/><circle cx="256" cy="290" r="30" fill="white"/><path d="M128 428 Q192 374 256 386 Q320 398 384 428" stroke="rgba(255,255,255,0.35)" stroke-width="7" stroke-linecap="round" fill="none" stroke-dasharray="14 11"/></svg>
+        </div>
+        <span>80px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-bold.svg" width="48" height="48" class="circle-crop" alt="Bold 48px">
-        <span class="size-lbl">48px</span>
+      <div class="sz">
+        <div class="c" style="width:48px;height:48px">
+          <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bl4b" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A8BC0"/><stop offset="100%" stop-color="#2B5E90"/></linearGradient></defs><rect width="512" height="512" fill="url(#bl4b)"/><path d="M256 100 C256 100,144 210,144 278 C144 340,196 384,256 384 C316 384,368 340,368 278 C368 210,256 100,256 100Z" fill="white"/><path d="M256 148 C256 148,188 222,188 268 C188 306,218 336,256 336 C294 336,324 306,324 268 C324 222,256 148,256 148Z" fill="url(#bl4b)"/><circle cx="256" cy="290" r="30" fill="white"/></svg>
+        </div>
+        <span>48px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-bold.svg" width="32" height="32" class="circle-crop" alt="Bold 32px">
-        <span class="size-lbl">32px</span>
+      <div class="sz">
+        <div class="c" style="width:32px;height:32px">
+          <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bl4c" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A8BC0"/><stop offset="100%" stop-color="#2B5E90"/></linearGradient></defs><rect width="512" height="512" fill="url(#bl4c)"/><path d="M256 100 C256 100,144 210,144 278 C144 340,196 384,256 384 C316 384,368 340,368 278 C368 210,256 100,256 100Z" fill="white"/><path d="M256 148 C256 148,188 222,188 268 C188 306,218 336,256 336 C294 336,324 306,324 268 C324 222,256 148,256 148Z" fill="url(#bl4c)"/><circle cx="256" cy="290" r="30" fill="white"/></svg>
+        </div>
+        <span>32px</span>
       </div>
     </div>
     <div class="card-name">Bold</div>
-    <div class="card-desc">Залитая форма, максимальный контраст.<br>Лучший при 32px и меньше.</div>
+    <div class="card-desc">Залитая форма, чистый силуэт.<br>Лучший при 32px и меньше.</div>
   </div>
 
-  <!-- Letter -->
+  <!-- 5 LETTER -->
   <div class="card">
     <span class="badge">icon-letter.svg</span>
     <div class="sizes">
-      <div class="size-wrap">
-        <img src="icon-letter.svg" width="80" height="80" class="circle-crop" alt="Letter 80px">
-        <span class="size-lbl">80px</span>
+      <div class="sz">
+        <div class="c" style="width:80px;height:80px">
+          <svg width="80" height="80" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="lt5a" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="#141412"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#lt5a)"/><rect x="120" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="350" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="120" y="228" width="272" height="38" rx="4" fill="#5A94CC"/><circle cx="256" cy="432" r="16" fill="#3D7AB5"/><circle cx="256" cy="432" r="28" fill="none" stroke="rgba(61,122,181,0.25)" stroke-width="1.5"/></svg>
+        </div>
+        <span>80px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-letter.svg" width="48" height="48" class="circle-crop" alt="Letter 48px">
-        <span class="size-lbl">48px</span>
+      <div class="sz">
+        <div class="c" style="width:48px;height:48px">
+          <svg width="48" height="48" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="lt5b" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="#141412"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#lt5b)"/><rect x="120" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="350" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="120" y="228" width="272" height="38" rx="4" fill="#5A94CC"/><circle cx="256" cy="432" r="16" fill="#3D7AB5"/></svg>
+        </div>
+        <span>48px</span>
       </div>
-      <div class="size-wrap">
-        <img src="icon-letter.svg" width="32" height="32" class="circle-crop" alt="Letter 32px">
-        <span class="size-lbl">32px</span>
+      <div class="sz">
+        <div class="c" style="width:32px;height:32px">
+          <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="lt5c" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="#141412"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#lt5c)"/><rect x="120" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="350" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="120" y="228" width="272" height="38" rx="4" fill="#5A94CC"/><circle cx="256" cy="432" r="14" fill="#3D7AB5"/></svg>
+        </div>
+        <span>32px</span>
       </div>
     </div>
     <div class="card-name">Letter Н</div>
-    <div class="card-desc">Типографическая марка.<br>Мгновенное узнавание по букве.</div>
+    <div class="card-desc">Геометрическая марка.<br>Мгновенное узнавание.</div>
   </div>
 
 </div>
 
-<!-- Context: TG chat list simulation -->
-<div class="context-section">
-  <div class="section-tag">предпросмотр · список чатов Telegram</div>
-  <div class="tg-list">
-    <div class="tg-row">
-      <div class="tg-av">
-        <img src="icon-signal.svg" width="46" height="46" alt="Signal">
-      </div>
-      <div class="tg-meta">
-        <div class="tg-name">Надом</div>
-        <div class="tg-preview">привет 🫧 нужен выезд на дом — подберём вариант</div>
-      </div>
-      <div class="tg-time">сейчас</div>
+<!-- TG chat list simulation -->
+<div class="section-tag">предпросмотр · список чатов Telegram</div>
+<div class="tg-list">
+  <div class="tg-row">
+    <div class="tg-av">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="tg1" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#6BA3D6"/><stop offset="55%" stop-color="#3D7AB5"/><stop offset="100%" stop-color="#1E4A78"/></radialGradient></defs><rect width="512" height="512" fill="url(#tg1)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="rgba(255,255,255,0.88)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><circle cx="256" cy="295" r="34" fill="white"/><path d="M112 432 Q184 362 256 378 Q328 394 400 432" stroke="rgba(255,255,255,0.42)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="16 13"/></svg>
     </div>
-    <div class="tg-row">
-      <div class="tg-av">
-        <img src="icon-void.svg" width="46" height="46" alt="Void">
-      </div>
-      <div class="tg-meta">
-        <div class="tg-name">Надом</div>
-        <div class="tg-preview">заявка подтверждена · детали в приложении</div>
-      </div>
-      <div class="tg-time">14:32</div>
+    <div class="tg-meta">
+      <div class="tg-name">Надом</div>
+      <div class="tg-preview">привет 🫧 нужен выезд на дом — подберём вариант</div>
     </div>
+    <div class="tg-time">сейчас</div>
+  </div>
+  <div class="tg-row">
+    <div class="tg-av">
+      <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="tg2" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#1A1A17"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#tg2)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#5A94CC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.10)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/></svg>
+    </div>
+    <div class="tg-meta">
+      <div class="tg-name">Надом</div>
+      <div class="tg-preview">заявка подтверждена · детали в приложении</div>
+    </div>
+    <div class="tg-time">14:32</div>
   </div>
 </div>
 
-<!-- All 5 at 40px — как в уведомлении -->
-<div class="context-section">
-  <div class="section-tag">сравнение при 40px (уведомления)</div>
-  <div class="icon-row">
-    <div class="icon-item">
-      <img src="icon-signal.svg" width="40" height="40" class="circle-crop" alt="Signal">
-      <span class="size-lbl">Signal ★</span>
-    </div>
-    <div class="icon-item">
-      <img src="icon-void.svg" width="40" height="40" class="circle-crop" alt="Void">
-      <span class="size-lbl">Void</span>
-    </div>
-    <div class="icon-item">
-      <img src="icon-cream.svg" width="40" height="40" class="circle-crop" alt="Cream">
-      <span class="size-lbl">Cream</span>
-    </div>
-    <div class="icon-item">
-      <img src="icon-bold.svg" width="40" height="40" class="circle-crop" alt="Bold">
-      <span class="size-lbl">Bold</span>
-    </div>
-    <div class="icon-item">
-      <img src="icon-letter.svg" width="40" height="40" class="circle-crop" alt="Letter">
-      <span class="size-lbl">Letter</span>
-    </div>
+<!-- 40px comparison -->
+<div class="section-tag">сравнение при 40px</div>
+<div class="icon-row">
+  <div class="icon-item">
+    <div class="c" style="width:40px;height:40px"><svg width="40" height="40" viewBox="0 0 512 512"><defs><radialGradient id="cmp1" cx="38%" cy="30%" r="80%"><stop offset="0%" stop-color="#6BA3D6"/><stop offset="55%" stop-color="#3D7AB5"/><stop offset="100%" stop-color="#1E4A78"/></radialGradient></defs><rect width="512" height="512" fill="url(#cmp1)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="rgba(255,255,255,0.88)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(255,255,255,0.12)"/><circle cx="256" cy="295" r="34" fill="white"/></svg></div>
+    <span>Signal ★</span>
+  </div>
+  <div class="icon-item">
+    <div class="c" style="width:40px;height:40px"><svg width="40" height="40" viewBox="0 0 512 512"><defs><radialGradient id="cmp2" cx="40%" cy="35%" r="75%"><stop offset="0%" stop-color="#1A1A17"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#cmp2)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#5A94CC" stroke-width="11" stroke-linecap="round" stroke-linejoin="round" fill="rgba(61,122,181,0.10)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/></svg></div>
+    <span>Void</span>
+  </div>
+  <div class="icon-item">
+    <div class="c" style="width:40px;height:40px"><svg width="40" height="40" viewBox="0 0 512 512"><defs><radialGradient id="cmp3" cx="35%" cy="30%" r="80%"><stop offset="0%" stop-color="#FAFAF4"/><stop offset="100%" stop-color="#E8E7DE"/></radialGradient></defs><rect width="512" height="512" fill="url(#cmp3)"/><path d="M256 92 C256 92,148 202,148 272 C148 334,197 376,256 376 C315 376,364 334,364 272 C364 202,256 92,256 92Z" stroke="#161614" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="rgba(14,14,12,0.04)"/><circle cx="256" cy="295" r="34" fill="#3D7AB5"/></svg></div>
+    <span>Cream</span>
+  </div>
+  <div class="icon-item">
+    <div class="c" style="width:40px;height:40px"><svg width="40" height="40" viewBox="0 0 512 512"><defs><linearGradient id="cmp4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#4A8BC0"/><stop offset="100%" stop-color="#2B5E90"/></linearGradient></defs><rect width="512" height="512" fill="url(#cmp4)"/><path d="M256 100 C256 100,144 210,144 278 C144 340,196 384,256 384 C316 384,368 340,368 278 C368 210,256 100,256 100Z" fill="white"/><path d="M256 148 C256 148,188 222,188 268 C188 306,218 336,256 336 C294 336,324 306,324 268 C324 222,256 148,256 148Z" fill="url(#cmp4)"/><circle cx="256" cy="290" r="30" fill="white"/></svg></div>
+    <span>Bold</span>
+  </div>
+  <div class="icon-item">
+    <div class="c" style="width:40px;height:40px"><svg width="40" height="40" viewBox="0 0 512 512"><defs><radialGradient id="cmp5" cx="50%" cy="45%" r="70%"><stop offset="0%" stop-color="#141412"/><stop offset="100%" stop-color="#080807"/></radialGradient></defs><rect width="512" height="512" fill="url(#cmp5)"/><rect x="120" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="350" y="108" width="42" height="270" rx="6" fill="#5A94CC"/><rect x="120" y="228" width="272" height="38" rx="4" fill="#5A94CC"/><circle cx="256" cy="432" r="14" fill="#3D7AB5"/></svg></div>
+    <span>Letter</span>
   </div>
 </div>
 
