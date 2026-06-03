@@ -83,97 +83,13 @@ body {
     var(--paper);
 }
 
-/* Replace the previous illustrative symbol with the Claude-style routing mark. */
+/* v2 drop+arc symbol lives in App.tsx (NadomSymbol). Keep frame polish only. */
 .node-icon {
-  width: 64px;
-  height: 64px;
-  margin: 4px 0 6px;
-  border: 0.5px solid rgba(74, 127, 165, 0.18);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 50%, rgba(74, 127, 165, 0.09), transparent 60%),
-    var(--white);
+  box-shadow: 0 10px 24px rgba(15, 15, 14, 0.04);
 }
 
-.node-icon::before,
-.node-icon::after {
-  display: none !important;
-}
-
-.node-icon__dot,
-.node-icon__line {
-  display: block !important;
-  position: absolute;
-}
-
-.node-icon__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--accent);
-  box-shadow: 0 0 0 6px rgba(74, 127, 165, 0.1);
-}
-
-.node-icon__dot--main {
-  top: 18px;
-  left: 18px;
-}
-
-.node-icon__dot--second {
-  top: 18px;
-  right: 17px;
-  background: var(--teal);
-  box-shadow: 0 0 0 6px rgba(58, 138, 130, 0.1);
-}
-
-.node-icon__dot--third {
-  right: 19px;
-  bottom: 17px;
-  background: var(--dust);
-  box-shadow: 0 0 0 6px rgba(184, 144, 144, 0.12);
-}
-
-.node-icon__line {
-  height: 1.5px;
-  border-radius: 999px;
-  background: rgba(74, 127, 165, 0.45);
-  transform-origin: left center;
-}
-
-.node-icon__line--first {
-  top: 22px;
-  left: 27px;
-  width: 20px;
-}
-
-.node-icon__line--second {
-  top: 29px;
-  left: 42px;
-  width: 22px;
-  transform: rotate(67deg);
-  background: rgba(58, 138, 130, 0.45);
-}
-
-.node-icon--emergency {
-  border-color: rgba(138, 48, 48, 0.18);
-  background:
-    radial-gradient(circle at 50% 50%, rgba(138, 48, 48, 0.06), transparent 60%),
-    var(--white);
-}
-
-.node-icon--emergency .node-icon__dot,
-.node-icon--emergency .node-icon__dot--second,
-.node-icon--emergency .node-icon__dot--third {
-  background: var(--err);
-  box-shadow: 0 0 0 6px rgba(138, 48, 48, 0.08);
-}
-
-.node-icon--emergency .node-icon__line {
-  background: rgba(138, 48, 48, 0.32);
-}
-
-.node-icon--offers {
-  border-color: rgba(58, 138, 130, 0.2);
+.node-icon--welcome {
+  box-shadow: none;
 }
 
 .eyebrow,
@@ -400,37 +316,5 @@ h1 {
 
   .screen-card {
     padding-top: 18px;
-  }
-
-  .node-icon {
-    width: 58px;
-    height: 58px;
-  }
-
-  .node-icon__dot--main {
-    top: 17px;
-    left: 17px;
-  }
-
-  .node-icon__dot--second {
-    top: 17px;
-    right: 16px;
-  }
-
-  .node-icon__dot--third {
-    right: 18px;
-    bottom: 16px;
-  }
-
-  .node-icon__line--first {
-    top: 21px;
-    left: 26px;
-    width: 18px;
-  }
-
-  .node-icon__line--second {
-    top: 28px;
-    left: 39px;
-    width: 20px;
   }
 }

@@ -51,13 +51,14 @@
   }
 
   .node-icon {
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     margin-top: 0;
   }
 
-  .node-icon::before {
-    background-size: 48px 48px;
+  .node-icon--welcome {
+    width: 68px;
+    height: 84px;
   }
 
   h1 {
