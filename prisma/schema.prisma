@@ -244,6 +244,8 @@ model Clinic {
   quotes          Quote[]
   bookings        Booking[]
   ratings         Rating[]
+  mvpRequests     MvpRequest[]
+  mvpOnboarding   MvpOnboarding?
 
   @@index([status])
 }
@@ -597,4 +599,74 @@ model OutboxEvent {
   lastError   String?
 
   @@index([processedAt, createdAt])
+}
+
+// ─── MVP lean models ────────────────────────────────────────────────────────
+
+enum MvpRequestStatus {
+  WAITING
+  PRICE_LOCK
+  DISPATCHED
+  COMPLETED
+  DECLINED
+}
+
+enum MvpChatActorType {
+  USER
+  CLINIC
+  ADMIN
+}
+
+enum MvpOnboardingStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
+
+model MvpRequest {
+  id           String           @id @default(cuid())
+  userId       String?
+  offerId      String
+  clinicId     String?
+  district     String
+  desiredTime  String
+  profile      String
+  status       MvpRequestStatus @default(WAITING)
+  priceMin     Int?
+  priceMax     Int?
+  priceCurrency String          @default("RUB")
+  etaMinutes   Int?
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  clinic   Clinic?          @relation(fields: [clinicId], references: [id])
+  messages MvpChatMessage[]
+
+  @@index([clinicId, status])
+  @@index([createdAt])
+}
+
+model MvpChatMessage {
+  id        String           @id @default(cuid())
+  requestId String
+  actorType MvpChatActorType
+  body      String
+  createdAt DateTime         @default(now())
+
+  request MvpRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+}
+
+model MvpOnboarding {
+  id          String              @id @default(cuid())
+  clinicId    String              @unique
+  data        Json
+  submittedAt DateTime?
+  status      MvpOnboardingStatus @default(DRAFT)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id])
 }

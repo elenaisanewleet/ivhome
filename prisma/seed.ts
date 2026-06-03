@@ -559,10 +559,161 @@ async function main() {
         metadata: { source: "fake-demo-seed" },
       },
     });
-  });
 
-  console.log("Seeded fake IVhome development data.");
+    // ─── MVP medservices (match app offer IDs) ────────────────────────────────
+  const mvpClinics = [
+    {
+      id: "medservice-north",
+      legalName: 'ООО «Медслужба Север» (демо)',
+      publicName: "Медслужба «Север»",
+      inn: "MVP-INN-NORTH-001",
+      status: "ACTIVE" as const,
+    },
+    {
+      id: "medservice-center",
+      legalName: 'ООО «Медслужба Центр» (демо)',
+      publicName: "Медслужба «Центр»",
+      inn: "MVP-INN-CENTER-002",
+      status: "ACTIVE" as const,
+    },
+    {
+      id: "medservice-night",
+      legalName: 'ООО «Медслужба Ночь» (демо)',
+      publicName: "Медслужба «Ночь»",
+      inn: "MVP-INN-NIGHT-003",
+      status: "ACTIVE" as const,
+    },
+  ];
+
+  for (const clinic of mvpClinics) {
+    await tx.clinic.upsert({
+      where: { id: clinic.id },
+      update: clinic,
+      create: clinic,
+    });
+  }
+
+  const mvpLicenses = [
+    {
+      id: "mvp-license-north-001",
+      clinicId: "medservice-north",
+      licenseNumber: "ЛО-77-01-MVP-NORTH-001",
+      status: "VERIFIED" as const,
+      issuedAt: date("2025-01-10T00:00:00.000Z"),
+    },
+    {
+      id: "mvp-license-center-001",
+      clinicId: "medservice-center",
+      licenseNumber: "ЛО-77-01-MVP-CENTER-002",
+      status: "VERIFIED" as const,
+      issuedAt: date("2025-03-15T00:00:00.000Z"),
+    },
+    {
+      id: "mvp-license-night-001",
+      clinicId: "medservice-night",
+      licenseNumber: "ЛО-77-01-MVP-NIGHT-003",
+      status: "VERIFIED" as const,
+      issuedAt: date("2025-06-01T00:00:00.000Z"),
+    },
+  ];
+
+  for (const license of mvpLicenses) {
+    await tx.clinicLicense.upsert({
+      where: { id: license.id },
+      update: {
+        ...license,
+        authorityName: "Росздравнадзор (демо, фиктивный номер)",
+        licensedActivities: ["выездное медицинское обслуживание"],
+        licensedAddresses: ["г. Москва (демо)"],
+        verificationNotes: "Фиктивный номер для демонстрационных целей",
+      },
+      create: {
+        ...license,
+        authorityName: "Росздравнадзор (демо, фиктивный номер)",
+        licensedActivities: ["выездное медицинское обслуживание"],
+        licensedAddresses: ["г. Москва (демо)"],
+        verificationNotes: "Фиктивный номер для демонстрационных целей",
+      },
+    });
+  }
+
+  const mvpCategoryId = categoryIds.homeMedicalVisit;
+  const mvpOffers = [
+    { clinicId: "medservice-north", priceFrom: "8500.00", priceTo: "9200.00", etaFrom: 10, etaTo: 40 },
+    { clinicId: "medservice-center", priceFrom: "9200.00", priceTo: "10400.00", etaFrom: 15, etaTo: 55 },
+    { clinicId: "medservice-night", priceFrom: "10500.00", priceTo: "11300.00", etaFrom: 20, etaTo: 70 },
+  ];
+
+  for (const offer of mvpOffers) {
+    await tx.clinicServiceOffer.upsert({
+      where: {
+        clinicId_serviceCategoryId: {
+          clinicId: offer.clinicId,
+          serviceCategoryId: mvpCategoryId,
+        },
+      },
+      update: {
+        status: "ACTIVE",
+        preliminaryPriceFrom: offer.priceFrom,
+        preliminaryPriceTo: offer.priceTo,
+        etaMinutesFrom: offer.etaFrom,
+        etaMinutesTo: offer.etaTo,
+        cancellationTerms: "Условия отмены уточняются у медслужбы",
+        publicConditions: "Выезд после подтверждения медслужбой",
+      },
+      create: {
+        clinicId: offer.clinicId,
+        serviceCategoryId: mvpCategoryId,
+        status: "ACTIVE",
+        preliminaryPriceFrom: offer.priceFrom,
+        preliminaryPriceTo: offer.priceTo,
+        etaMinutesFrom: offer.etaFrom,
+        etaMinutesTo: offer.etaTo,
+        cancellationTerms: "Условия отмены уточняются у медслужбы",
+        publicConditions: "Выезд после подтверждения медслужбой",
+      },
+    });
+  }
+
+  const mvpAreas = [
+    [
+      "medservice-north",
+      [
+        { code: "sao", name: "Северный административный округ" },
+        { code: "szao", name: "Северо-Западный административный округ" },
+        { code: "svao", name: "Северо-Восточный административный округ" },
+      ],
+    ],
+    [
+      "medservice-center",
+      [
+        { code: "cao_mvp", name: "Центральный административный округ" },
+        { code: "zao_mvp", name: "Западный административный округ" },
+        { code: "yuzao_mvp", name: "Юго-Западный административный округ" },
+      ],
+    ],
+    [
+      "medservice-night",
+      [
+        { code: "all_moscow_mvp", name: "Вся Москва (по зонам выезда)" },
+      ],
+    ],
+  ] as const;
+
+  for (const [clinicId, areas] of mvpAreas) {
+    for (const area of areas) {
+      await tx.clinicServiceArea.upsert({
+        where: { clinicId_districtCode: { clinicId, districtCode: area.code } },
+        update: { districtName: area.name, isActive: true },
+        create: { clinicId, districtCode: area.code, districtName: area.name, isActive: true },
+      });
+    }
+  }
+
+    console.log("Seeded fake IVhome development data.");
+  });
 }
+
 
 main()
   .catch((error: unknown) => {

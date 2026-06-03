@@ -44,6 +44,5 @@ export function useTelegramButtons({
     };
     // onMain / onBack are recreated each render; we intentionally re-bind them
     // alongside the state they close over.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, mainLabel, mainDisabled, mainSpinner, showBack]);
 }

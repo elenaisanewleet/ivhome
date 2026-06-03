@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@ivhome/shared": "workspace:*",
+    "@prisma/client": "^6.8.2",
     "fastify": "^5.4.0"
   },
   "devDependencies": {

@@ -1,4 +1,9 @@
 import type {
+  MvpChatActorType,
+  MvpChatMessage,
+  MvpChatMessagesResponse,
+  MvpDbRequest,
+  MvpDbRequestCreateInput,
   MvpOffer,
   MvpOffersResponse,
   MvpRequestCreateInput,
@@ -38,14 +43,20 @@ export function readSupportUrl() {
   }
 }
 
+// ─── Legacy in-memory dev endpoints (kept for backward compatibility) ─────────
+
 export async function loadOffers(fallbackOffers: MvpOffer[]) {
   if (!isApiConfigured()) {
     return fallbackOffers;
   }
 
-  const response = await requestJson<MvpOffersResponse>("/mvp/dev/offers");
+  try {
+    const response = await requestJson<MvpOffersResponse>("/mvp/offers");
 
-  return response.offers;
+    return response.offers.length > 0 ? response.offers : fallbackOffers;
+  } catch {
+    return fallbackOffers;
+  }
 }
 
 export async function createMvpRequest(input: MvpRequestCreateInput) {
@@ -74,4 +85,38 @@ export async function loadMvpRequestStatus(requestId: string) {
   }
 
   return requestJson<MvpRequestStatusResponse>(`/mvp/dev/requests/${encodeURIComponent(requestId)}/status`);
+}
+
+// ─── Persistent Postgres-backed endpoints ─────────────────────────────────────
+
+export async function fetchOffers(): Promise<MvpOffer[]> {
+  const response = await requestJson<MvpOffersResponse>("/mvp/offers");
+
+  return response.offers;
+}
+
+export async function submitRequest(data: MvpDbRequestCreateInput): Promise<MvpDbRequest> {
+  return requestJson<MvpDbRequest>("/mvp/requests", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequest, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "createdAt" | "updatedAt">> {
+  return requestJson(`/mvp/requests/${encodeURIComponent(id)}`);
+}
+
+export async function getChatMessages(id: string): Promise<MvpChatMessage[]> {
+  const response = await requestJson<MvpChatMessagesResponse>(`/mvp/requests/${encodeURIComponent(id)}/chat`);
+
+  return response.messages;
+}
+
+export async function sendChatMessage(id: string, body: string, actorType: MvpChatActorType): Promise<MvpChatMessage> {
+  return requestJson<MvpChatMessage>(`/mvp/requests/${encodeURIComponent(id)}/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ body, actorType }),
+  });
 }
