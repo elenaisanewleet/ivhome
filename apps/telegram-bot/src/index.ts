@@ -19,28 +19,52 @@ export function isStartCommand(text: string | undefined) {
   return /^\/start(?:@\w+)?(?:\s|$)/u.test(text ?? "");
 }
 
+export function isHelpCommand(text: string | undefined) {
+  return /^\/help(?:@\w+)?(?:\s|$)/u.test(text ?? "");
+}
+
+function webAppButton(label: string) {
+  return webAppUrl
+    ? {
+        reply_markup: {
+          inline_keyboard: [[{ text: label, web_app: { url: webAppUrl } }]],
+        },
+      }
+    : {};
+}
+
 export function createStartMessage() {
   return {
     text: [
       "привет, я Надом 🫧",
-      "если нужен медицинский выезд на дом — помогу найти подходящий вариант",
-      "детали подтверждает выбранная организация",
+      "помогу быстро найти медслужбу для выезда на дом — вместо долгих поисков и звонков",
+      "<i>детали и стоимость подтверждает выбранная медслужба</i>",
     ].join("\n\n"),
-    ...(webAppUrl
-      ? {
-          reply_markup: {
-            inline_keyboard: [
-              [{ text: "подобрать вариант", web_app: { url: webAppUrl } }],
-            ],
-          },
-        }
-      : {}),
+    parse_mode: "HTML",
+    ...webAppButton("подобрать вариант"),
+  };
+}
+
+export function createHelpMessage() {
+  return {
+    text: [
+      "<b>что умею</b>",
+      [
+        "⋆ подобрать проверенную медслужбу для выезда — экстренно или планово",
+        "⋆ показать условия: когда ответят, когда приедут, стоимость",
+        "⋆ держать в курсе статуса заявки",
+      ].join("\n"),
+      "<i>анонимно · без лишних звонков</i>\n<i>при острых симптомах — 103 или 112</i>",
+    ].join("\n\n"),
+    parse_mode: "HTML",
+    ...webAppButton("открыть Надом"),
   };
 }
 
 export function createStatusUpdateMessage() {
   return {
-    text: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+    text: "статус заявки обновлён · откройте Надом, чтобы посмотреть детали",
+    ...webAppButton("открыть Надом"),
   };
 }
 
@@ -65,14 +89,26 @@ async function callTelegramApi<T>(method: string, body: unknown) {
 }
 
 async function handleUpdate(update: TelegramUpdate) {
-  if (!update.message || !isStartCommand(update.message.text)) {
+  if (!update.message) {
     return;
   }
 
-  await callTelegramApi("sendMessage", {
-    chat_id: update.message.chat.id,
-    ...createStartMessage(),
-  });
+  const { text, chat } = update.message;
+
+  if (isStartCommand(text)) {
+    await callTelegramApi("sendMessage", {
+      chat_id: chat.id,
+      ...createStartMessage(),
+    });
+    return;
+  }
+
+  if (isHelpCommand(text)) {
+    await callTelegramApi("sendMessage", {
+      chat_id: chat.id,
+      ...createHelpMessage(),
+    });
+  }
 }
 
 async function pollUpdates() {
