@@ -12,7 +12,7 @@ import {
   loadOffers,
   readSupportUrl,
 } from "./api";
-import { haptic, hapticNotice, initTelegram } from "./telegram";
+import { haptic, hapticNotice, initTelegram, isInsideTelegram, setupBackButton, setupMainButton } from "./telegram";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
@@ -1109,6 +1109,7 @@ export function App() {
   const [requestError, setRequestError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
+  const [inTelegram] = useState(() => isInsideTelegram());
   const step = getStep(stepIndex);
   const isFirstStep = stepIndex === 0;
   const isProfileStep = step.id === "profile";
@@ -1230,6 +1231,48 @@ export function App() {
     setStatusNotice(null);
     setStepIndex(TIME_STEP_INDEX);
   }
+
+  // Native Telegram MainButton / BackButton — only active inside the Mini App.
+  // Falls back gracefully: when not in Telegram, setupMainButton/setupBackButton
+  // return null and the HTML footer buttons remain visible.
+  useEffect(() => {
+    if (!inTelegram || showOfferSubflow) {
+      return;
+    }
+
+    if (isOffersStep && offersMode !== "ready") {
+      return;
+    }
+
+    const mainAction = isOffersStep ? changeParameters : goNext;
+    const cleanupMain = setupMainButton(primaryLabel, mainAction, {
+      disabled: !canContinue(),
+      showSpinner: submitPending,
+    });
+
+    const cleanupBack = !isFirstStep ? setupBackButton(goBack) : null;
+
+    return () => {
+      cleanupMain?.();
+      cleanupBack?.();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    inTelegram,
+    showOfferSubflow,
+    isOffersStep,
+    offersMode,
+    primaryLabel,
+    isFirstStep,
+    submitPending,
+    // canContinue deps:
+    selectedProfile,
+    hasLocation,
+    selectedTime,
+    isProfileStep,
+    isLocationStep,
+    isTimeStep,
+  ]);
 
   function restartSelection() {
     setSelectedProfile(null);
@@ -1514,7 +1557,7 @@ export function App() {
           )}
         </div>
 
-        {!showOfferSubflow && (!isOffersStep || offersMode === "ready") ? (
+        {!showOfferSubflow && (!isOffersStep || offersMode === "ready") && !inTelegram ? (
           <footer className="screen-footer">
             <button
               className="button button--primary"
