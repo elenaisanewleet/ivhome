@@ -4,43 +4,29 @@ import test from "node:test";
 import {
   createFallbackMessage,
   createHelpMessage,
+  createMessageForIncomingText,
   createStartMessage,
   createStatusUpdateMessage,
   isHelpCommand,
   isStartCommand,
 } from "../src/index.js";
 
-test("recognizes Telegram /start commands", () => {
+test("recognizes Telegram /start and /help commands", () => {
   assert.equal(isStartCommand("/start"), true);
   assert.equal(isStartCommand("/start payload"), true);
   assert.equal(isStartCommand("/start@nadom_bot"), true);
   assert.equal(isStartCommand("/status"), false);
-});
 
-test("recognizes Telegram /help commands", () => {
   assert.equal(isHelpCommand("/help"), true);
   assert.equal(isHelpCommand("/help@nadom_bot"), true);
-  assert.equal(isHelpCommand("/start"), false);
+  assert.equal(isHelpCommand("/support"), false);
 });
 
 test("creates a Nadom start message", () => {
   const message = createStartMessage();
 
   assert.match(message.text, /привет, я Надом/u);
-  assert.match(message.text, /медслужба/u);
-});
-
-test("creates a help message describing what Nadom can do", () => {
-  const message = createHelpMessage();
-
-  assert.match(message.text, /проверенную медслужбу/u);
-  assert.match(message.text, /103 или 112/u);
-});
-
-test("creates a fallback message that does not echo user content", () => {
-  const message = createFallbackMessage();
-
-  assert.equal(message.text, "всё здесь 🫧");
+  assert.doesNotMatch(message.text, /лицензирован/u);
 });
 
 test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
@@ -49,12 +35,31 @@ test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
   assert.equal("reply_markup" in message, false);
 });
 
-test("creates a neutral status notification without request details", () => {
-  const message = createStatusUpdateMessage();
+test("creates help message without medical claims", () => {
+  const message = createHelpMessage();
 
-  assert.equal(
-    message.text,
-    "статус заявки обновлён · откройте Надом, чтобы посмотреть детали",
-  );
-  assert.equal("reply_markup" in message, false);
+  assert.match(message.text, /что умеет Надом/u);
+  assert.doesNotMatch(message.text, /лечим|назначаем|диагностируем/u);
+});
+
+test("routes incoming text to minimal replies", () => {
+  assert.match(createMessageForIncomingText("/start").text, /привет/u);
+  assert.match(createMessageForIncomingText("/help").text, /что умеет/u);
+  assert.match(createMessageForIncomingText("/support").text, /всё основное/u);
+  assert.match(createMessageForIncomingText("/status").text, /всё основное/u);
+  assert.match(createMessageForIncomingText("hello").text, /всё основное/u);
+});
+
+test("creates fallback reply", () => {
+  assert.match(createFallbackMessage().text, /откройте Надом/u);
+});
+
+test("creates neutral protected status notifications without request details", () => {
+  assert.deepEqual(createStatusUpdateMessage(), {
+    text: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+    protect_content: true,
+  });
+
+  assert.equal(createStatusUpdateMessage("booked").protect_content, true);
+  assert.match(createStatusUpdateMessage("en_route").text, /Специалист выбранной медслужбы выезжает/u);
 });
