@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import type { MvpChatActorType, MvpChatMessage } from "@ivhome/shared";
+
 import "./App.css";
+import { OnboardingForm } from "./OnboardingForm";
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
 type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
@@ -41,6 +44,10 @@ type MvpDbRequestListResponse = {
   requests: MvpDbRequestRecord[];
 };
 
+type MvpChatMessagesResponse = {
+  messages: MvpChatMessage[];
+};
+
 type MvpRequestStatusResponse = {
   requestId: string;
   status: MvpRequestStatus;
@@ -70,6 +77,8 @@ const offerNames: Record<string, string> = {
   "medservice-center": "Медслужба «Центр»",
   "medservice-night": "Медслужба «Ночь»",
 };
+
+const mvpMedservices = Object.entries(offerNames).map(([id, name]) => ({ id, name }));
 
 function offerName(offerId: string) {
   return offerNames[offerId] ?? offerId;
@@ -170,6 +179,62 @@ async function loadClinicRequests(clinicId: string) {
   });
 
   return response.requests;
+}
+
+async function updateClinicRequestStatus(id: string, status: MvpDbStatus, clinicId: string) {
+  return requestJson<MvpDbRequestRecord>(
+    `/mvp/clinic/requests/${encodeURIComponent(id)}/status`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status }),
+    },
+    { "X-Clinic-Id": clinicId },
+  );
+}
+
+async function loadAdminChat(id: string, adminToken: string) {
+  const response = await requestJson<MvpChatMessagesResponse>(
+    `/mvp/admin/requests/${encodeURIComponent(id)}/chat`,
+    undefined,
+    { Authorization: `Bearer ${adminToken}` },
+  );
+
+  return response.messages;
+}
+
+async function sendAdminChatMessage(id: string, body: string, adminToken: string) {
+  return requestJson<MvpChatMessage>(
+    `/mvp/admin/requests/${encodeURIComponent(id)}/chat`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ body }),
+    },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function loadClinicChat(id: string, clinicId: string) {
+  const response = await requestJson<MvpChatMessagesResponse>(
+    `/mvp/clinic/requests/${encodeURIComponent(id)}/chat`,
+    undefined,
+    { "X-Clinic-Id": clinicId },
+  );
+
+  return response.messages;
+}
+
+async function sendClinicChatMessage(id: string, body: string, clinicId: string) {
+  return requestJson<MvpChatMessage>(
+    `/mvp/clinic/requests/${encodeURIComponent(id)}/chat`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ body }),
+    },
+    { "X-Clinic-Id": clinicId },
+  );
 }
 
 // ─── Auth gate component ─────────────────────────────────────────────────────
@@ -277,6 +342,88 @@ function formatDate(value: string) {
   }
 }
 
+function chatActorLabel(actorType: MvpChatActorType) {
+  switch (actorType) {
+    case "USER":
+      return "Пользователь";
+    case "CLINIC":
+      return "Выбранная организация";
+    case "ADMIN":
+      return "Admin";
+  }
+}
+
+function RequestChat({
+  messages,
+  isLoading,
+  error,
+  draft,
+  actorType,
+  onDraftChange,
+  onRefresh,
+  onSend,
+}: {
+  messages: MvpChatMessage[];
+  isLoading: boolean;
+  error: string | null;
+  draft: string;
+  actorType: "ADMIN" | "CLINIC";
+  onDraftChange: (value: string) => void;
+  onRefresh: () => void;
+  onSend: () => void;
+}) {
+  return (
+    <div className="request-chat">
+      <div className="request-chat__head">
+        <div>
+          <p className="meta-label">Чат заявки</p>
+          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.</p>
+        </div>
+        <button disabled={isLoading} onClick={onRefresh} type="button">
+          {isLoading ? "Загружаем…" : "Обновить чат"}
+        </button>
+      </div>
+
+      {error ? <p className="dashboard-message">{error}</p> : null}
+
+      <div className="request-chat__messages" aria-live="polite">
+        {messages.length === 0 ? (
+          <p className="request-chat__empty">Сообщений пока нет.</p>
+        ) : (
+          messages.map((message) => (
+            <div
+              className={`request-chat__bubble request-chat__bubble--${message.actorType.toLowerCase()}`}
+              key={message.id}
+            >
+              <span>{chatActorLabel(message.actorType)} · {formatDate(message.createdAt)}</span>
+              <p>{message.body}</p>
+            </div>
+          ))
+        )}
+      </div>
+
+      <form
+        className="request-chat__form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSend();
+        }}
+      >
+        <input
+          autoComplete="off"
+          onChange={(event) => onDraftChange(event.target.value)}
+          placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной организации…"}
+          type="text"
+          value={draft}
+        />
+        <button disabled={!draft.trim() || isLoading} type="submit">
+          Отправить
+        </button>
+      </form>
+    </div>
+  );
+}
+
 // ─── Admin view ───────────────────────────────────────────────────────────────
 
 function AdminView() {
@@ -287,6 +434,11 @@ function AdminView() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<Record<string, MvpChatMessage[]>>({});
+  const [chatDrafts, setChatDrafts] = useState<Record<string, string>>({});
+  const [chatLoadingId, setChatLoadingId] = useState<string | null>(null);
+  const [chatError, setChatError] = useState<string | null>(null);
   const isConfigured = Boolean(apiBaseUrl);
 
   function handleAuth(newToken: string) {
@@ -368,6 +520,56 @@ function AdminView() {
     }
   }
 
+  async function refreshChat(requestId: string) {
+    setChatLoadingId(requestId);
+    setChatError(null);
+
+    try {
+      const loaded = await loadAdminChat(requestId, token);
+
+      setChatMessages((current) => ({ ...current, [requestId]: loaded }));
+    } catch {
+      setChatError("Не удалось загрузить чат заявки.");
+    } finally {
+      setChatLoadingId(null);
+    }
+  }
+
+  async function toggleChat(requestId: string) {
+    const nextId = openChatId === requestId ? null : requestId;
+
+    setOpenChatId(nextId);
+
+    if (nextId && !chatMessages[nextId]) {
+      await refreshChat(nextId);
+    }
+  }
+
+  async function sendChat(requestId: string) {
+    const body = (chatDrafts[requestId] ?? "").trim();
+
+    if (!body) {
+      return;
+    }
+
+    setChatLoadingId(requestId);
+    setChatError(null);
+
+    try {
+      const saved = await sendAdminChatMessage(requestId, body, token);
+
+      setChatMessages((current) => ({
+        ...current,
+        [requestId]: [...(current[requestId] ?? []), saved],
+      }));
+      setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+    } catch {
+      setChatError("Не удалось отправить сообщение.");
+    } finally {
+      setChatLoadingId(null);
+    }
+  }
+
   if (!token) {
     return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={handleAuth} />;
   }
@@ -399,6 +601,17 @@ function AdminView() {
       </div>
 
       {message ? <p className="dashboard-message">{message}</p> : null}
+
+      <div className="onboarding-links">
+        <p className="meta-label">Анкеты организаций</p>
+        <div>
+          {mvpMedservices.map((service) => (
+            <a className="action-link" href={`/admin/onboarding/${encodeURIComponent(service.id)}`} key={service.id}>
+              {service.name}
+            </a>
+          ))}
+        </div>
+      </div>
 
       {dbRequests.length === 0 && !isLoading ? (
         <div className="dashboard-empty-list">
@@ -445,7 +658,26 @@ function AdminView() {
                   {dbStatusLabels[status]}
                 </button>
               ))}
+              <button onClick={() => void toggleChat(req.id)} type="button">
+                {openChatId === req.id ? "Скрыть чат" : "Открыть чат"}
+              </button>
+              <a className="action-link" href={`/admin/onboarding/${encodeURIComponent(req.clinicId ?? req.offerId)}`}>
+                Анкета
+              </a>
             </div>
+
+            {openChatId === req.id ? (
+              <RequestChat
+                actorType="ADMIN"
+                draft={chatDrafts[req.id] ?? ""}
+                error={chatError}
+                isLoading={chatLoadingId === req.id}
+                messages={chatMessages[req.id] ?? []}
+                onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))}
+                onRefresh={() => void refreshChat(req.id)}
+                onSend={() => void sendChat(req.id)}
+              />
+            ) : null}
           </article>
         ))}
       </div>
@@ -499,6 +731,40 @@ function AdminView() {
   );
 }
 
+function AdminOnboardingView({ clinicId }: { clinicId: string }) {
+  const storageKey = "nadom_admin_token";
+  const [token, setToken] = useState(() => readStoredToken(storageKey));
+
+  if (!token) {
+    return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={setToken} />;
+  }
+
+  return (
+    <section className="dashboard-card">
+      <div className="dashboard-toolbar">
+        <div>
+          <p className="meta-label">Анкета</p>
+          <h2>{offerName(clinicId)}</h2>
+          <p>Черновик и отправка сохраняются через Postgres API.</p>
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <a className="action-link" href="/admin">К заявкам</a>
+          <button
+            onClick={() => {
+              writeStoredToken(storageKey, "");
+              setToken("");
+            }}
+            type="button"
+          >
+            Выйти
+          </button>
+        </div>
+      </div>
+      <OnboardingForm adminToken={token} apiBaseUrl={apiBaseUrl} clinicId={clinicId} />
+    </section>
+  );
+}
+
 // ─── Clinic view ──────────────────────────────────────────────────────────────
 
 function ClinicView() {
@@ -507,6 +773,12 @@ function ClinicView() {
   const [requests, setRequests] = useState<MvpDbRequestRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [openChatId, setOpenChatId] = useState<string | null>(null);
+  const [chatMessages, setChatMessages] = useState<Record<string, MvpChatMessage[]>>({});
+  const [chatDrafts, setChatDrafts] = useState<Record<string, string>>({});
+  const [chatLoadingId, setChatLoadingId] = useState<string | null>(null);
+  const [chatError, setChatError] = useState<string | null>(null);
   const isConfigured = Boolean(apiBaseUrl);
 
   function handleAuth(token: string) {
@@ -538,6 +810,71 @@ function ClinicView() {
     }
   }, [clinicId, isConfigured]);
 
+  async function changeStatus(req: MvpDbRequestRecord, status: MvpDbStatus) {
+    setUpdatingId(req.id);
+    setMessage(null);
+
+    try {
+      const updated = await updateClinicRequestStatus(req.id, status, clinicId);
+
+      setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
+    } catch {
+      setMessage("Не удалось обновить статус заявки.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function refreshChat(requestId: string) {
+    setChatLoadingId(requestId);
+    setChatError(null);
+
+    try {
+      const loaded = await loadClinicChat(requestId, clinicId);
+
+      setChatMessages((current) => ({ ...current, [requestId]: loaded }));
+    } catch {
+      setChatError("Не удалось загрузить чат заявки.");
+    } finally {
+      setChatLoadingId(null);
+    }
+  }
+
+  async function toggleChat(requestId: string) {
+    const nextId = openChatId === requestId ? null : requestId;
+
+    setOpenChatId(nextId);
+
+    if (nextId && !chatMessages[nextId]) {
+      await refreshChat(nextId);
+    }
+  }
+
+  async function sendChat(requestId: string) {
+    const body = (chatDrafts[requestId] ?? "").trim();
+
+    if (!body) {
+      return;
+    }
+
+    setChatLoadingId(requestId);
+    setChatError(null);
+
+    try {
+      const saved = await sendClinicChatMessage(requestId, body, clinicId);
+
+      setChatMessages((current) => ({
+        ...current,
+        [requestId]: [...(current[requestId] ?? []), saved],
+      }));
+      setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+    } catch {
+      setChatError("Не удалось отправить сообщение.");
+    } finally {
+      setChatLoadingId(null);
+    }
+  }
+
   if (!clinicId) {
     return (
       <AuthGate
@@ -552,7 +889,7 @@ function ClinicView() {
     <section className="dashboard-card">
       <div className="dashboard-toolbar">
         <div>
-          <p className="meta-label">Медслужба: {clinicId}</p>
+          <p className="meta-label">Организация: {clinicId}</p>
           <h2>Заявки вашей медслужбы</h2>
           <p>Заявки, направленные выбранной медслужбе. Без телефона, адреса и личных данных пациента.</p>
         </div>
@@ -565,6 +902,8 @@ function ClinicView() {
               writeStoredToken(storageKey, "");
               setClinicId("");
               setRequests([]);
+              setChatMessages({});
+              setOpenChatId(null);
             }}
             type="button"
           >
@@ -602,6 +941,35 @@ function ClinicView() {
               <div><dt>Формат</dt><dd>{req.profile}</dd></div>
               <div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div>
             </dl>
+
+            <div className="status-actions" aria-label="Изменить статус заявки">
+              {dbStatusOrder.map((status) => (
+                <button
+                  disabled={updatingId === req.id || req.status === status}
+                  key={status}
+                  onClick={() => void changeStatus(req, status)}
+                  type="button"
+                >
+                  {dbStatusLabels[status]}
+                </button>
+              ))}
+              <button onClick={() => void toggleChat(req.id)} type="button">
+                {openChatId === req.id ? "Скрыть чат" : "Открыть чат"}
+              </button>
+            </div>
+
+            {openChatId === req.id ? (
+              <RequestChat
+                actorType="CLINIC"
+                draft={chatDrafts[req.id] ?? ""}
+                error={chatError}
+                isLoading={chatLoadingId === req.id}
+                messages={chatMessages[req.id] ?? []}
+                onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))}
+                onRefresh={() => void refreshChat(req.id)}
+                onSend={() => void sendChat(req.id)}
+              />
+            ) : null}
           </article>
         ))}
       </div>
@@ -619,6 +987,7 @@ export function App() {
 
   const isAdmin = pathname.startsWith("/admin");
   const isClinic = pathname.startsWith("/clinic");
+  const onboardingMatch = /^\/admin\/onboarding\/([^/]+)$/u.exec(pathname);
 
   return (
     <main className="dashboard-shell">
@@ -641,7 +1010,11 @@ export function App() {
             <p>Укажите VITE_API_BASE_URL, чтобы подключить API.</p>
           </section>
         ) : isAdmin ? (
-          <AdminView />
+          onboardingMatch ? (
+            <AdminOnboardingView clinicId={decodeURIComponent(onboardingMatch[1] ?? "")} />
+          ) : (
+            <AdminView />
+          )
         ) : isClinic ? (
           <ClinicView />
         ) : (

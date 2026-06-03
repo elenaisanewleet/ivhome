@@ -54,6 +54,7 @@ export type MvpRequestCreateResponse = MvpRequestStatusResponse;
 
 export type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
 export type MvpChatActorType = "USER" | "CLINIC" | "ADMIN";
+export type MvpOnboardingStatus = "DRAFT" | "SUBMITTED" | "APPROVED";
 
 export type MvpDbRequest = {
   id: string;
@@ -104,6 +105,10 @@ export type MvpChatMessageCreateInput = {
   actorType: MvpChatActorType;
 };
 
+export type MvpChatMessagePublicCreateInput = {
+  body: string;
+};
+
 // Onboarding form data shape
 export type MvpOnboardingData = {
   // A. Organization identity
@@ -131,7 +136,17 @@ export type MvpOnboardingData = {
   // E. Safety/escalation
   redFlagCriteria?: string;
   escalationPolicy?: string;
+  controlledMedicationPolicy?: string;
   // F. Privacy acknowledgment
   agreeNoUserDataSharing?: boolean;
   agreeNeutralNotificationsOnly?: boolean;
+};
+
+export type MvpOnboardingResponse = {
+  id: string;
+  clinicId: string;
+  data?: MvpOnboardingData;
+  status: MvpOnboardingStatus;
+  submittedAt: string | null;
+  updatedAt: string;
 };

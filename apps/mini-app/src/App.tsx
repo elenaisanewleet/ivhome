@@ -4,11 +4,13 @@ import "./App.css";
 import "./App.mobile.css";
 import "./App.chat.css";
 import {
-  createMvpRequest,
+  getChatMessages,
+  getRequestStatus,
   isApiConfigured,
-  loadMvpRequestStatus,
   loadOffers,
   readSupportUrl,
+  sendChatMessage as postChatMessage,
+  submitRequest,
 } from "./api";
 import {
   DISTRICT_OPTIONS,
@@ -23,16 +25,25 @@ import {
 import { OfferCard, OfferCardSkeleton } from "./OfferCard";
 import { OfferSubflow, OffersState } from "./OfferSubflow";
 import { haptic, hapticNotice, initTelegram, isInsideTelegram } from "./telegram";
-import type { Offer, OfferView, OffersMode, PreviewId } from "./types";
+import type { ChatMessage, Offer, OfferView, OffersMode, PreviewId } from "./types";
 import { FaqAccordion, NodeIcon, ProgressDots } from "./ui";
 import { useTelegramButtons } from "./useTelegramButtons";
 import {
   getStep,
   isLikelyMobileRuntime,
   isOfferView,
-  offerViewForStatus,
+  offerViewForDbStatus,
   readPreviewId,
 } from "./utils";
+
+function toChatMessage(message: { id: string; actorType: ChatMessage["actorType"]; body: string; createdAt: string }): ChatMessage {
+  return {
+    id: message.id,
+    actorType: message.actorType,
+    text: message.body,
+    createdAt: message.createdAt,
+  };
+}
 
 export function App() {
   const [preview] = useState<PreviewId | null>(() => readPreviewId());
@@ -53,7 +64,9 @@ export function App() {
   const [offerView, setOfferView] = useState<OfferView | null>(initialOfferView);
   const [supportReturnView, setSupportReturnView] = useState<Exclude<OfferView, "support">>("completed");
   const [rating, setRating] = useState<number | null>(null);
-  const [chatMessages, setChatMessages] = useState<{ id: string; text: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [chatPending, setChatPending] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
@@ -111,6 +124,38 @@ export function App() {
     };
   }, [isOffersStep, offersMode, preview]);
 
+  useEffect(() => {
+    if (!requestId || offerView !== "chat") {
+      return;
+    }
+
+    let isCurrent = true;
+
+    setChatPending(true);
+    setChatError(null);
+
+    void getChatMessages(requestId)
+      .then((messages) => {
+        if (isCurrent) {
+          setChatMessages(messages.map(toChatMessage));
+        }
+      })
+      .catch(() => {
+        if (isCurrent) {
+          setChatError("Не получилось загрузить чат. Попробуйте обновить позже.");
+        }
+      })
+      .finally(() => {
+        if (isCurrent) {
+          setChatPending(false);
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [offerView, requestId]);
+
   const primaryLabel = useMemo(() => {
     switch (step.id) {
       case "welcome":
@@ -167,6 +212,8 @@ export function App() {
     setOfferView(null);
     setOffersMode("ready");
     setChatMessages([]);
+    setChatError(null);
+    setChatPending(false);
     setRequestId(null);
     setRequestError(null);
     setStatusNotice(null);
@@ -183,6 +230,8 @@ export function App() {
     setOffersMode("ready");
     setRating(null);
     setChatMessages([]);
+    setChatError(null);
+    setChatPending(false);
     setRequestId(null);
     setRequestError(null);
     setStatusNotice(null);
@@ -192,6 +241,8 @@ export function App() {
   function openOfferView(offer: Offer, view: OfferView) {
     if (selectedOffer?.id !== offer.id) {
       setChatMessages([]);
+      setChatError(null);
+      setChatPending(false);
       setRequestId(null);
       setRequestError(null);
       setStatusNotice(null);
@@ -207,6 +258,8 @@ export function App() {
     if (!view) {
       setSelectedOffer(null);
       setChatMessages([]);
+      setChatError(null);
+      setChatPending(false);
       setRequestId(null);
       setRequestError(null);
       setStatusNotice(null);
@@ -218,14 +271,24 @@ export function App() {
     setOfferView("support");
   }
 
-  function sendChatMessage(message: string) {
-    setChatMessages((current) => [
-      ...current,
-      {
-        id: `local-chat-${Date.now()}-${current.length}`,
-        text: message,
-      },
-    ]);
+  async function sendChatMessage(message: string) {
+    if (!requestId) {
+      setChatError("Чат станет доступен после отправки заявки.");
+      return;
+    }
+
+    setChatPending(true);
+    setChatError(null);
+
+    try {
+      const saved = await postChatMessage(requestId, message);
+
+      setChatMessages((current) => [...current, toChatMessage(saved)]);
+    } catch {
+      setChatError("Не получилось отправить сообщение. Попробуйте ещё раз.");
+    } finally {
+      setChatPending(false);
+    }
   }
 
   async function submitSelectedRequest() {
@@ -237,16 +300,17 @@ export function App() {
     setSubmitPending(true);
 
     try {
-      const response = await createMvpRequest({
+      const response = await submitRequest({
         offerId: selectedOffer.id,
+        clinicId: selectedOffer.id,
         district,
         desiredTime: time,
         profile: selectedProfile ?? "Формат уточняется",
       });
 
-      setRequestId(response.requestId);
+      setRequestId(response.id);
       setStatusNotice(null);
-      setOfferView(offerViewForStatus(response.status));
+      setOfferView(offerViewForDbStatus(response.status));
       hapticNotice("success");
     } catch {
       setRequestError("Не получилось отправить заявку. Попробуйте ещё раз.");
@@ -263,12 +327,14 @@ export function App() {
     }
 
     try {
-      const response = await loadMvpRequestStatus(requestId);
+      const response = await getRequestStatus(requestId);
 
-      setOfferView(offerViewForStatus(response.status));
+      setOfferView(offerViewForDbStatus(response.status));
       setStatusNotice(
-        response.status === "waiting"
-          ? "Медслужба ещё проверяет возможность выезда. Можно обновить статус позже."
+        response.status === "WAITING"
+          ? "Выбранная организация ещё проверяет возможность выезда. Можно обновить статус позже."
+          : response.status === "DECLINED"
+            ? "Выбранная организация не подтвердила выезд. Напишите в поддержку или выберите другой вариант."
           : null,
       );
     } catch {
@@ -324,7 +390,9 @@ export function App() {
         >
           {showOfferSubflow && selectedOffer && offerView ? (
             <OfferSubflow
+              chatError={chatError}
               chatMessages={chatMessages}
+              chatPending={chatPending}
               district={district}
               offer={selectedOffer}
               onChangeView={changeOfferView}
@@ -362,7 +430,7 @@ export function App() {
               {step.id === "welcome" ? (
                 <>
                   <div className="welcome-tags">
-                    <span>анонимно</span>
+                    <span>без лишних данных</span>
                     <span>быстро</span>
                     <span>удобно</span>
                   </div>

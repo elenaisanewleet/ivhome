@@ -35,10 +35,10 @@ function OfferDetails({
           ))}
         </ul>
       </div>
-      <p className="privacy-note">Детали и возможность выезда подтверждает выбранная медслужба.</p>
+      <p className="privacy-note">Детали и возможность выезда подтверждает выбранная организация.</p>
       <div className="subflow-actions">
         <button className="button button--teal" onClick={onChat} type="button">
-          Написать специалисту
+          Чат после заявки
         </button>
         <button className="button button--primary" onClick={onConfirm} type="button">
           Подтвердить заявку
@@ -54,26 +54,30 @@ function OfferDetails({
 function ChatView({
   messages,
   offer,
+  requestId,
+  chatPending,
+  chatError,
   onBack,
-  onContinue,
   onSend,
 }: {
   messages: ChatMessage[];
   offer: Offer;
+  requestId: string | null;
+  chatPending: boolean;
+  chatError: string | null;
   onBack: () => void;
-  onContinue: () => void;
-  onSend: (message: string) => void;
+  onSend: (message: string) => Promise<void>;
 }) {
   const [draft, setDraft] = useState("");
 
-  function submitMessage() {
+  async function submitMessage() {
     const message = draft.trim();
 
     if (!message) {
       return;
     }
 
-    onSend(message);
+    await onSend(message);
     setDraft("");
   }
 
@@ -86,31 +90,40 @@ function ChatView({
       />
 
       <p className="chat-privacy-banner">
-        Чат приватный. Сообщения не попадают в Telegram-уведомления.
+        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.
       </p>
 
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
         <p className="chat-window__date">Сегодня</p>
-        <div className="chat-bubble chat-bubble--service">
-          Здравствуйте. Я специалист выбранной медслужбы. Можно уточнить условия выезда.
-        </div>
-        <div className="chat-bubble chat-bubble--user">Подскажите, когда сможете подтвердить время?</div>
-        <div className="chat-bubble chat-bubble--service">
-          Обычно отвечаем за {offer.responseTime}. Возможность выезда подтверждаем отдельно.
-        </div>
+        {requestId ? null : (
+          <div className="chat-bubble chat-bubble--service">
+            Чат по заявке будет доступен после отправки заявки.
+          </div>
+        )}
+        {requestId && messages.length === 0 ? (
+          <div className="chat-bubble chat-bubble--service">
+            Заявка создана. Можно задать короткий вопрос по выезду выбранной организации.
+          </div>
+        ) : null}
         {messages.map((message) => (
-          <div className="chat-bubble chat-bubble--user" key={message.id}>
+          <div
+            className={`chat-bubble ${
+              message.actorType === "USER" ? "chat-bubble--user" : "chat-bubble--service"
+            }`}
+            key={message.id}
+          >
             {message.text}
           </div>
         ))}
       </div>
 
-      {/* Chat content must not be duplicated into Telegram notifications or stored without explicit backend/privacy design. */}
+      {chatError ? <p className="request-error">{chatError}</p> : null}
+
       <form
         className="chat-input"
         onSubmit={(event) => {
           event.preventDefault();
-          submitMessage();
+          void submitMessage();
         }}
       >
         <span className="sr-only">Сообщение специалисту</span>
@@ -121,16 +134,13 @@ function ChatView({
           type="text"
           value={draft}
         />
-        <button aria-label="Отправить вопрос" disabled={!draft.trim()} type="submit">
+        <button aria-label="Отправить вопрос" disabled={!requestId || !draft.trim() || chatPending} type="submit">
           ↑
         </button>
       </form>
       <div className="subflow-actions">
-        <button className="button button--primary" onClick={onContinue} type="button">
-          Подтвердить заявку
-        </button>
         <button className="button button--ghost" onClick={onBack} type="button">
-          Назад к карточке
+          Назад к заявке
         </button>
       </div>
     </section>
@@ -138,6 +148,7 @@ function ChatView({
 }
 
 function ConfirmationView({
+  backLabel,
   district,
   offer,
   requestError,
@@ -147,6 +158,7 @@ function ConfirmationView({
   onChangeOffer,
   onSubmit,
 }: {
+  backLabel: string;
   district: string;
   offer: Offer;
   requestError: string | null;
@@ -157,7 +169,7 @@ function ConfirmationView({
   onSubmit: () => void;
 }) {
   const summary = [
-    ["Медслужба", offer.name],
+    ["Организация", offer.name],
     ["Район / геозона", district],
     ["Время", time],
     ["Стоимость", offer.price],
@@ -170,7 +182,7 @@ function ConfirmationView({
       <SubflowHeader
         eyebrow="Подтверждение заявки"
         title="Проверьте выбранный вариант"
-        body="После отправки медслужба подтвердит возможность выезда, время и итоговую стоимость."
+        body="После отправки выбранная организация подтвердит возможность выезда, время и итоговую стоимость."
       />
       <dl className="summary-list">
         {summary.map(([label, value]) => (
@@ -181,7 +193,7 @@ function ConfirmationView({
         ))}
       </dl>
       <p className="privacy-note">
-        Выбранная медслужба может запросить данные, необходимые для оказания услуги.
+        Выбранная организация может запросить данные, необходимые для оказания услуги.
       </p>
       {requestError ? <p className="request-error">{requestError}</p> : null}
       <div className="subflow-actions">
@@ -189,7 +201,7 @@ function ConfirmationView({
           {submitPending ? <Dots label="Отправляем" /> : "Отправить заявку"}
         </button>
         <button className="button button--secondary" onClick={onBack} type="button">
-          Вернуться в чат
+          {backLabel}
         </button>
         <button className="button button--ghost" onClick={onChangeOffer} type="button">
           Изменить вариант
@@ -223,11 +235,11 @@ function WaitingView({
       <SubflowHeader
         eyebrow="Ждём подтверждение"
         title="Заявка передана медслужбе"
-        body="Выбранная медслужба проверяет возможность выезда. Когда ответят и приедут — отслеживается отдельно."
+        body="Выбранная организация проверяет возможность выезда. Когда ответят и приедут — отслеживается отдельно."
       />
       <div className="live-status">
         <Pulse />
-        <span>медслужба смотрит заявку</span>
+        <span>организация смотрит заявку</span>
       </div>
       <OfferBadge offer={offer} />
       <StatusTrack stage="waiting" />
@@ -266,7 +278,7 @@ function PriceLockView({ offer, onNext }: { offer: Offer; onNext: () => void }) 
         <span>итоговая стоимость</span>
         <strong>{offer.finalPrice}</strong>
       </div>
-      <p className="privacy-note">Итоговую стоимость и время прибытия подтверждает выбранная медслужба.</p>
+      <p className="privacy-note">Итоговую стоимость и время прибытия подтверждает выбранная организация.</p>
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
           Продолжить
@@ -481,6 +493,8 @@ export function OffersState({
 
 export function OfferSubflow({
   chatMessages,
+  chatError,
+  chatPending,
   district,
   offer,
   rating,
@@ -502,6 +516,8 @@ export function OfferSubflow({
   onUpdateStatus,
 }: {
   chatMessages: ChatMessage[];
+  chatError: string | null;
+  chatPending: boolean;
   district: string;
   offer: Offer;
   rating: number | null;
@@ -517,7 +533,7 @@ export function OfferSubflow({
   onChangeView: (view: OfferView | null) => void;
   onRate: (rating: number) => void;
   onRestart: () => void;
-  onSendChatMessage: (message: string) => void;
+  onSendChatMessage: (message: string) => Promise<void>;
   onShowSupport: (returnView: Exclude<OfferView, "support">) => void;
   onSubmit: () => void;
   onUpdateStatus: () => void;
@@ -527,7 +543,7 @@ export function OfferSubflow({
       <OfferDetails
         offer={offer}
         onBack={() => onChangeView(null)}
-        onChat={() => onChangeView("chat")}
+        onChat={() => onChangeView(requestId ? "chat" : "confirmation")}
         onConfirm={() => onChangeView("confirmation")}
       />
     );
@@ -536,10 +552,12 @@ export function OfferSubflow({
   if (view === "chat") {
     return (
       <ChatView
+        chatError={chatError}
+        chatPending={chatPending}
         messages={chatMessages}
         offer={offer}
-        onBack={() => onChangeView("details")}
-        onContinue={() => onChangeView("confirmation")}
+        requestId={requestId}
+        onBack={() => onChangeView(requestId ? "status" : "confirmation")}
         onSend={onSendChatMessage}
       />
     );
@@ -549,8 +567,9 @@ export function OfferSubflow({
     return (
       <ConfirmationView
         district={district}
+        backLabel={requestId ? "Вернуться в чат" : "Вернуться к карточке"}
         offer={offer}
-        onBack={() => onChangeView("chat")}
+        onBack={() => onChangeView(requestId ? "chat" : "details")}
         onChangeOffer={() => onChangeView(null)}
         onSubmit={onSubmit}
         requestError={requestError}

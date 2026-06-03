@@ -6,7 +6,7 @@ Internal code: IVhome. Public brand: Наdom / Надом.
 
 ## Environment Variables
 
-### API (Render web service: `nadom-api-preview`)
+### API (Render web service: `nadom-api`)
 
 | Variable | Required | Description |
 |---|---|---|
@@ -45,11 +45,22 @@ Internal code: IVhome. Public brand: Наdom / Надом.
 
 ## First-Time Setup
 
-### 1. Apply migrations
+Current Render state:
+
+- PR #33 has already been merged into `main`.
+- Render PostgreSQL database `nadom-db` exists.
+- `DATABASE_URL` is configured on the Render `nadom-api` service.
+- `ADMIN_TOKEN` is configured on the Render `nadom-api` service.
+
+Run these commands in the Render Shell for `nadom-api`:
 
 ```bash
 pnpm db:migrate
+pnpm db:seed
+pnpm db:generate
 ```
+
+### 1. Apply migrations
 
 This applies all committed migrations under `prisma/migrations/`, including `20260603000000_add_mvp_request_and_chat` which adds:
 - `MvpRequest` — persistent request records
@@ -101,7 +112,10 @@ To fill the onboarding questionnaire via dashboard:
    - Or set `VITE_ADMIN_TOKEN` in `.env` to skip the login form locally.
 4. The dashboard shows:
    - **DB-заявки** — persistent Postgres requests (via `/mvp/admin/requests`).
-   - **Preview-заявки** — in-memory requests (via `/mvp/dev/requests`, requires `ENABLE_MVP_DEV_API=true`).
+   - Request status actions via `/mvp/admin/requests/:id/status`.
+   - Request chat view/replies via `/mvp/admin/requests/:id/chat`.
+   - Links to `/admin/onboarding/<clinicId>` for each MVP medical organization.
+   - **Preview-заявки** — in-memory requests (via `/mvp/dev/requests`, requires `ENABLE_MVP_DEV_API=true`) only when legacy preview data exists.
 
 ---
 
@@ -112,6 +126,7 @@ To fill the onboarding questionnaire via dashboard:
    - Or set `VITE_CLINIC_TOKEN=medservice-north` in `.env`.
 3. The dashboard shows all `MvpRequest` rows where `clinicId` matches.
    - If `CLINIC_AUTH_ENABLED=true`, the API validates the clinic ID exists in DB.
+4. The clinic dashboard can update status for its own requests and read/reply to its own request chat.
 
 ---
 
@@ -120,10 +135,12 @@ To fill the onboarding questionnaire via dashboard:
 1. Start all services: `pnpm dev`.
 2. Open `http://localhost:5173` in a browser.
 3. Complete the onboarding flow: profile → district → time → select medservice.
-4. Click "Оставить заявку" on an offer.
-5. The request is created via `POST /mvp/dev/requests` (in-memory) or `POST /mvp/requests` (Postgres if wired).
+4. Confirm a selected offer.
+5. The request is created via `POST /mvp/requests` and persisted as `MvpRequest`.
 6. Check the admin dashboard at `http://localhost:5174/admin` to see the new request.
-7. Change the status in the dashboard and refresh the Mini App status screen.
+7. Check the clinic dashboard at `http://localhost:5174/clinic` with the selected clinic ID to see the same request.
+8. Change the status in admin or clinic dashboard and refresh the Mini App status screen.
+9. Open the Mini App request chat after submission. Messages are stored via `POST /mvp/requests/:id/chat` and loaded via `GET /mvp/requests/:id/chat`.
 
 ---
 
@@ -149,9 +166,9 @@ pnpm db:generate
 
 - **No real auth**: Admin and clinic routes use a single static bearer token. Multi-user auth is a follow-up.
 - **No file upload**: License scan upload is stubbed with a TODO in `OnboardingForm.tsx`.
-- **In-memory requests reset on restart**: The `/mvp/dev/*` store is in-memory. The new `/mvp/requests` store is persistent.
-- **Mini App still uses `/mvp/dev/requests`** for the `createMvpRequest` flow (backward compat). New `submitRequest()` function in `api.ts` uses the persistent endpoint but is not wired to the UI flow yet.
+- **In-memory preview routes are compatibility-only**: The `/mvp/dev/*` store resets on restart and should be enabled only with `ENABLE_MVP_DEV_API=true`.
+- **Mini App uses persistent MVP requests by default**: offers load from `/mvp/offers`, request creation uses `/mvp/requests`, status reads `/mvp/requests/:id`, and post-submit chat uses `/mvp/requests/:id/chat`.
 - **No bot integration with DB**: The Telegram bot sends status notifications but is not yet wired to `MvpRequest` status changes.
-- **No chat UI in Mini App**: Chat API endpoints exist but the Mini App chat UI uses local-only state. Wiring to DB chat is a follow-up.
+- **No Telegram chat notifications**: Request chat content is stored in Postgres only and is not sent into Telegram messages/notifications.
 - **Offers are static**: `/mvp/offers` returns hardcoded offers. Dynamic DB-driven offers are a follow-up.
 - **No HTTPS enforcement**: Enforce HTTPS and set `Secure` cookies in production.

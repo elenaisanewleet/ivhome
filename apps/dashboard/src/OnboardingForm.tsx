@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import type { MvpOnboardingData } from "@ivhome/shared";
+import type { MvpOnboardingData, MvpOnboardingResponse } from "@ivhome/shared";
 
 // Admin-only onboarding form for medservice registration.
 // Route: /admin/onboarding/:clinicId
@@ -30,6 +30,49 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
   const [data, setData] = useState<MvpOnboardingData>({});
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    setStatus("idle");
+    setMessage(null);
+    setData({});
+
+    void fetch(`${apiBaseUrl.replace(/\/+$/u, "")}/mvp/admin/onboarding/${encodeURIComponent(clinicId)}`, {
+      headers: {
+        Authorization: `Bearer ${adminToken}`,
+      },
+    })
+      .then(async (response) => {
+        if (response.status === 404) {
+          return null;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return (await response.json()) as MvpOnboardingResponse;
+      })
+      .then((loaded) => {
+        if (!isCurrent || !loaded) {
+          return;
+        }
+
+        setData(loaded.data ?? {});
+        setMessage(loaded.status === "SUBMITTED" ? "Ранее отправленная анкета загружена." : "Черновик загружен.");
+      })
+      .catch(() => {
+        if (isCurrent) {
+          setStatus("error");
+          setMessage("Не удалось загрузить сохранённую анкету. Можно заполнить форму заново.");
+        }
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [adminToken, apiBaseUrl, clinicId]);
 
   function update<K extends keyof MvpOnboardingData>(key: K, value: MvpOnboardingData[K]) {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -69,11 +112,11 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
   return (
     <div className="onboarding-form">
       <header className="onboarding-form__header">
-        <h2>Анкета медслужбы</h2>
+        <h2>Анкета медицинской организации</h2>
         <p className="meta-label">ID: {clinicId}</p>
         <p>
           Заполните все разделы и нажмите «Отправить на проверку». Надом — агрегатор, а не медицинская
-          организация. Все медицинские решения принимает выбранная медслужба.
+          организация. Все медицинские решения принимает выбранная организация.
         </p>
       </header>
 
@@ -94,10 +137,10 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
             {section === "identity" && (
               <>
                 <label className="field">
-                  <span>Публичное наименование медслужбы</span>
+                  <span>Публичное наименование медицинской организации</span>
                   <input
                     onChange={(e) => update("publicName", e.target.value)}
-                    placeholder="Медслужба «Пример»"
+                    placeholder="Медицинская организация «Пример»"
                     type="text"
                     value={data.publicName ?? ""}
                   />
@@ -240,8 +283,8 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
             {section === "categories" && (
               <>
                 <p className="field-hint">
-                  Отметьте виды заявок, которые медслужба способна рассмотреть. Надом передаёт заявку —
-                  медицинское решение о возможности и составе выезда принимает медслужба.
+                  Отметьте виды заявок, которые медицинская организация способна рассмотреть. Надом передаёт
+                  заявку — медицинское решение о возможности и составе выезда принимает выбранная организация.
                 </p>
                 <label className="field field--checkbox">
                   <input
@@ -289,7 +332,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   <span>Критерии отказа в выезде / красные флаги</span>
                   <textarea
                     onChange={(e) => update("redFlagCriteria", e.target.value)}
-                    placeholder="Признаки, при которых медслужба не осуществляет выезд..."
+                    placeholder="Признаки, при которых организация не осуществляет выезд..."
                     rows={4}
                     value={data.redFlagCriteria ?? ""}
                   />
@@ -298,9 +341,18 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   <span>Порядок эскалации (103 / 112)</span>
                   <textarea
                     onChange={(e) => update("escalationPolicy", e.target.value)}
-                    placeholder="Опишите, как медслужба действует при выявлении неотложных состояний..."
+                    placeholder="Опишите, как организация действует при выявлении неотложных состояний..."
                     rows={4}
                     value={data.escalationPolicy ?? ""}
+                  />
+                </label>
+                <label className="field">
+                  <span>Политика по рецептурным, контролируемым и седативным препаратам</span>
+                  <textarea
+                    onChange={(e) => update("controlledMedicationPolicy", e.target.value)}
+                    placeholder="Опишите общий порядок проверки назначений, документов и ограничений по препаратам..."
+                    rows={4}
+                    value={data.controlledMedicationPolicy ?? ""}
                   />
                 </label>
               </>
@@ -309,8 +361,8 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
             {section === "privacy" && (
               <>
                 <p className="field-hint">
-                  Надом — агрегатор. Платформа передаёт медслужбе только необходимые для подтверждения
-                  выезда данные. Медслужба не вправе передавать эти данные третьим лицам.
+                  Надом — агрегатор. Платформа передаёт выбранной организации только необходимые для
+                  подтверждения выезда данные. Организация не вправе передавать эти данные третьим лицам.
                 </p>
                 <label className="field field--checkbox">
                   <input
@@ -319,7 +371,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     type="checkbox"
                   />
                   <span>
-                    Медслужба обязуется не передавать персональные данные пользователей третьим лицам
+                    Медицинская организация обязуется не передавать персональные данные пользователей третьим лицам
                     без явного согласия пользователя.
                   </span>
                 </label>
@@ -330,8 +382,8 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     type="checkbox"
                   />
                   <span>
-                    Медслужба согласна с тем, что Надом направляет пользователю нейтральные
-                    статусные уведомления от имени платформы, а не от имени медслужбы.
+                    Медицинская организация согласна с тем, что Надом направляет пользователю нейтральные
+                    статусные уведомления от имени платформы, а не от имени организации.
                   </span>
                 </label>
               </>
