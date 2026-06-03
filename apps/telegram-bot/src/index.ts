@@ -37,11 +37,18 @@ export function createStartMessage() {
   return {
     text: [
       "привет, я Надом 🫧",
-      "помогу быстро найти медслужбу для выезда на дом — вместо долгих поисков и звонков",
+      "покажу, кто приедет на дом, когда и за сколько — а вы выберете медслужбу",
       "<i>детали и стоимость подтверждает выбранная медслужба</i>",
     ].join("\n\n"),
     parse_mode: "HTML",
     ...webAppButton("подобрать вариант"),
+  };
+}
+
+export function createFallbackMessage() {
+  return {
+    text: "всё здесь 🫧",
+    ...webAppButton("открыть Надом"),
   };
 }
 
@@ -108,7 +115,14 @@ async function handleUpdate(update: TelegramUpdate) {
       chat_id: chat.id,
       ...createHelpMessage(),
     });
+    return;
   }
+
+  // Any other message: gently point back to the Mini App without echoing content.
+  await callTelegramApi("sendMessage", {
+    chat_id: chat.id,
+    ...createFallbackMessage(),
+  });
 }
 
 async function pollUpdates() {

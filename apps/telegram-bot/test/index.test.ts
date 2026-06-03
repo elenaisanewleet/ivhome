@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  createFallbackMessage,
   createHelpMessage,
   createStartMessage,
   createStatusUpdateMessage,
@@ -34,6 +35,12 @@ test("creates a help message describing what Nadom can do", () => {
 
   assert.match(message.text, /проверенную медслужбу/u);
   assert.match(message.text, /103 или 112/u);
+});
+
+test("creates a fallback message that does not echo user content", () => {
+  const message = createFallbackMessage();
+
+  assert.equal(message.text, "всё здесь 🫧");
 });
 
 test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
