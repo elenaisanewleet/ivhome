@@ -12,6 +12,7 @@ import {
   loadOffers,
   readSupportUrl,
 } from "./api";
+import { haptic, hapticNotice, initTelegram } from "./telegram";
 
 type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
@@ -1122,6 +1123,10 @@ export function App() {
   const usesApi = isApiConfigured();
 
   useEffect(() => {
+    initTelegram();
+  }, []);
+
+  useEffect(() => {
     if (!isOffersStep || offersMode !== "ready" || preview !== null) {
       return;
     }
@@ -1204,11 +1209,13 @@ export function App() {
       return;
     }
 
+    haptic("light");
     setEmergencyNotice(null);
     setStepIndex((current) => Math.min(current + 1, STEPS.length - 1));
   }
 
   function goBack() {
+    haptic("soft");
     setEmergencyNotice(null);
     setStepIndex((current) => Math.max(current - 1, 0));
   }
@@ -1298,8 +1305,10 @@ export function App() {
       setRequestId(response.requestId);
       setStatusNotice(null);
       setOfferView(offerViewForStatus(response.status));
+      hapticNotice("success");
     } catch {
       setRequestError("Не получилось отправить заявку. Попробуйте ещё раз.");
+      hapticNotice("error");
     } finally {
       setSubmitPending(false);
     }
@@ -1326,6 +1335,7 @@ export function App() {
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
+    hapticNotice("warning");
     if (isLikelyMobileRuntime()) {
       window.location.href = `tel:${phoneNumber}`;
       return;
@@ -1353,7 +1363,10 @@ export function App() {
           <span className="screen-header__brand">Надом</span>
         </header>
 
-        <div className={`screen-card ${showOfferSubflow ? "screen-card--subflow" : ""}`}>
+        <div
+          key={showOfferSubflow ? "subflow" : step.id}
+          className={`screen-card screen-card--enter ${showOfferSubflow ? "screen-card--subflow" : ""}`}
+        >
           {showOfferSubflow ? (
             <OfferSubflow
               chatMessages={chatMessages}
