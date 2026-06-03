@@ -61,22 +61,6 @@ export function isHelpCommand(text: string | undefined) {
   return isCommand(text, "help");
 }
 
-export function isSupportCommand(text: string | undefined) {
-  return isCommand(text, "support");
-}
-
-export function isStatusCommand(text: string | undefined) {
-  return isCommand(text, "status");
-}
-
-export function isNewCommand(text: string | undefined) {
-  return isCommand(text, "new");
-}
-
-export function isCancelCommand(text: string | undefined) {
-  return isCommand(text, "cancel");
-}
-
 export function createStartMessage() {
   return withOpenAppButton(
     [
@@ -96,39 +80,6 @@ export function createHelpMessage() {
       "⋆ показывает ответ медслужбы и прибытие после подтверждения",
       "⋆ открывает заявку и статус в приложении",
       "при экстренных симптомах — 103 или 112",
-    ].join("\n\n"),
-  );
-}
-
-export function createSupportMessage() {
-  return withOpenAppButton(
-    [
-      "поддержка Надом",
-      "по вопросам работы сервиса откройте приложение — там можно вернуться к заявке или начать новый подбор",
-      "не отправляйте в Telegram медицинские подробности, адреса и данные документов",
-      "при экстренных симптомах — 103 или 112",
-    ].join("\n\n"),
-  );
-}
-
-export function createStatusCommandMessage() {
-  return withOpenAppButton(
-    [
-      "статус заявки — в приложении",
-      "мы не пишем детали заявки в Telegram, чтобы сохранить приватность",
-    ].join("\n\n"),
-  );
-}
-
-export function createNewRequestMessage() {
-  return withOpenAppButton("новый подбор можно начать в приложении", "начать подбор");
-}
-
-export function createCancelMessage() {
-  return withOpenAppButton(
-    [
-      "отмену заявки лучше открыть в приложении",
-      "там видны актуальные условия и статус выбранной медслужбы",
     ].join("\n\n"),
   );
 }
@@ -164,22 +115,6 @@ export function createMessageForIncomingText(text: string | undefined) {
 
   if (isHelpCommand(text)) {
     return createHelpMessage();
-  }
-
-  if (isSupportCommand(text)) {
-    return createSupportMessage();
-  }
-
-  if (isStatusCommand(text)) {
-    return createStatusCommandMessage();
-  }
-
-  if (isNewCommand(text)) {
-    return createNewRequestMessage();
-  }
-
-  if (isCancelCommand(text)) {
-    return createCancelMessage();
   }
 
   return createFallbackMessage();
