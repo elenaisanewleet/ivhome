@@ -1,0 +1,50 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    VARIANT 4 — BOLD / FILLED
+    Signal blue bg. Drop fully filled white — max contrast.
+    Best at tiny sizes (40px notification icon, favicon).
+    No stroke, no arc — pure shape recognition.
+  -->
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#4A8BC0"/>
+      <stop offset="100%" stop-color="#2B5E90"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg4)"/>
+
+  <!-- Bold filled drop — no stroke, pure shape -->
+  <path
+    d="M256 100
+       C 256 100, 144 210, 144 278
+       C 144 340, 196 384, 256 384
+       C 316 384, 368 340, 368 278
+       C 368 210, 256 100, 256 100 Z"
+    fill="white"
+  />
+
+  <!-- Negative-space inner: creates the stroke effect inside the fill -->
+  <path
+    d="M256 148
+       C 256 148, 188 222, 188 268
+       C 188 306, 218 336, 256 336
+       C 294 336, 324 306, 324 268
+       C 324 222, 256 148, 256 148 Z"
+    fill="url(#bg4)"
+  />
+
+  <!-- Core dot — white again, solid -->
+  <circle cx="256" cy="290" r="30" fill="white"/>
+
+  <!-- Arrival arc — subtle white dashes at bottom -->
+  <path
+    d="M128 428 Q192 374 256 386 Q320 398 384 428"
+    stroke="rgba(255,255,255,0.35)"
+    stroke-width="7"
+    stroke-linecap="round"
+    fill="none"
+    stroke-dasharray="14 11"
+  />
+</svg>

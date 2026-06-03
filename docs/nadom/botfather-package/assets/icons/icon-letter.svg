@@ -1,0 +1,49 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    VARIANT 5 — LETTER / TYPOGRAPHIC MARK
+    Void background. "Н" in Unbounded, signal blue.
+    For contexts where instant text-based recognition matters.
+    The dot under the letter hints at the routing/destination motif.
+  -->
+  <defs>
+    <radialGradient id="bg5" cx="50%" cy="45%" r="70%">
+      <stop offset="0%"   stop-color="#141412"/>
+      <stop offset="100%" stop-color="#080807"/>
+    </radialGradient>
+    <filter id="letterGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg5)"/>
+
+  <!-- Ambient glow behind letter -->
+  <ellipse cx="256" cy="230" rx="160" ry="140"
+    fill="rgba(61,122,181,0.12)" filter="url(#letterGlow)"/>
+
+  <!--
+    "Н" drawn as SVG paths (no font dependency).
+    Two vertical strokes + horizontal crossbar.
+    Proportions: Unbounded-inspired — geometric, even strokes, wide.
+    Bounding box: 128×280 → centered at 256: x from 120 to 392, y from 112 to 368
+    Stroke width: 40px (bold, Unbounded weight 700 feel)
+    Crossbar at vertical midpoint: y = 112 + 140 = 252
+  -->
+
+  <!-- Left vertical stroke -->
+  <rect x="120" y="108" width="42" height="270" rx="6" fill="#5A94CC"/>
+
+  <!-- Right vertical stroke -->
+  <rect x="350" y="108" width="42" height="270" rx="6" fill="#5A94CC"/>
+
+  <!-- Horizontal crossbar (at 50% height) -->
+  <rect x="120" y="228" width="272" height="38" rx="4" fill="#5A94CC"/>
+
+  <!-- Destination dot — signal blue accent, below the letter -->
+  <circle cx="256" cy="432" r="16" fill="#3D7AB5"/>
+  <!-- Dot halo -->
+  <circle cx="256" cy="432" r="28"
+    fill="none" stroke="rgba(61,122,181,0.25)" stroke-width="1.5"/>
+</svg>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Надом — Icon Variants Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;600;700&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Onest', system-ui, sans-serif;
+  background: #080807;
+  color: #C8C8BC;
+  font-size: 13px;
+  padding: 48px 40px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-family: 'Unbounded', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #FAFAF4;
+  letter-spacing: -0.04em;
+  margin-bottom: 6px;
+}
+
+.sub {
+  font-size: 12px;
+  color: #5A5A54;
+  margin-bottom: 48px;
+  letter-spacing: 0.01em;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+  margin-bottom: 56px;
+}
+
+.card {
+  background: #161614;
+  border: 0.5px solid #272724;
+  border-radius: 16px;
+  padding: 28px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.card.recommended {
+  border-color: rgba(61,122,181,0.5);
+  background: #12161E;
+}
+
+.badge {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 8px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #5A94CC;
+  background: rgba(61,122,181,0.12);
+  border-radius: 4px;
+  padding: 2px 8px;
+  align-self: flex-start;
+}
+
+/* Three sizes per icon */
+.sizes {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.size-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.size-wrap img, .size-wrap object {
+  display: block;
+}
+
+.size-lbl {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 8px;
+  color: #5A5A54;
+  letter-spacing: 0.08em;
+}
+
+/* Circle crop preview */
+.circle-crop {
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.card-name {
+  font-family: 'Unbounded', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FAFAF4;
+  letter-spacing: -0.02em;
+}
+
+.card-desc {
+  font-size: 11px;
+  color: #5A5A54;
+  text-align: center;
+  line-height: 1.55;
+}
+
+/* Context previews: TG chat list simulation */
+.context-section {
+  margin-bottom: 40px;
+}
+
+.section-tag {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #5A5A54;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-tag::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: #1E1E1B;
+}
+
+/* Telegram chat list row simulation */
+.tg-list {
+  background: #17212B;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 380px;
+}
+
+.tg-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 0.5px solid #1E2D3D;
+}
+.tg-row:last-child { border-bottom: none; }
+
+.tg-av {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.tg-meta { flex: 1; min-width: 0; }
+.tg-name { font-size: 14px; font-weight: 600; color: #EAEAEA; margin-bottom: 2px; }
+.tg-preview { font-size: 13px; color: #708A9E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tg-time { font-size: 11px; color: #5A7A90; }
+
+/* Comparison row for all 5 at 40px */
+.icon-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+</style>
+</head>
+<body>
+
+<h1>Надом — иконки бота</h1>
+<p class="sub">5 вариантов · предпросмотр в 3 размерах · в круге (как в Telegram)</p>
+
+<div class="grid">
+
+  <!-- Signal (recommended) -->
+  <div class="card recommended">
+    <span class="badge">⭐ рекомендован · avatar.svg</span>
+    <div class="sizes">
+      <div class="size-wrap">
+        <img src="icon-signal.svg" width="80" height="80" class="circle-crop" alt="Signal 80px">
+        <span class="size-lbl">80px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-signal.svg" width="48" height="48" class="circle-crop" alt="Signal 48px">
+        <span class="size-lbl">48px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-signal.svg" width="32" height="32" class="circle-crop" alt="Signal 32px">
+        <span class="size-lbl">32px</span>
+      </div>
+    </div>
+    <div class="card-name">Signal</div>
+    <div class="card-desc">Синий градиент + белый символ.<br>Рекомендован для BotFather.</div>
+  </div>
+
+  <!-- Void -->
+  <div class="card">
+    <span class="badge">icon-void.svg</span>
+    <div class="sizes">
+      <div class="size-wrap">
+        <img src="icon-void.svg" width="80" height="80" class="circle-crop" alt="Void 80px">
+        <span class="size-lbl">80px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-void.svg" width="48" height="48" class="circle-crop" alt="Void 48px">
+        <span class="size-lbl">48px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-void.svg" width="32" height="32" class="circle-crop" alt="Void 32px">
+        <span class="size-lbl">32px</span>
+      </div>
+    </div>
+    <div class="card-name">Void</div>
+    <div class="card-desc">Тёмный фон + синий символ.<br>Премиальный, тёмная тема.</div>
+  </div>
+
+  <!-- Cream -->
+  <div class="card">
+    <span class="badge">icon-cream.svg</span>
+    <div class="sizes">
+      <div class="size-wrap">
+        <img src="icon-cream.svg" width="80" height="80" class="circle-crop" alt="Cream 80px">
+        <span class="size-lbl">80px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-cream.svg" width="48" height="48" class="circle-crop" alt="Cream 48px">
+        <span class="size-lbl">48px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-cream.svg" width="32" height="32" class="circle-crop" alt="Cream 32px">
+        <span class="size-lbl">32px</span>
+      </div>
+    </div>
+    <div class="card-name">Cream</div>
+    <div class="card-desc">Тёплый кремовый фон.<br>Светлая тема Telegram.</div>
+  </div>
+
+  <!-- Bold -->
+  <div class="card">
+    <span class="badge">icon-bold.svg</span>
+    <div class="sizes">
+      <div class="size-wrap">
+        <img src="icon-bold.svg" width="80" height="80" class="circle-crop" alt="Bold 80px">
+        <span class="size-lbl">80px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-bold.svg" width="48" height="48" class="circle-crop" alt="Bold 48px">
+        <span class="size-lbl">48px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-bold.svg" width="32" height="32" class="circle-crop" alt="Bold 32px">
+        <span class="size-lbl">32px</span>
+      </div>
+    </div>
+    <div class="card-name">Bold</div>
+    <div class="card-desc">Залитая форма, максимальный контраст.<br>Лучший при 32px и меньше.</div>
+  </div>
+
+  <!-- Letter -->
+  <div class="card">
+    <span class="badge">icon-letter.svg</span>
+    <div class="sizes">
+      <div class="size-wrap">
+        <img src="icon-letter.svg" width="80" height="80" class="circle-crop" alt="Letter 80px">
+        <span class="size-lbl">80px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-letter.svg" width="48" height="48" class="circle-crop" alt="Letter 48px">
+        <span class="size-lbl">48px</span>
+      </div>
+      <div class="size-wrap">
+        <img src="icon-letter.svg" width="32" height="32" class="circle-crop" alt="Letter 32px">
+        <span class="size-lbl">32px</span>
+      </div>
+    </div>
+    <div class="card-name">Letter Н</div>
+    <div class="card-desc">Типографическая марка.<br>Мгновенное узнавание по букве.</div>
+  </div>
+
+</div>
+
+<!-- Context: TG chat list simulation -->
+<div class="context-section">
+  <div class="section-tag">предпросмотр · список чатов Telegram</div>
+  <div class="tg-list">
+    <div class="tg-row">
+      <div class="tg-av">
+        <img src="icon-signal.svg" width="46" height="46" alt="Signal">
+      </div>
+      <div class="tg-meta">
+        <div class="tg-name">Надом</div>
+        <div class="tg-preview">привет 🫧 нужен выезд на дом — подберём вариант</div>
+      </div>
+      <div class="tg-time">сейчас</div>
+    </div>
+    <div class="tg-row">
+      <div class="tg-av">
+        <img src="icon-void.svg" width="46" height="46" alt="Void">
+      </div>
+      <div class="tg-meta">
+        <div class="tg-name">Надом</div>
+        <div class="tg-preview">заявка подтверждена · детали в приложении</div>
+      </div>
+      <div class="tg-time">14:32</div>
+    </div>
+  </div>
+</div>
+
+<!-- All 5 at 40px — как в уведомлении -->
+<div class="context-section">
+  <div class="section-tag">сравнение при 40px (уведомления)</div>
+  <div class="icon-row">
+    <div class="icon-item">
+      <img src="icon-signal.svg" width="40" height="40" class="circle-crop" alt="Signal">
+      <span class="size-lbl">Signal ★</span>
+    </div>
+    <div class="icon-item">
+      <img src="icon-void.svg" width="40" height="40" class="circle-crop" alt="Void">
+      <span class="size-lbl">Void</span>
+    </div>
+    <div class="icon-item">
+      <img src="icon-cream.svg" width="40" height="40" class="circle-crop" alt="Cream">
+      <span class="size-lbl">Cream</span>
+    </div>
+    <div class="icon-item">
+      <img src="icon-bold.svg" width="40" height="40" class="circle-crop" alt="Bold">
+      <span class="size-lbl">Bold</span>
+    </div>
+    <div class="icon-item">
+      <img src="icon-letter.svg" width="40" height="40" class="circle-crop" alt="Letter">
+      <span class="size-lbl">Letter</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

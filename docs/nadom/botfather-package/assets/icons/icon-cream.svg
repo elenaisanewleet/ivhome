@@ -1,0 +1,53 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    VARIANT 3 — CREAM / LIGHT
+    Warm paper background. Ink drop + signal dot.
+    Accessible, friendly. Best for light-mode Telegram.
+  -->
+  <defs>
+    <radialGradient id="bg3" cx="35%" cy="30%" r="80%">
+      <stop offset="0%"   stop-color="#FAFAF4"/>
+      <stop offset="100%" stop-color="#E8E7DE"/>
+    </radialGradient>
+    <filter id="inkShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="14"
+        flood-color="rgba(14,14,12,0.12)"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg3)"/>
+
+  <!-- Subtle texture circle -->
+  <circle cx="380" cy="120" r="200"
+    fill="rgba(224,223,208,0.4)"/>
+
+  <!-- Drop symbol — ink colored, light fill -->
+  <path
+    d="M256 92
+       C 256 92, 148 202, 148 272
+       C 148 334, 197 376, 256 376
+       C 315 376, 364 334, 364 272
+       C 364 202, 256 92, 256 92 Z"
+    stroke="#161614"
+    stroke-width="10"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="rgba(14,14,12,0.04)"
+    filter="url(#inkShadow)"
+  />
+
+  <!-- Core destination dot — signal blue, pops on cream -->
+  <circle cx="256" cy="295" r="34" fill="#3D7AB5"/>
+  <circle cx="247" cy="284" r="11" fill="rgba(255,255,255,0.30)"/>
+
+  <!-- Arrival arc -->
+  <path
+    d="M112 432 Q184 362 256 378 Q328 394 400 432"
+    stroke="rgba(14,14,12,0.20)"
+    stroke-width="8"
+    stroke-linecap="round"
+    fill="none"
+    stroke-dasharray="16 13"
+  />
+</svg>

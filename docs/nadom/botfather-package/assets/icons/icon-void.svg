@@ -1,0 +1,60 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    VARIANT 2 — VOID
+    Near-black background. Signal blue drop glows.
+    Premium, mature. Works well in dark Telegram theme.
+  -->
+  <defs>
+    <radialGradient id="bg2" cx="40%" cy="35%" r="75%">
+      <stop offset="0%"   stop-color="#1A1A17"/>
+      <stop offset="100%" stop-color="#080807"/>
+    </radialGradient>
+    <radialGradient id="symbolGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="rgba(61,122,181,0.22)"/>
+      <stop offset="100%" stop-color="rgba(61,122,181,0)"/>
+    </radialGradient>
+    <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="32"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg2)"/>
+
+  <!-- Signal blue ambient glow behind symbol -->
+  <ellipse cx="256" cy="260" rx="155" ry="175"
+    fill="rgba(61,122,181,0.18)" filter="url(#glowBlue)"/>
+
+  <!-- Drop symbol -->
+  <path
+    d="M256 92
+       C 256 92, 148 202, 148 272
+       C 148 334, 197 376, 256 376
+       C 315 376, 364 334, 364 272
+       C 364 202, 256 92, 256 92 Z"
+    stroke="#5A94CC"
+    stroke-width="11"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="rgba(61,122,181,0.10)"
+  />
+
+  <!-- Core destination dot — signal blue, solid -->
+  <circle cx="256" cy="295" r="34" fill="#3D7AB5"/>
+  <!-- Inner highlight on dot -->
+  <circle cx="248" cy="284" r="10" fill="rgba(255,255,255,0.18)"/>
+
+  <!-- Arrival arc -->
+  <path
+    d="M112 432 Q184 362 256 378 Q328 394 400 432"
+    stroke="rgba(90,148,204,0.38)"
+    stroke-width="8"
+    stroke-linecap="round"
+    fill="none"
+    stroke-dasharray="16 13"
+  />
+
+  <!-- Subtle top-right highlight -->
+  <ellipse cx="380" cy="140" rx="80" ry="60"
+    fill="rgba(90,148,204,0.06)"/>
+</svg>
