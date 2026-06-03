@@ -5,7 +5,7 @@ import Fastify from "fastify";
 import { PROJECT_NAME } from "@ivhome/shared";
 import type {
   MvpChatActorType,
-  MvpChatMessageCreateInput,
+  MvpChatMessagePublicCreateInput,
   MvpChatMessagesResponse,
   MvpDbRequest,
   MvpDbRequestCreateInput,
@@ -44,7 +44,7 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "9 200 ₽",
     rating: "4.8",
     conditions: ["выезд после подтверждения", "условия можно уточнить в чате"],
-    note: "детали и стоимость подтверждает медслужба",
+    note: "детали и стоимость подтверждает выбранная организация",
   },
   {
     id: "medservice-center",
@@ -57,7 +57,7 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "10 400 ₽",
     rating: "4.7",
     conditions: ["работает по зонам выезда", "стоимость подтвердят до выезда"],
-    note: "детали и стоимость подтверждает медслужба",
+    note: "детали и стоимость подтверждает выбранная организация",
   },
   {
     id: "medservice-night",
@@ -70,7 +70,7 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "11 300 ₽",
     rating: "4.6",
     conditions: ["доступна в позднее время", "время зависит от зоны выезда"],
-    note: "детали и стоимость подтверждает медслужба",
+    note: "детали и стоимость подтверждает выбранная организация",
   },
 ];
 
@@ -129,14 +129,9 @@ function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
 // ─── DB-backed MVP helpers ───────────────────────────────────────────────────
 
 const dbStatuses: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
-const mvpChatActorTypes: MvpChatActorType[] = ["USER", "CLINIC", "ADMIN"];
 
 function isMvpDbStatus(value: unknown): value is MvpDbStatus {
   return typeof value === "string" && dbStatuses.includes(value as MvpDbStatus);
-}
-
-function isMvpChatActorType(value: unknown): value is MvpChatActorType {
-  return typeof value === "string" && mvpChatActorTypes.includes(value as MvpChatActorType);
 }
 
 const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile"]);
@@ -197,12 +192,12 @@ function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUp
   return true;
 }
 
-function isMvpChatMessageCreateInput(value: unknown): value is MvpChatMessageCreateInput {
+function isMvpChatMessagePublicCreateInput(value: unknown): value is MvpChatMessagePublicCreateInput {
   if (!isRecord(value)) {
     return false;
   }
 
-  return isShortText(value.body, 2000) && isMvpChatActorType(value.actorType);
+  return Object.keys(value).every((key) => key === "body") && isShortText(value.body, 2000);
 }
 
 // ─── Token auth helpers ──────────────────────────────────────────────────────
@@ -279,6 +274,20 @@ function toMvpDbRequest(row: {
     notes: row.notes,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function toMvpChatMessage(row: {
+  id: string;
+  actorType: MvpChatActorType;
+  body: string;
+  createdAt: Date;
+}) {
+  return {
+    id: row.id,
+    actorType: row.actorType,
+    body: row.body,
+    createdAt: row.createdAt.toISOString(),
   };
 }
 
@@ -497,27 +506,31 @@ export function buildApp() {
   app.get<{ Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
     try {
       const db = await getPrisma();
+      const exists = await db.mvpRequest.findUnique({
+        where: { id: request.params.id },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
       const rows = await db.mvpChatMessage.findMany({
         where: { requestId: request.params.id },
         orderBy: { createdAt: "asc" },
       });
 
       return {
-        messages: rows.map((row) => ({
-          id: row.id,
-          actorType: row.actorType as MvpChatActorType,
-          body: row.body,
-          createdAt: row.createdAt.toISOString(),
-        })),
+        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
       } satisfies MvpChatMessagesResponse;
     } catch {
       return reply.code(503).send({ error: "db_unavailable" });
     }
   });
 
-  // Chat: add a message (actorType from body for MVP, no real auth yet)
+  // Chat: add a user message. Dashboards use scoped admin/clinic chat routes below.
   app.post<{ Body: unknown; Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
-    if (!isMvpChatMessageCreateInput(request.body)) {
+    if (!isMvpChatMessagePublicCreateInput(request.body)) {
       return reply.code(400).send({ error: "invalid_request" });
     }
 
@@ -537,17 +550,12 @@ export function buildApp() {
       const row = await db.mvpChatMessage.create({
         data: {
           requestId: request.params.id,
-          actorType: input.actorType,
+          actorType: "USER",
           body: input.body,
         },
       });
 
-      return reply.code(201).send({
-        id: row.id,
-        actorType: row.actorType as MvpChatActorType,
-        body: row.body,
-        createdAt: row.createdAt.toISOString(),
-      });
+      return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
     } catch {
       return reply.code(503).send({ error: "db_unavailable" });
     }
@@ -602,6 +610,71 @@ export function buildApp() {
     }
   });
 
+  // Admin: read request chat
+  app.get<{ Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
+    if (!checkAdminToken(request.headers.authorization)) {
+      return reply.code(401).send({ error: "unauthorized" });
+    }
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findUnique({
+        where: { id: request.params.id },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
+      const rows = await db.mvpChatMessage.findMany({
+        where: { requestId: request.params.id },
+        orderBy: { createdAt: "asc" },
+      });
+
+      return {
+        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
+      } satisfies MvpChatMessagesResponse;
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
+  // Admin: reply to request chat
+  app.post<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
+    if (!checkAdminToken(request.headers.authorization)) {
+      return reply.code(401).send({ error: "unauthorized" });
+    }
+
+    if (!isMvpChatMessagePublicCreateInput(request.body)) {
+      return reply.code(400).send({ error: "invalid_request" });
+    }
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findUnique({
+        where: { id: request.params.id },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
+      const row = await db.mvpChatMessage.create({
+        data: {
+          requestId: request.params.id,
+          actorType: "ADMIN",
+          body: request.body.body,
+        },
+      });
+
+      return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
   // Clinic: list requests for a clinic (requires X-Clinic-Id header)
   app.get("/mvp/clinic/requests", async (request, reply) => {
     const clinicId = request.headers["x-clinic-id"];
@@ -633,6 +706,117 @@ export function buildApp() {
       });
 
       return { requests: rows.map(toMvpDbRequest) };
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
+  // Clinic: update only own request status
+  app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/clinic/requests/:id/status", async (request, reply) => {
+    const clinicId = request.headers["x-clinic-id"];
+
+    if (typeof clinicId !== "string" || !clinicId) {
+      return reply.code(401).send({ error: "missing_clinic_id" });
+    }
+
+    if (!isMvpDbStatusUpdateInput(request.body)) {
+      return reply.code(400).send({ error: "invalid_request" });
+    }
+
+    const input = request.body;
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findFirst({
+        where: { id: request.params.id, clinicId },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
+      const row = await db.mvpRequest.update({
+        where: { id: request.params.id },
+        data: {
+          status: input.status,
+          ...(input.priceMin !== undefined ? { priceMin: input.priceMin } : {}),
+          ...(input.priceMax !== undefined ? { priceMax: input.priceMax } : {}),
+          ...(input.etaMinutes !== undefined ? { etaMinutes: input.etaMinutes } : {}),
+          ...(input.notes !== undefined ? { notes: input.notes } : {}),
+        },
+      });
+
+      return toMvpDbRequest(row);
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
+  // Clinic: read only own request chat
+  app.get<{ Params: { id: string } }>("/mvp/clinic/requests/:id/chat", async (request, reply) => {
+    const clinicId = request.headers["x-clinic-id"];
+
+    if (typeof clinicId !== "string" || !clinicId) {
+      return reply.code(401).send({ error: "missing_clinic_id" });
+    }
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findFirst({
+        where: { id: request.params.id, clinicId },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
+      const rows = await db.mvpChatMessage.findMany({
+        where: { requestId: request.params.id },
+        orderBy: { createdAt: "asc" },
+      });
+
+      return {
+        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
+      } satisfies MvpChatMessagesResponse;
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
+  // Clinic: reply only to own request chat
+  app.post<{ Body: unknown; Params: { id: string } }>("/mvp/clinic/requests/:id/chat", async (request, reply) => {
+    const clinicId = request.headers["x-clinic-id"];
+
+    if (typeof clinicId !== "string" || !clinicId) {
+      return reply.code(401).send({ error: "missing_clinic_id" });
+    }
+
+    if (!isMvpChatMessagePublicCreateInput(request.body)) {
+      return reply.code(400).send({ error: "invalid_request" });
+    }
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findFirst({
+        where: { id: request.params.id, clinicId },
+        select: { id: true },
+      });
+
+      if (!exists) {
+        return reply.code(404).send({ error: "request_not_found" });
+      }
+
+      const row = await db.mvpChatMessage.create({
+        data: {
+          requestId: request.params.id,
+          actorType: "CLINIC",
+          body: request.body.body,
+        },
+      });
+
+      return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
     } catch {
       return reply.code(503).send({ error: "db_unavailable" });
     }

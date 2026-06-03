@@ -1,4 +1,4 @@
-import type { MvpRequestStatus } from "@ivhome/shared";
+import type { MvpDbStatus, MvpRequestStatus } from "@ivhome/shared";
 
 import { OFFER_VIEWS, STEPS } from "./data";
 import type { OfferView, PreviewId } from "./types";
@@ -24,6 +24,21 @@ export function isOfferView(preview: PreviewId | null): preview is OfferView {
 
 export function offerViewForStatus(status: MvpRequestStatus): OfferView {
   return status === "waiting" ? "status" : status;
+}
+
+export function offerViewForDbStatus(status: MvpDbStatus): OfferView {
+  switch (status) {
+    case "WAITING":
+      return "status";
+    case "PRICE_LOCK":
+      return "price-lock";
+    case "DISPATCHED":
+      return "dispatched";
+    case "COMPLETED":
+      return "completed";
+    case "DECLINED":
+      return "support";
+  }
 }
 
 export function isLikelyMobileRuntime() {

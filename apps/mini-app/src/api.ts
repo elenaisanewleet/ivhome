@@ -1,5 +1,4 @@
 import type {
-  MvpChatActorType,
   MvpChatMessage,
   MvpChatMessagesResponse,
   MvpDbRequest,
@@ -51,9 +50,9 @@ export async function loadOffers(fallbackOffers: MvpOffer[]) {
   }
 
   try {
-    const response = await requestJson<MvpOffersResponse>("/mvp/offers");
+    const response = await fetchOffers();
 
-    return response.offers.length > 0 ? response.offers : fallbackOffers;
+    return response.length > 0 ? response : fallbackOffers;
   } catch {
     return fallbackOffers;
   }
@@ -113,10 +112,10 @@ export async function getChatMessages(id: string): Promise<MvpChatMessage[]> {
   return response.messages;
 }
 
-export async function sendChatMessage(id: string, body: string, actorType: MvpChatActorType): Promise<MvpChatMessage> {
+export async function sendChatMessage(id: string, body: string): Promise<MvpChatMessage> {
   return requestJson<MvpChatMessage>(`/mvp/requests/${encodeURIComponent(id)}/chat`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ body, actorType }),
+    body: JSON.stringify({ body }),
   });
 }

@@ -177,7 +177,9 @@ nav a:hover {
 }
 
 .dashboard-toolbar button,
-.status-actions button {
+.status-actions button,
+.action-link,
+.request-chat button {
   min-height: 40px;
   padding: 0 14px;
   border: 1px solid rgb(74 127 165 / 22%);
@@ -187,8 +189,16 @@ nav a:hover {
   font-weight: 700;
 }
 
+.action-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .dashboard-toolbar button:hover,
-.status-actions button:hover:not(:disabled) {
+.status-actions button:hover:not(:disabled),
+.action-link:hover,
+.request-chat button:hover:not(:disabled) {
   filter: brightness(1.06);
 }
 
@@ -265,6 +275,16 @@ nav a:hover {
   background: #f0e4c4;
 }
 
+.status-pill--price_lock {
+  color: var(--warn);
+  background: #f0e4c4;
+}
+
+.status-pill--declined {
+  color: var(--warn);
+  background: #f0e4c4;
+}
+
 .request-fields {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -304,6 +324,96 @@ nav a:hover {
   gap: 8px;
 }
 
+.onboarding-links {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--paper-3);
+  border-radius: 18px;
+  background: var(--paper-2);
+}
+
+.onboarding-links > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.request-chat {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--paper-3);
+  border-radius: 18px;
+  background: var(--paper);
+}
+
+.request-chat__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.request-chat__messages {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.request-chat__empty {
+  padding: 12px;
+  border: 1px dashed var(--paper-3);
+  border-radius: 14px;
+}
+
+.request-chat__bubble {
+  display: grid;
+  gap: 4px;
+  max-width: 760px;
+  padding: 10px 12px;
+  border-radius: 15px;
+  background: var(--white);
+}
+
+.request-chat__bubble span {
+  color: var(--ink-4);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.request-chat__bubble--user {
+  border: 1px solid var(--accent-light);
+}
+
+.request-chat__bubble--clinic {
+  border: 1px solid #c8e8e4;
+  background: #edf8f6;
+}
+
+.request-chat__bubble--admin {
+  border: 1px solid #f0e4c4;
+  background: #fbf5e5;
+}
+
+.request-chat__form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.request-chat input {
+  min-height: 40px;
+  min-width: 0;
+  padding: 0 12px;
+  border: 1px solid var(--paper-3);
+  border-radius: 13px;
+  color: var(--ink);
+  background: var(--white);
+  font: inherit;
+}
+
 .status-actions button:nth-child(2) {
   background: var(--warn);
 }
@@ -328,11 +438,16 @@ nav a:hover {
   }
 
   .dashboard-toolbar,
-  .request-card__head {
+  .request-card__head,
+  .request-chat__head {
     display: grid;
   }
 
   .request-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .request-chat__form {
     grid-template-columns: 1fr;
   }
 }

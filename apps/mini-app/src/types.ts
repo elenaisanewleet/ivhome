@@ -1,4 +1,4 @@
-import type { MvpOffer } from "@ivhome/shared";
+import type { MvpChatActorType, MvpOffer } from "@ivhome/shared";
 
 export type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
@@ -29,7 +29,9 @@ export type Offer = MvpOffer;
 
 export type ChatMessage = {
   id: string;
+  actorType: MvpChatActorType;
   text: string;
+  createdAt: string;
 };
 
 export type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";
