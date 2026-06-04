@@ -564,21 +564,21 @@ async function main() {
   const mvpClinics = [
     {
       id: "medservice-north",
-      legalName: 'ООО «Медслужба Север» (демо)',
+      legalName: 'ООО «Медслужба Север»',
       publicName: "Медслужба «Север»",
       inn: "MVP-INN-NORTH-001",
       status: "ACTIVE" as const,
     },
     {
       id: "medservice-center",
-      legalName: 'ООО «Медслужба Центр» (демо)',
+      legalName: 'ООО «Медслужба Центр»',
       publicName: "Медслужба «Центр»",
       inn: "MVP-INN-CENTER-002",
       status: "ACTIVE" as const,
     },
     {
       id: "medservice-night",
-      legalName: 'ООО «Медслужба Ночь» (демо)',
+      legalName: 'ООО «Медслужба Ночь»',
       publicName: "Медслужба «Ночь»",
       inn: "MVP-INN-NIGHT-003",
       status: "ACTIVE" as const,
@@ -622,17 +622,17 @@ async function main() {
       where: { id: license.id },
       update: {
         ...license,
-        authorityName: "Росздравнадзор (демо, фиктивный номер)",
+        authorityName: "Росздравнадзор (пилотный placeholder)",
         licensedActivities: ["выездное медицинское обслуживание"],
-        licensedAddresses: ["г. Москва (демо)"],
-        verificationNotes: "Фиктивный номер для демонстрационных целей",
+        licensedAddresses: ["г. Москва (пилотная зона)"],
+        verificationNotes: "Placeholder-номер для проверки пилотного контура; перед реальным доступом заменить на проверенные данные",
       },
       create: {
         ...license,
-        authorityName: "Росздравнадзор (демо, фиктивный номер)",
+        authorityName: "Росздравнадзор (пилотный placeholder)",
         licensedActivities: ["выездное медицинское обслуживание"],
-        licensedAddresses: ["г. Москва (демо)"],
-        verificationNotes: "Фиктивный номер для демонстрационных целей",
+        licensedAddresses: ["г. Москва (пилотная зона)"],
+        verificationNotes: "Placeholder-номер для проверки пилотного контура; перед реальным доступом заменить на проверенные данные",
       },
     });
   }

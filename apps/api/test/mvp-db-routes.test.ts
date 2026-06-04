@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -32,14 +33,45 @@ function makeFakePrisma() {
   const clinics = new Set(["medservice-north", "medservice-center"]);
   const requests: RequestRow[] = [];
   const messages: ChatRow[] = [];
+  const accessTokens: any[] = [];
+  const auditLogs: any[] = [];
   let requestCount = 0;
   let messageCount = 0;
 
   const now = () => new Date("2026-06-04T09:00:00.000Z");
 
   return {
+    __state: { accessTokens, auditLogs },
     clinic: {
-      findUnique: async ({ where }: { where: { id: string } }) => (clinics.has(where.id) ? { id: where.id } : null),
+      findUnique: async ({ where, select }: { where: { id: string }; select?: Record<string, boolean> }) =>
+        clinics.has(where.id)
+          ? select?.publicName
+            ? { id: where.id, publicName: `Медслужба ${where.id}`, status: "ACTIVE" }
+            : { id: where.id }
+          : null,
+      findMany: async () => [...clinics].map((id) => ({ id, publicName: `Медслужба ${id}`, legalName: `ООО ${id}`, inn: `INN-${id}`, status: "ACTIVE", createdAt: now(), updatedAt: now() })),
+      create: async ({ data }: { data: any }) => { clinics.add(data.id); return { ...data, ogrn: null, ratingAverage: null, ratingCount: 0, createdAt: now(), updatedAt: now() }; },
+      update: async ({ where, data }: { where: { id: string }; data: any }) => { if (!clinics.has(where.id)) throw { code: "P2025" }; return { id: where.id, publicName: data.publicName ?? `Медслужба ${where.id}`, legalName: data.legalName ?? `ООО ${where.id}`, inn: data.inn ?? `INN-${where.id}`, status: data.status ?? "ACTIVE", createdAt: now(), updatedAt: now() }; },
+    },
+    mvpClinicAccessToken: {
+      create: async ({ data }: { data: any }) => {
+        const row = { id: `tok-${accessTokens.length + 1}`, ...data, role: data.role ?? "OPERATOR", status: "ACTIVE", lastUsedAt: null, createdAt: now(), revokedAt: null };
+        accessTokens.push(row);
+        return row;
+      },
+      findMany: async ({ where, include }: { where?: any; include?: any }) => accessTokens
+        .filter((token) => (!where?.clinicId || token.clinicId === where.clinicId) && (!where?.status || token.status === where.status) && token.revokedAt === null)
+        .map((token) => include?.clinic ? { ...token, clinic: { id: token.clinicId, publicName: `Медслужба ${token.clinicId}`, status: "ACTIVE" } } : token),
+      update: async ({ where, data }: { where: { id: string }; data: any }) => {
+        const row = accessTokens.find((token) => token.id === where.id);
+        if (!row) throw { code: "P2025" };
+        Object.assign(row, data);
+        return row;
+      },
+    },
+    auditLog: {
+      create: async ({ data }: { data: any }) => { auditLogs.push({ id: `audit-${auditLogs.length + 1}`, ...data, createdAt: now() }); return auditLogs.at(-1); },
+      findMany: async () => auditLogs,
     },
     mvpRequest: {
       create: async ({ data }: { data: Pick<RequestRow, "offerId" | "clinicId" | "district" | "desiredTime" | "profile"> }) => {
@@ -117,16 +149,17 @@ function makeFakePrisma() {
   };
 }
 
-async function withDbApi(callback: (app: ReturnType<typeof buildApp>) => Promise<void>) {
+async function withDbApi(callback: (app: ReturnType<typeof buildApp>, prisma: ReturnType<typeof makeFakePrisma>) => Promise<void>) {
   const previousAdminToken = process.env.ADMIN_TOKEN;
   const previousClinicAuth = process.env.CLINIC_AUTH_ENABLED;
   process.env.ADMIN_TOKEN = "test-admin-token";
   process.env.CLINIC_AUTH_ENABLED = "true";
-  setPrismaForTesting(makeFakePrisma() as never);
+  const prisma = makeFakePrisma();
+  setPrismaForTesting(prisma as never);
   const app = buildApp();
 
   try {
-    await callback(app);
+    await callback(app, prisma);
   } finally {
     await app.close();
     setPrismaForTesting(null);
@@ -143,6 +176,19 @@ async function withDbApi(callback: (app: ReturnType<typeof buildApp>) => Promise
       process.env.CLINIC_AUTH_ENABLED = previousClinicAuth;
     }
   }
+}
+
+async function createClinicToken(app: ReturnType<typeof buildApp>, clinicId = "medservice-north") {
+  const response = await app.inject({
+    method: "POST",
+    url: `/mvp/admin/clinics/${clinicId}/access-tokens`,
+    headers: { Authorization: "Bearer test-admin-token" },
+    payload: { label: "Test token" },
+  });
+
+  assert.equal(response.statusCode, 201);
+
+  return response.json().rawToken as string;
 }
 
 async function createPersistentRequest(app: ReturnType<typeof buildApp>, clinicId = "medservice-north") {
@@ -258,7 +304,7 @@ test("scopes clinic chat and requests to the current clinic", async () => {
     const northList = await app.inject({
       method: "GET",
       url: "/mvp/clinic/requests",
-      headers: { "X-Clinic-Id": "medservice-north" },
+      headers: { Authorization: `Bearer ${await createClinicToken(app, "medservice-north")}` },
     });
 
     assert.equal(northList.statusCode, 200);
@@ -268,7 +314,7 @@ test("scopes clinic chat and requests to the current clinic", async () => {
     const otherClinicRead = await app.inject({
       method: "GET",
       url: `/mvp/clinic/requests/${northRequest.id}/chat`,
-      headers: { "X-Clinic-Id": "medservice-center" },
+      headers: { Authorization: `Bearer ${await createClinicToken(app, "medservice-center")}` },
     });
 
     assert.equal(otherClinicRead.statusCode, 404);
@@ -276,7 +322,7 @@ test("scopes clinic chat and requests to the current clinic", async () => {
     const ownReply = await app.inject({
       method: "POST",
       url: `/mvp/clinic/requests/${northRequest.id}/chat`,
-      headers: { "X-Clinic-Id": "medservice-north" },
+      headers: { Authorization: `Bearer ${await createClinicToken(app, "medservice-north")}` },
       payload: { body: "Подтверждаем получение заявки." },
     });
 
@@ -303,7 +349,7 @@ test("updates request status and quote fields from admin and clinic routes", asy
     const clinicUpdate = await app.inject({
       method: "PATCH",
       url: `/mvp/clinic/requests/${created.id}/status`,
-      headers: { "X-Clinic-Id": "medservice-north" },
+      headers: { Authorization: `Bearer ${await createClinicToken(app, "medservice-north")}` },
       payload: { status: "DISPATCHED", etaMinutes: 30 },
     });
 
@@ -320,5 +366,69 @@ test("updates request status and quote fields from admin and clinic routes", asy
 
     assert.equal(invalidQuote.statusCode, 400);
     assert.equal(invalidQuote.json().code, "invalid_request");
+  });
+});
+
+test("creates one-time clinic access token, authenticates, rejects invalid/revoked tokens, and keeps audit metadata sanitized", async () => {
+  await withDbApi(async (app, prisma) => {
+    const unauthorizedAdmin = await app.inject({ method: "GET", url: "/mvp/admin/clinics" });
+    assert.equal(unauthorizedAdmin.statusCode, 401);
+
+    const createToken = await app.inject({
+      method: "POST",
+      url: "/mvp/admin/clinics/medservice-north/access-tokens",
+      headers: { Authorization: "Bearer test-admin-token" },
+      payload: { label: "Pilot operator" },
+    });
+
+    assert.equal(createToken.statusCode, 201);
+    const created = createToken.json();
+    assert.match(created.rawToken, /^nadom_msvc_/u);
+    assert.equal(created.accessToken.label, "Pilot operator");
+
+    const listTokens = await app.inject({
+      method: "GET",
+      url: "/mvp/admin/clinics/medservice-north/access-tokens",
+      headers: { Authorization: "Bearer test-admin-token" },
+    });
+
+    assert.equal(listTokens.statusCode, 200);
+    assert.equal(listTokens.json().accessTokens.length, 1);
+    assert.equal(JSON.stringify(listTokens.json()).includes(created.rawToken), false);
+
+    const validAuth = await app.inject({
+      method: "POST",
+      url: "/mvp/clinic/auth",
+      payload: { token: created.rawToken },
+    });
+
+    assert.equal(validAuth.statusCode, 200);
+    assert.equal(validAuth.json().clinicId, "medservice-north");
+
+    const invalidAuth = await app.inject({
+      method: "POST",
+      url: "/mvp/clinic/auth",
+      payload: { token: "nadom_msvc_invalid" },
+    });
+
+    assert.equal(invalidAuth.statusCode, 401);
+
+    const revoked = await app.inject({
+      method: "POST",
+      url: `/mvp/admin/clinics/medservice-north/access-tokens/${created.accessToken.id}/revoke`,
+      headers: { Authorization: "Bearer test-admin-token" },
+    });
+
+    assert.equal(revoked.statusCode, 200);
+
+    const revokedAuth = await app.inject({
+      method: "POST",
+      url: "/mvp/clinic/auth",
+      payload: { token: created.rawToken },
+    });
+
+    assert.equal(revokedAuth.statusCode, 401);
+    assert.equal(JSON.stringify(prisma.__state.auditLogs).includes(created.rawToken), false);
+    assert.equal(JSON.stringify(prisma.__state.auditLogs).includes("Здравствуйте"), false);
   });
 });

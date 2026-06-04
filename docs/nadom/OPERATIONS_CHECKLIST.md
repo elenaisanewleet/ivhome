@@ -216,3 +216,91 @@ Before a real pilot with medservices:
 - **Polling, not realtime sockets**: Mini App and dashboards poll chat/status during the pilot. WebSocket/SSE realtime is a follow-up.
 - **Offers are static**: `/mvp/offers` returns hardcoded offers. Dynamic DB-driven offers are a follow-up.
 - **No HTTPS enforcement**: Enforce HTTPS and set `Secure` cookies in production.
+
+## Pilot Medservice Access Layer
+
+### Required env vars for pilot
+
+Set these on Render before sending real medservice access links:
+
+- `DATABASE_URL` — production/preview PostgreSQL connection string.
+- `ADMIN_TOKEN` — static bearer token for `/admin` and `/mvp/admin/*` routes.
+- `CORS_ORIGINS` — comma-separated deployed Mini App and dashboard origins only.
+- `CLINIC_AUTH_ENABLED=true` — requires medservice access tokens for clinic dashboard routes.
+- `ENABLE_MVP_DEV_API=false` — disables in-memory dev-only API routes.
+
+Do not set `VITE_ADMIN_TOKEN` or `VITE_CLINIC_TOKEN` in public/shared dashboard builds for pilot traffic.
+
+### Admin login and medservice setup
+
+1. Open `/admin` on the Nadom dashboard.
+2. Enter `ADMIN_TOKEN` in the admin login form.
+3. Use the **Медслужбы → Пилотный доступ** block to review seeded medservices.
+4. If a new medservice is needed, create it through `POST /mvp/admin/clinics` with neutral public and legal metadata. Do not enter phone numbers, addresses, patient details, or medical details.
+5. Open `/admin/onboarding/<clinicId>` to save or submit the onboarding questionnaire.
+
+### Generate and send medservice access link
+
+1. In `/admin`, choose the medservice.
+2. Enter a neutral token label, for example `Оператор июнь`.
+3. Click **Создать и скопировать access link**.
+4. Send the generated link to the medservice operator through the approved operational channel.
+5. Treat the link as a secret. The raw token is returned once and is not available in token lists.
+
+Access link format:
+
+```text
+https://nadom-dashboard.onrender.com/clinic?clinic=<clinicId>&token=<rawToken>
+```
+
+### Medservice dashboard login
+
+1. Medservice opens the invite link.
+2. Dashboard verifies the token with `POST /mvp/clinic/auth`.
+3. Dashboard stores the token in `sessionStorage` for the browser session.
+4. Dashboard removes `token` from the URL with `history.replaceState`.
+5. Operator sees the medservice public name and only requests scoped to that medservice.
+6. Logout clears the stored token.
+
+Manual fallback: `/clinic` still has fields for clinic ID and access token. This is for pilot recovery, not full user auth.
+
+### Revoke access
+
+1. Open `/admin`.
+2. Click **Показать tokens** for the medservice.
+3. Click **Отозвать** on the active token.
+4. Ask the operator to logout/reopen. Access should fail after token revocation.
+
+### Test scoped access
+
+1. Generate an access link for `medservice-north`.
+2. Open it in a private browser window.
+3. Create a Mini App request for `medservice-north`.
+4. Confirm the clinic dashboard sees that request.
+5. Create a Mini App request for `medservice-center`.
+6. Confirm the `medservice-north` dashboard does not see it.
+7. Reply in chat and update status/ETA/price from the clinic dashboard.
+8. Confirm the Mini App receives chat and status updates by polling.
+
+### Migration and seed commands
+
+```bash
+pnpm db:validate
+pnpm db:generate
+pnpm db:migrate
+pnpm db:seed
+```
+
+Run `pnpm db:migrate` as an explicit one-off Render job after deploy review. Do not run migrations automatically from the ordinary web service start command.
+
+### Audit logging
+
+The API writes lightweight `AuditLog` rows for admin medservice changes, access-token creation/revocation/use, request list views, status/quote updates, chat sends, and onboarding saves/submits. Audit metadata must contain IDs/status/flags only. Do not log raw access tokens, chat bodies, personal data, addresses, phone numbers, or medical details.
+
+### Remaining MVP auth limitations
+
+- This is pilot access, not a full account system.
+- There are no per-human operator accounts, MFA, password reset, device inventory, or cookie sessions yet.
+- The bearer access token is the current proof of clinic access; anyone with the raw invite link can act as that medservice until the token is revoked or expires.
+- Tokens are stored hashed in PostgreSQL, but the dashboard stores the raw token in browser `sessionStorage` for the current browser session.
+- Existing raw `X-Clinic-Id` access is allowed only when `CLINIC_AUTH_ENABLED=false` for local/dev compatibility.

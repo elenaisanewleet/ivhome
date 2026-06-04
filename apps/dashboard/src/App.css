@@ -808,3 +808,33 @@ nav a:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.clinic-access-panel {
+  border: 1px solid rgba(126, 184, 212, 0.22);
+  border-radius: 24px;
+  margin-bottom: 24px;
+  padding: 18px;
+}
+
+.clinic-access-panel code {
+  word-break: break-all;
+}
+
+.clinic-access-panel input {
+  border: 1px solid rgba(42, 74, 90, 0.16);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.clinic-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 14px 0;
+}
+
+.clinic-form select {
+  border: 1px solid rgba(42, 74, 90, 0.16);
+  border-radius: 14px;
+  padding: 10px 12px;
+}

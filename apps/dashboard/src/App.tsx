@@ -48,6 +48,35 @@ type MvpChatMessagesResponse = {
   messages: MvpChatMessage[];
 };
 
+type MvpClinicRecord = {
+  id: string;
+  publicName: string;
+  legalName: string;
+  inn: string;
+  status: "DRAFT" | "PENDING_REVIEW" | "ACTIVE" | "SUSPENDED" | "REJECTED";
+  createdAt: string;
+  updatedAt: string;
+};
+
+type MvpClinicAccessToken = {
+  id: string;
+  clinicId: string;
+  label: string;
+  role: "OPERATOR" | "ADMIN";
+  status: "ACTIVE" | "REVOKED";
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+  revokedAt: string | null;
+};
+
+type MvpClinicAuthContext = {
+  clinicId: string;
+  publicName: string;
+  role: "OPERATOR" | "ADMIN";
+  token: string;
+};
+
 type MvpRequestStatusResponse = {
   requestId: string;
   status: MvpRequestStatus;
@@ -181,15 +210,82 @@ async function updateDbRequestStatus(id: string, patch: DbStatusPatch, adminToke
   );
 }
 
-async function loadClinicRequests(clinicId: string) {
-  const response = await requestJson<MvpDbRequestListResponse>("/mvp/clinic/requests", undefined, {
-    "X-Clinic-Id": clinicId,
+async function loadClinics(adminToken: string) {
+  const response = await requestJson<{ clinics: MvpClinicRecord[] }>("/mvp/admin/clinics", undefined, {
+    Authorization: `Bearer ${adminToken}`,
+  });
+
+  return response.clinics;
+}
+
+async function createClinic(adminToken: string, input: { id: string; publicName: string; legalName: string; inn: string; status: MvpClinicRecord["status"] }) {
+  return requestJson<MvpClinicRecord>(
+    "/mvp/admin/clinics",
+    { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input) },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function updateClinic(adminToken: string, clinicId: string, input: Partial<Pick<MvpClinicRecord, "publicName" | "legalName" | "inn" | "status">>) {
+  return requestJson<MvpClinicRecord>(
+    `/mvp/admin/clinics/${encodeURIComponent(clinicId)}`,
+    { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(input) },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function createClinicAccessToken(clinicId: string, adminToken: string, label: string) {
+  return requestJson<{ accessToken: MvpClinicAccessToken; rawToken: string }>(
+    `/mvp/admin/clinics/${encodeURIComponent(clinicId)}/access-tokens`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ label: label.trim() || "Пилотный доступ" }),
+    },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function loadClinicAccessTokens(clinicId: string, adminToken: string) {
+  const response = await requestJson<{ accessTokens: MvpClinicAccessToken[] }>(
+    `/mvp/admin/clinics/${encodeURIComponent(clinicId)}/access-tokens`,
+    undefined,
+    { Authorization: `Bearer ${adminToken}` },
+  );
+
+  return response.accessTokens;
+}
+
+async function revokeClinicAccessToken(clinicId: string, tokenId: string, adminToken: string) {
+  return requestJson<MvpClinicAccessToken>(
+    `/mvp/admin/clinics/${encodeURIComponent(clinicId)}/access-tokens/${encodeURIComponent(tokenId)}/revoke`,
+    { method: "POST" },
+    { Authorization: `Bearer ${adminToken}` },
+  );
+}
+
+async function authenticateClinicAccess(clinicId: string, token: string) {
+  const response = await requestJson<{ clinicId: string; publicName: string; role: "OPERATOR" | "ADMIN" }>(
+    "/mvp/clinic/auth",
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ clinicId: clinicId.trim() || undefined, token }),
+    },
+  );
+
+  return { ...response, token } satisfies MvpClinicAuthContext;
+}
+
+async function loadClinicRequests(auth: MvpClinicAuthContext) {
+  const response = await requestJson<MvpDbRequestListResponse & { clinic?: { id: string; publicName: string } }>("/mvp/clinic/requests", undefined, {
+    Authorization: `Bearer ${auth.token}`,
   });
 
   return response.requests;
 }
 
-async function updateClinicRequestStatus(id: string, patch: DbStatusPatch, clinicId: string) {
+async function updateClinicRequestStatus(id: string, patch: DbStatusPatch, auth: MvpClinicAuthContext) {
   return requestJson<MvpDbRequestRecord>(
     `/mvp/clinic/requests/${encodeURIComponent(id)}/status`,
     {
@@ -197,7 +293,7 @@ async function updateClinicRequestStatus(id: string, patch: DbStatusPatch, clini
       headers: { "content-type": "application/json" },
       body: JSON.stringify(patch),
     },
-    { "X-Clinic-Id": clinicId },
+    { Authorization: `Bearer ${auth.token}` },
   );
 }
 
@@ -223,17 +319,17 @@ async function sendAdminChatMessage(id: string, body: string, adminToken: string
   );
 }
 
-async function loadClinicChat(id: string, clinicId: string) {
+async function loadClinicChat(id: string, auth: MvpClinicAuthContext) {
   const response = await requestJson<MvpChatMessagesResponse>(
     `/mvp/clinic/requests/${encodeURIComponent(id)}/chat`,
     undefined,
-    { "X-Clinic-Id": clinicId },
+    { Authorization: `Bearer ${auth.token}` },
   );
 
   return response.messages;
 }
 
-async function sendClinicChatMessage(id: string, body: string, clinicId: string) {
+async function sendClinicChatMessage(id: string, body: string, auth: MvpClinicAuthContext) {
   return requestJson<MvpChatMessage>(
     `/mvp/clinic/requests/${encodeURIComponent(id)}/chat`,
     {
@@ -241,7 +337,7 @@ async function sendClinicChatMessage(id: string, body: string, clinicId: string)
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ body }),
     },
-    { "X-Clinic-Id": clinicId },
+    { Authorization: `Bearer ${auth.token}` },
   );
 }
 
@@ -515,6 +611,11 @@ function AdminView() {
   const [token, setToken] = useState(() => readStoredToken(storageKey));
   const [requests, setRequests] = useState<MvpRequestRecord[]>([]);
   const [dbRequests, setDbRequests] = useState<MvpDbRequestRecord[]>([]);
+  const [clinics, setClinics] = useState<MvpClinicRecord[]>([]);
+  const [clinicTokens, setClinicTokens] = useState<Record<string, MvpClinicAccessToken[]>>({});
+  const [tokenLabel, setTokenLabel] = useState("Пилотный доступ");
+  const [oneTimeLink, setOneTimeLink] = useState<string | null>(null);
+  const [clinicForm, setClinicForm] = useState({ id: "", publicName: "", legalName: "", inn: "", status: "ACTIVE" as MvpClinicRecord["status"] });
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
@@ -538,9 +639,10 @@ function AdminView() {
     setMessage(null);
 
     try {
-      const [legacy, db] = await Promise.allSettled([
+      const [legacy, db, clinicList] = await Promise.allSettled([
         loadRequests(authToken),
         loadDbRequests(authToken),
+        loadClinics(authToken),
       ]);
 
       if (legacy.status === "fulfilled") {
@@ -552,6 +654,10 @@ function AdminView() {
       } else {
         // DB might not be migrated yet — show a note but don't fail hard
         setMessage("Postgres-заявки недоступны (проверьте миграции). Показаны dev-заявки из памяти.");
+      }
+
+      if (clinicList.status === "fulfilled") {
+        setClinics(clinicList.value);
       }
     } catch {
       setMessage("Не удалось загрузить заявки. Проверьте VITE_API_BASE_URL и токен.");
@@ -656,6 +762,61 @@ function AdminView() {
     return () => window.clearInterval(intervalId);
   }, [openChatId, token]);
 
+  async function saveClinicForm(event: React.FormEvent) {
+    event.preventDefault();
+    setMessage(null);
+
+    try {
+      const saved = clinics.some((clinic) => clinic.id === clinicForm.id)
+        ? await updateClinic(token, clinicForm.id, {
+            publicName: clinicForm.publicName,
+            legalName: clinicForm.legalName,
+            inn: clinicForm.inn,
+            status: clinicForm.status,
+          })
+        : await createClinic(token, clinicForm);
+
+      setClinics((current) => [saved, ...current.filter((clinic) => clinic.id !== saved.id)].sort((left, right) => left.id.localeCompare(right.id)));
+      setMessage("Карточка медслужбы сохранена.");
+    } catch {
+      setMessage("Не удалось сохранить карточку медслужбы.");
+    }
+  }
+
+  async function refreshClinicTokens(clinicId: string) {
+    try {
+      const loaded = await loadClinicAccessTokens(clinicId, token);
+      setClinicTokens((current) => ({ ...current, [clinicId]: loaded }));
+    } catch {
+      setMessage("Не удалось загрузить access tokens медслужбы.");
+    }
+  }
+
+  async function generateClinicLink(clinicId: string) {
+    setMessage(null);
+    setOneTimeLink(null);
+
+    try {
+      const created = await createClinicAccessToken(clinicId, token, tokenLabel);
+      const link = `${window.location.origin}/clinic?clinic=${encodeURIComponent(clinicId)}&token=${encodeURIComponent(created.rawToken)}`;
+      setOneTimeLink(link);
+      await navigator.clipboard?.writeText(link);
+      await refreshClinicTokens(clinicId);
+      setMessage("Access link создан. Raw token показан только сейчас и не хранится в списке.");
+    } catch {
+      setMessage("Не удалось создать access link для медслужбы.");
+    }
+  }
+
+  async function revokeAccess(clinicId: string, tokenId: string) {
+    try {
+      await revokeClinicAccessToken(clinicId, tokenId, token);
+      await refreshClinicTokens(clinicId);
+    } catch {
+      setMessage("Не удалось отозвать access token.");
+    }
+  }
+
   async function sendChat(requestId: string) {
     const body = (chatDrafts[requestId] ?? "").trim();
 
@@ -712,6 +873,74 @@ function AdminView() {
       </div>
 
       {message ? <p className="dashboard-message">{message}</p> : null}
+
+      <section className="clinic-access-panel">
+        <div className="dashboard-toolbar">
+          <div>
+            <p className="meta-label">Медслужбы</p>
+            <h2>Пилотный доступ</h2>
+            <p>Создайте invite-ссылку для кабинета медслужбы. Raw token показывается только один раз.</p>
+          </div>
+          <label>
+            <span>Метка нового token</span>
+            <input onChange={(event) => setTokenLabel(event.target.value)} type="text" value={tokenLabel} />
+          </label>
+        </div>
+        <form className="clinic-form" onSubmit={(event) => void saveClinicForm(event)}>
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, id: event.target.value }))} placeholder="medservice-east" type="text" value={clinicForm.id} />
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, publicName: event.target.value }))} placeholder="Медслужба «Восток»" type="text" value={clinicForm.publicName} />
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, legalName: event.target.value }))} placeholder="ООО «Медслужба Восток»" type="text" value={clinicForm.legalName} />
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, inn: event.target.value }))} placeholder="INN placeholder" type="text" value={clinicForm.inn} />
+          <select onChange={(event) => setClinicForm((current) => ({ ...current, status: event.target.value as MvpClinicRecord["status"] }))} value={clinicForm.status}>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="PENDING_REVIEW">PENDING_REVIEW</option>
+            <option value="SUSPENDED">SUSPENDED</option>
+            <option value="DRAFT">DRAFT</option>
+          </select>
+          <button type="submit">Создать/обновить медслужбу</button>
+        </form>
+
+        {oneTimeLink ? (
+          <div className="dashboard-message">
+            <strong>Одноразовая ссылка:</strong> <code>{oneTimeLink}</code>
+          </div>
+        ) : null}
+        <div className="request-list">
+          {clinics.map((clinic) => (
+            <article className="request-card" key={clinic.id}>
+              <div className="request-card__head">
+                <div>
+                  <span className="request-id">{clinic.id}</span>
+                  <h3>{clinic.publicName}</h3>
+                  <p>{clinic.legalName} · {clinic.status}</p>
+                </div>
+              </div>
+              <div className="status-actions">
+                <button onClick={() => setClinicForm({ id: clinic.id, publicName: clinic.publicName, legalName: clinic.legalName, inn: clinic.inn, status: clinic.status })} type="button">Редактировать</button>
+                <button onClick={() => void generateClinicLink(clinic.id)} type="button">Создать и скопировать access link</button>
+                <button onClick={() => void refreshClinicTokens(clinic.id)} type="button">Показать tokens</button>
+                <a className="action-link" href={`/admin/onboarding/${encodeURIComponent(clinic.id)}`}>Анкета</a>
+                <a className="action-link" href={`/clinic?clinic=${encodeURIComponent(clinic.id)}`}>Открыть кабинет</a>
+              </div>
+              {(clinicTokens[clinic.id] ?? []).length > 0 ? (
+                <dl className="request-fields">
+                  {(clinicTokens[clinic.id] ?? []).map((accessToken) => (
+                    <div key={accessToken.id}>
+                      <dt>{accessToken.label}</dt>
+                      <dd>
+                        {accessToken.status} · {accessToken.role} · last used: {accessToken.lastUsedAt ? formatDate(accessToken.lastUsedAt) : "нет"}
+                        {accessToken.status === "ACTIVE" ? (
+                          <button onClick={() => void revokeAccess(clinic.id, accessToken.id)} type="button">Отозвать</button>
+                        ) : null}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      </section>
 
       <div className="onboarding-links">
         <p className="meta-label">Анкеты организаций</p>
@@ -884,9 +1113,96 @@ function AdminOnboardingView({ clinicId }: { clinicId: string }) {
 
 // ─── Clinic view ──────────────────────────────────────────────────────────────
 
+function readStoredClinicAuth(): MvpClinicAuthContext | null {
+  const raw = sessionStorage.getItem("nadom_clinic_auth");
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as MvpClinicAuthContext;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredClinicAuth(value: MvpClinicAuthContext | null): void {
+  if (value) {
+    sessionStorage.setItem("nadom_clinic_auth", JSON.stringify(value));
+  } else {
+    sessionStorage.removeItem("nadom_clinic_auth");
+    sessionStorage.removeItem("nadom_clinic_token");
+  }
+}
+
+function ClinicLogin({ onAuth }: { onAuth: (auth: MvpClinicAuthContext) => void }) {
+  const params = new URLSearchParams(window.location.search);
+  const [clinicId, setClinicId] = useState(params.get("clinic") ?? "");
+  const [token, setToken] = useState(params.get("token") ?? configuredClinicToken);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(nextClinicId = clinicId, nextToken = token) {
+    const cleanToken = nextToken.trim();
+
+    if (!cleanToken) {
+      setError("Укажите access token медслужбы.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const auth = await authenticateClinicAccess(nextClinicId.trim(), cleanToken);
+      writeStoredClinicAuth(auth);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      onAuth(auth);
+    } catch {
+      setError("Доступ не подтверждён. Проверьте ссылку или token.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const urlToken = params.get("token");
+
+    if (urlToken) {
+      void submit(params.get("clinic") ?? "", urlToken);
+    }
+    // Run once on first render to consume the one-time URL token.
+  }, []);
+
+  return (
+    <div className="auth-gate">
+      <BrandMark />
+      <h2>Кабинет медслужбы — вход</h2>
+      <p>Откройте invite-ссылку от Надом или введите ID медслужбы и access token вручную.</p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+      >
+        <label>
+          <span>ID медслужбы</span>
+          <input autoComplete="off" onChange={(event) => setClinicId(event.target.value)} placeholder="medservice-north" type="text" value={clinicId} />
+        </label>
+        <label>
+          <span>Access token</span>
+          <input autoComplete="current-password" onChange={(event) => setToken(event.target.value)} placeholder="nadom_msvc_…" type="password" value={token} />
+        </label>
+        {error ? <p className="auth-error">{error}</p> : null}
+        <button disabled={isLoading} type="submit">{isLoading ? "Проверяем…" : "Войти"}</button>
+      </form>
+    </div>
+  );
+}
+
 function ClinicView() {
-  const storageKey = "nadom_clinic_token";
-  const [clinicId, setClinicId] = useState(() => readStoredToken(storageKey));
+  const [auth, setAuth] = useState<MvpClinicAuthContext | null>(() => readStoredClinicAuth());
   const [requests, setRequests] = useState<MvpDbRequestRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -898,11 +1214,7 @@ function ClinicView() {
   const [chatError, setChatError] = useState<string | null>(null);
   const isConfigured = Boolean(apiBaseUrl);
 
-  function handleAuth(token: string) {
-    setClinicId(token);
-  }
-
-  async function refreshRequests(id: string) {
+  async function refreshRequests(currentAuth: MvpClinicAuthContext) {
     if (!isConfigured) {
       return;
     }
@@ -911,29 +1223,28 @@ function ClinicView() {
     setMessage(null);
 
     try {
-      const loaded = await loadClinicRequests(id);
-
+      const loaded = await loadClinicRequests(currentAuth);
       setRequests(loaded);
     } catch {
-      setMessage("Не удалось загрузить заявки. Проверьте ID медслужбы и настройки API.");
+      setMessage("Не удалось загрузить заявки. Проверьте доступ медслужбы и настройки API.");
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    if (clinicId) {
-      void refreshRequests(clinicId);
+    if (auth) {
+      void refreshRequests(auth);
     }
-  }, [clinicId, isConfigured]);
+  }, [auth, isConfigured]);
 
   async function changeStatus(req: MvpDbRequestRecord, status: MvpDbStatus) {
+    if (!auth) return;
     setUpdatingId(req.id);
     setMessage(null);
 
     try {
-      const updated = await updateClinicRequestStatus(req.id, { status }, clinicId);
-
+      const updated = await updateClinicRequestStatus(req.id, { status }, auth);
       setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
     } catch {
       setMessage("Не удалось обновить статус заявки.");
@@ -943,12 +1254,12 @@ function ClinicView() {
   }
 
   async function saveQuote(req: MvpDbRequestRecord, patch: DbStatusPatch) {
+    if (!auth) return;
     setUpdatingId(req.id);
     setMessage(null);
 
     try {
-      const updated = await updateClinicRequestStatus(req.id, patch, clinicId);
-
+      const updated = await updateClinicRequestStatus(req.id, patch, auth);
       setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
     } catch {
       setMessage("Не удалось сохранить статус и условия заявки.");
@@ -958,12 +1269,12 @@ function ClinicView() {
   }
 
   async function refreshChat(requestId: string) {
+    if (!auth) return;
     setChatLoadingId(requestId);
     setChatError(null);
 
     try {
-      const loaded = await loadClinicChat(requestId, clinicId);
-
+      const loaded = await loadClinicChat(requestId, auth);
       setChatMessages((current) => ({ ...current, [requestId]: loaded }));
     } catch {
       setChatError("Не удалось загрузить чат заявки.");
@@ -974,7 +1285,6 @@ function ClinicView() {
 
   async function toggleChat(requestId: string) {
     const nextId = openChatId === requestId ? null : requestId;
-
     setOpenChatId(nextId);
 
     if (nextId && !chatMessages[nextId]) {
@@ -983,7 +1293,7 @@ function ClinicView() {
   }
 
   useEffect(() => {
-    if (!openChatId || !clinicId) {
+    if (!openChatId || !auth) {
       return;
     }
 
@@ -992,9 +1302,10 @@ function ClinicView() {
     }, 5_000);
 
     return () => window.clearInterval(intervalId);
-  }, [clinicId, openChatId]);
+  }, [auth, openChatId]);
 
   async function sendChat(requestId: string) {
+    if (!auth) return;
     const body = (chatDrafts[requestId] ?? "").trim();
 
     if (!body) {
@@ -1005,12 +1316,8 @@ function ClinicView() {
     setChatError(null);
 
     try {
-      const saved = await sendClinicChatMessage(requestId, body, clinicId);
-
-      setChatMessages((current) => ({
-        ...current,
-        [requestId]: [...(current[requestId] ?? []), saved],
-      }));
+      const saved = await sendClinicChatMessage(requestId, body, auth);
+      setChatMessages((current) => ({ ...current, [requestId]: [...(current[requestId] ?? []), saved] }));
       setChatDrafts((current) => ({ ...current, [requestId]: "" }));
     } catch {
       setChatError("Не удалось отправить сообщение.");
@@ -1019,32 +1326,26 @@ function ClinicView() {
     }
   }
 
-  if (!clinicId) {
-    return (
-      <AuthGate
-        storageKey={storageKey}
-        label="Кабинет медслужбы — вход"
-        onAuth={handleAuth}
-      />
-    );
+  if (!auth) {
+    return <ClinicLogin onAuth={setAuth} />;
   }
 
   return (
     <section className="dashboard-card">
       <div className="dashboard-toolbar">
         <div>
-          <p className="meta-label">Медслужба: {clinicId}</p>
+          <p className="meta-label">Медслужба: {auth.publicName}</p>
           <h2>Заявки вашей медслужбы</h2>
           <p>Заявки, направленные выбранной медслужбе. Без телефона, адреса и личных данных пациента.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button disabled={isLoading} onClick={() => void refreshRequests(clinicId)} type="button">
+          <button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">
             {isLoading ? "Обновляем…" : "Обновить"}
           </button>
           <button
             onClick={() => {
-              writeStoredToken(storageKey, "");
-              setClinicId("");
+              writeStoredClinicAuth(null);
+              setAuth(null);
               setRequests([]);
               setChatMessages({});
               setOpenChatId(null);
@@ -1074,38 +1375,23 @@ function ClinicView() {
                 <span className="request-id">{req.id}</span>
                 <h3>{offerName(req.offerId)}</h3>
               </div>
-              <strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>
-                {dbStatusLabels[req.status]}
-              </strong>
+              <strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong>
             </div>
 
             <dl className="request-fields">
               <div><dt>Район</dt><dd>{req.district}</dd></div>
               <div><dt>Время</dt><dd>{req.desiredTime}</dd></div>
               <div><dt>Формат</dt><dd>{req.profile}</dd></div>
-              {req.priceMin !== null ? (
-                <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div>
-              ) : null}
-              {req.etaMinutes !== null ? (
-                <div><dt>ETA</dt><dd>{req.etaMinutes} мин</dd></div>
-              ) : null}
+              {req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}
+              {req.etaMinutes !== null ? <div><dt>ETA</dt><dd>{req.etaMinutes} мин</dd></div> : null}
               <div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div>
             </dl>
 
-            <RequestQuotePanel
-              isUpdating={updatingId === req.id}
-              onSave={(patch) => void saveQuote(req, patch)}
-              request={req}
-            />
+            <RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} />
 
             <div className="status-actions" aria-label="Изменить статус заявки">
               {dbStatusOrder.map((status) => (
-                <button
-                  disabled={updatingId === req.id || req.status === status}
-                  key={status}
-                  onClick={() => void changeStatus(req, status)}
-                  type="button"
-                >
+                <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">
                   {dbStatusLabels[status]}
                 </button>
               ))}
