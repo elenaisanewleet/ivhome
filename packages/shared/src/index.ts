@@ -18,6 +18,20 @@ export type MvpOffersResponse = {
   offers: MvpOffer[];
 };
 
+export type MvpServiceCatalogItem = {
+  slug: string;
+  label: string;
+  price: string;
+};
+
+export const MVP_SERVICE_CATALOG = [
+  { slug: "iv-support", label: "Подбор варианта выезда", price: "стоимость подтвердит выбранная организация" },
+  { slug: "nurse-visit", label: "Выезд медицинского специалиста", price: "стоимость подтвердит выбранная организация" },
+  { slug: "custom", label: "Другая медицинская услуга", price: "стоимость уточняется" },
+] as const satisfies readonly MvpServiceCatalogItem[];
+
+export type MvpServiceSlug = (typeof MVP_SERVICE_CATALOG)[number]["slug"];
+
 export type MvpRequestCreateInput = {
   offerId: string;
   district: string;
@@ -63,6 +77,9 @@ export type MvpDbRequest = {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug: string;
+  serviceLabel: string;
+  servicePrice: string;
   status: MvpDbStatus;
   priceMin: number | null;
   priceMax: number | null;
@@ -79,6 +96,9 @@ export type MvpDbRequestCreateInput = {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug?: string;
+  serviceLabel?: string;
+  servicePrice?: string;
 };
 
 export type MvpDbRequestStatusUpdateInput = {

@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypt
 
 import Fastify from "fastify";
 
-import { PROJECT_NAME } from "@ivhome/shared";
+import { MVP_SERVICE_CATALOG, PROJECT_NAME } from "@ivhome/shared";
 import type {
   MvpChatActorType,
   MvpChatMessagePublicCreateInput,
@@ -141,7 +141,7 @@ function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
 // ─── DB-backed MVP helpers ───────────────────────────────────────────────────
 
 const dbStatuses: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
-const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile"]);
+const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile", "serviceSlug", "serviceLabel", "servicePrice"]);
 const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "etaMinutes", "notes"]);
 const clinicCreateAllowedFields = new Set(["id", "publicName", "legalName", "inn", "status"]);
 const clinicUpdateAllowedFields = new Set(["publicName", "legalName", "inn", "status"]);
@@ -167,8 +167,34 @@ function isMvpDbRequestCreateInput(value: unknown): value is MvpDbRequestCreateI
     isShortText(value.district, 80) &&
     isShortText(value.desiredTime, 80) &&
     isShortText(value.profile, 120) &&
-    (value.clinicId === undefined || isShortText(value.clinicId, 80))
+    (value.clinicId === undefined || isShortText(value.clinicId, 80)) &&
+    (value.serviceSlug === undefined || isShortText(value.serviceSlug, 80)) &&
+    (value.serviceLabel === undefined || isShortText(value.serviceLabel, 120)) &&
+    (value.servicePrice === undefined || isShortText(value.servicePrice, 120))
   );
+}
+
+function resolveMvpServiceContext(input: MvpDbRequestCreateInput) {
+  const serviceSlug = input.serviceSlug ?? "custom";
+  const catalogItem = MVP_SERVICE_CATALOG.find((item) => item.slug === serviceSlug);
+
+  if (!catalogItem) {
+    return null;
+  }
+
+  if (catalogItem.slug === "custom") {
+    return {
+      serviceSlug: catalogItem.slug,
+      serviceLabel: input.serviceLabel ?? catalogItem.label,
+      servicePrice: input.servicePrice ?? catalogItem.price,
+    };
+  }
+
+  return {
+    serviceSlug: catalogItem.slug,
+    serviceLabel: catalogItem.label,
+    servicePrice: catalogItem.price,
+  };
 }
 
 function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUpdateInput {
@@ -483,6 +509,9 @@ function toMvpDbRequest(row: {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug: string;
+  serviceLabel: string;
+  servicePrice: string;
   status: MvpDbStatus;
   priceMin: number | null;
   priceMax: number | null;
@@ -499,6 +528,9 @@ function toMvpDbRequest(row: {
     district: row.district,
     desiredTime: row.desiredTime,
     profile: row.profile,
+    serviceSlug: row.serviceSlug,
+    serviceLabel: row.serviceLabel,
+    servicePrice: row.servicePrice,
     status: row.status,
     priceMin: row.priceMin,
     priceMax: row.priceMax,
@@ -658,6 +690,11 @@ export function buildApp() {
 
     const input = request.body;
     const offer = mvpOffers.find((item) => item.id === input.offerId);
+    const serviceContext = resolveMvpServiceContext(input);
+
+    if (!serviceContext) {
+      return reply.code(400).send(errorBody("unknown_service_slug", "Service slug was not found."));
+    }
 
     if (!offer) {
       return reply.code(400).send(errorBody("unknown_offer", "Offer was not found."));
@@ -685,6 +722,9 @@ export function buildApp() {
           district: input.district,
           desiredTime: input.desiredTime,
           profile: input.profile,
+          serviceSlug: serviceContext.serviceSlug,
+          serviceLabel: serviceContext.serviceLabel,
+          servicePrice: serviceContext.servicePrice,
         },
       });
 
@@ -711,6 +751,9 @@ export function buildApp() {
         priceMax: row.priceMax,
         priceCurrency: row.priceCurrency,
         etaMinutes: row.etaMinutes,
+        serviceSlug: row.serviceSlug,
+        serviceLabel: row.serviceLabel,
+        servicePrice: row.servicePrice,
         createdAt: row.createdAt.toISOString(),
         updatedAt: row.updatedAt.toISOString(),
       };

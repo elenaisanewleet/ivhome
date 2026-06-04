@@ -4,9 +4,14 @@ import test from "node:test";
 import {
   createFallbackMessage,
   createHelpMessage,
+  createMessageForCallbackData,
   createMessageForIncomingText,
   createNeutralRequestNotification,
   createStartMessage,
+  createStatusMessage,
+  createSupportMessage,
+  handleUpdate,
+  TELEGRAM_ALLOWED_UPDATES,
   createStatusUpdateMessage,
   isHelpCommand,
   isStartCommand,
@@ -30,10 +35,14 @@ test("creates a Nadom start message", () => {
   assert.doesNotMatch(message.text, /лицензирован/u);
 });
 
-test("omits Mini App button when TELEGRAM_WEBAPP_URL is not configured", () => {
+test("uses callback buttons when TELEGRAM_WEBAPP_URL is not configured", () => {
   const message = createStartMessage();
 
-  assert.equal("reply_markup" in message, false);
+  assert.deepEqual(message.reply_markup?.inline_keyboard.at(-1), [
+    { text: "помощь", callback_data: "help" },
+    { text: "статус", callback_data: "status" },
+    { text: "поддержка", callback_data: "support" },
+  ]);
 });
 
 test("creates help message without medical claims", () => {
@@ -55,23 +64,63 @@ test("creates fallback reply", () => {
   assert.match(createFallbackMessage().text, /откройте Надом/u);
 });
 
-test("creates neutral protected status notifications without request details", () => {
-  assert.deepEqual(createStatusUpdateMessage(), {
-    text: "статус заявки обновлён · детали в приложении",
-    protect_content: true,
-  });
+test("creates callback replies", () => {
+  assert.match(createMessageForCallbackData("help")?.text, /что умеет/u);
+  assert.match(createMessageForCallbackData("status")?.text, /статус заявки/u);
+  assert.match(createMessageForCallbackData("support")?.text, /поддержка Надом/u);
+  assert.equal(createMessageForCallbackData("unknown"), undefined);
 
+  assert.match(createStatusMessage().text, /выбранной организации/u);
+  assert.match(createSupportMessage().text, /поддержка/u);
+});
+
+test("creates neutral protected status notifications without request details", () => {
+  const message = createStatusUpdateMessage();
+
+  assert.equal(message.text, "статус заявки обновлён · детали в приложении");
+  assert.equal(message.protect_content, true);
+  assert.ok(message.reply_markup);
   assert.equal(createStatusUpdateMessage("booked").protect_content, true);
   assert.match(createStatusUpdateMessage("en_route").text, /специалист выехал/u);
 });
 
 test("creates neutral request notifications without chat content", () => {
-  assert.deepEqual(createNeutralRequestNotification("status_updated"), {
-    text: "Статус заявки обновлён. Откройте Надом.",
-    protect_content: true,
-  });
-  assert.deepEqual(createNeutralRequestNotification("chat_message"), {
-    text: "Новое сообщение по заявке. Откройте Надом.",
-    protect_content: true,
-  });
+  const statusNotification = createNeutralRequestNotification("status_updated");
+  const chatNotification = createNeutralRequestNotification("chat_message");
+
+  assert.equal(statusNotification.text, "Статус заявки обновлён. Откройте Надом.");
+  assert.equal(statusNotification.protect_content, true);
+  assert.ok(statusNotification.reply_markup);
+  assert.equal(chatNotification.text, "Новое сообщение по заявке. Откройте Надом.");
+  assert.equal(chatNotification.protect_content, true);
+  assert.ok(chatNotification.reply_markup);
+});
+
+test("handles Telegram callback queries and acknowledges the callback", async () => {
+  const calls: Array<{ method: string; body: unknown }> = [];
+  const apiCall = async <T>(method: string, body: unknown) => {
+    calls.push({ method, body });
+    return {} as T;
+  };
+
+  await handleUpdate({ update_id: 1, callback_query: { id: "cb-1", data: "status", message: { chat: { id: 123 } } } }, apiCall);
+
+  assert.deepEqual(TELEGRAM_ALLOWED_UPDATES, ["message", "callback_query"]);
+  assert.equal(calls[0]?.method, "answerCallbackQuery");
+  assert.deepEqual(calls[0]?.body, { callback_query_id: "cb-1" });
+  assert.equal(calls[1]?.method, "sendMessage");
+  assert.match(JSON.stringify(calls[1]?.body), /статус заявки/u);
+});
+
+test("handles unknown Telegram callback queries without sending a message", async () => {
+  const calls: Array<{ method: string; body: unknown }> = [];
+  const apiCall = async <T>(method: string, body: unknown) => {
+    calls.push({ method, body });
+    return {} as T;
+  };
+
+  await handleUpdate({ update_id: 1, callback_query: { id: "cb-2", data: "unknown", message: { chat: { id: 123 } } } }, apiCall);
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0]?.method, "answerCallbackQuery");
 });

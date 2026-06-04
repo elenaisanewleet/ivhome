@@ -12,6 +12,9 @@ type RequestRow = {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug: string;
+  serviceLabel: string;
+  servicePrice: string;
   status: "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
   priceMin: number | null;
   priceMax: number | null;
@@ -167,7 +170,7 @@ function makeFakePrisma() {
       findMany: async () => auditLogs,
     },
     mvpRequest: {
-      create: async ({ data }: { data: Pick<RequestRow, "offerId" | "clinicId" | "district" | "desiredTime" | "profile"> }) => {
+      create: async ({ data }: { data: Pick<RequestRow, "offerId" | "clinicId" | "district" | "desiredTime" | "profile" | "serviceSlug" | "serviceLabel" | "servicePrice"> }) => {
         const row: RequestRow = {
           id: `req-${++requestCount}`,
           offerId: data.offerId,
@@ -175,6 +178,9 @@ function makeFakePrisma() {
           district: data.district,
           desiredTime: data.desiredTime,
           profile: data.profile,
+          serviceSlug: data.serviceSlug,
+          serviceLabel: data.serviceLabel,
+          servicePrice: data.servicePrice,
           status: "WAITING",
           priceMin: null,
           priceMax: null,
@@ -341,12 +347,44 @@ test("seed file uses idempotent upserts and does not delete manual clinics or re
   assert.doesNotMatch(seed, /mvpClinicAccessToken\.upsert/u);
 });
 
-test("creates a persistent request and rejects unknown or mismatched offers", async () => {
+test("creates a persistent request with server-derived service catalog fields and rejects unknown or mismatched offers", async () => {
   await withDbApi(async (app) => {
     const created = await createPersistentRequest(app);
 
     assert.equal(created.status, "WAITING");
     assert.equal(created.clinicId, "medservice-north");
+    assert.equal(created.serviceSlug, "custom");
+    assert.equal(created.serviceLabel, "Другая медицинская услуга");
+    assert.equal(created.servicePrice, "стоимость уточняется");
+
+    const derivedService = await app.inject({
+      method: "POST",
+      url: "/mvp/requests",
+      payload: {
+        offerId: "medservice-north",
+        clinicId: "medservice-north",
+        district: "САО",
+        desiredTime: "Сегодня",
+        profile: "Сравнить условия выезда",
+        serviceSlug: "iv-support",
+        serviceLabel: "Поддельная услуга",
+        servicePrice: "1 ₽",
+      },
+    });
+
+    assert.equal(derivedService.statusCode, 201);
+    assert.equal(derivedService.json().serviceSlug, "iv-support");
+    assert.equal(derivedService.json().serviceLabel, "Подбор варианта выезда");
+    assert.equal(derivedService.json().servicePrice, "стоимость подтвердит выбранная организация");
+
+    const unknownService = await app.inject({
+      method: "POST",
+      url: "/mvp/requests",
+      payload: { offerId: "medservice-north", district: "САО", desiredTime: "Сегодня", profile: "Сравнить условия выезда", serviceSlug: "missing-service" },
+    });
+
+    assert.equal(unknownService.statusCode, 400);
+    assert.equal(unknownService.json().code, "unknown_service_slug");
 
     const unknownOffer = await app.inject({
       method: "POST",
