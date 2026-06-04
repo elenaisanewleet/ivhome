@@ -17,9 +17,9 @@ function OfferDetails({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Карточка организации"
+        eyebrow="Карточка медслужбы"
         title={offer.name}
-        body="Проверьте условия и при необходимости задайте вопрос специалисту выбранной организации."
+        body="Проверьте условия и при необходимости задайте вопрос специалисту выбранной медслужбы."
       />
       <OfferBadge offer={offer} />
       <SlaGrid offer={offer} />
@@ -35,7 +35,7 @@ function OfferDetails({
           ))}
         </ul>
       </div>
-      <p className="privacy-note">Детали и возможность выезда подтверждает выбранная организация.</p>
+      <p className="privacy-note">Детали и возможность выезда подтверждает выбранная медслужба.</p>
       <div className="subflow-actions">
         <button className="button button--teal" onClick={onChat} type="button">
           Чат после заявки
@@ -88,11 +88,11 @@ function ChatView({
       <SubflowHeader
         eyebrow="Чат со специалистом"
         title={offer.name}
-        body="Детали выезда и возможность помощи уточняет специалист выбранной организации. Надом не даёт медицинских рекомендаций."
+        body="Детали выезда и возможность помощи уточняет специалист выбранной медслужбы. Надом не даёт медицинских рекомендаций."
       />
 
       <p className="chat-privacy-banner">
-        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.
+        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.
       </p>
 
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
@@ -104,7 +104,7 @@ function ChatView({
         )}
         {requestId && messages.length === 0 ? (
           <div className="chat-bubble chat-bubble--service">
-            Заявка создана. Можно задать короткий вопрос по выезду выбранной организации.
+            Заявка создана. Можно задать короткий вопрос по выезду выбранной медслужбы.
           </div>
         ) : null}
         {messages.map((message) => (
@@ -174,7 +174,7 @@ function ConfirmationView({
   onSubmit: () => void;
 }) {
   const summary = [
-    ["Организация", offer.name],
+    ["Медслужба", offer.name],
     ["Район / геозона", district],
     ["Время", time],
     ["Стоимость", offer.price],
@@ -187,7 +187,7 @@ function ConfirmationView({
       <SubflowHeader
         eyebrow="Подтверждение заявки"
         title="Проверьте выбранный вариант"
-        body="После отправки выбранная организация подтвердит возможность выезда, время и итоговую стоимость."
+        body="После отправки выбранная медслужба подтвердит возможность выезда, время и итоговую стоимость."
       />
       <dl className="summary-list">
         {summary.map(([label, value]) => (
@@ -198,7 +198,7 @@ function ConfirmationView({
         ))}
       </dl>
       <p className="privacy-note">
-        Выбранная организация может запросить данные, необходимые для оказания услуги.
+        Выбранная медслужба может запросить данные, необходимые для оказания услуги.
       </p>
       {requestError ? <p className="request-error">{requestError}</p> : null}
       <div className="subflow-actions">
@@ -239,12 +239,12 @@ function WaitingView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Ждём подтверждение"
-        title="Заявка передана выбранной организации"
-        body="Выбранная организация проверяет возможность выезда. Когда ответят и приедут — отслеживается отдельно."
+        title="Заявка передана выбранной медслужбе"
+        body="Выбранная медслужба проверяет возможность выезда. Когда ответят и приедут — отслеживается отдельно."
       />
       <div className="live-status">
         <Pulse />
-        <span>организация смотрит заявку</span>
+        <span>медслужба смотрит заявку</span>
       </div>
       <OfferBadge offer={offer} />
       <StatusTrack stage="waiting" />
@@ -253,7 +253,7 @@ function WaitingView({
       {statusNotice ? <p className="privacy-note">{statusNotice}</p> : null}
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
-          {usesApi ? "Обновить статус" : "Показать подтверждение организации"}
+          {usesApi ? "Обновить статус" : "Показать подтверждение медслужбы"}
         </button>
         <button className="button button--teal" onClick={onOpenChat} type="button">
           Открыть чат
@@ -300,8 +300,8 @@ function PriceLockView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Стоимость подтверждена"
-        title="Стоимость подтверждена организацией"
-        body="Условия согласованы с выбранной организацией до выезда специалиста."
+        title="Стоимость подтверждена медслужбой"
+        body="Условия согласованы с выбранной медслужбой до выезда специалиста."
       />
       <StatusTrack stage="price-lock" />
       <SlaGrid offer={offer} label="Подтверждённые сроки" />
@@ -310,7 +310,7 @@ function PriceLockView({
         <strong>{formatConfirmedPrice(statusDetails, offer.finalPrice)}</strong>
       </div>
       <p className="privacy-note">
-        Итоговую стоимость и время прибытия подтверждает выбранная организация.
+        Итоговую стоимость и время прибытия подтверждает выбранная медслужба.
         {statusDetails?.etaMinutes ? ` Ожидаемое прибытие после подтверждения: ${formatEta(statusDetails, offer.arrivalTime)}.` : ""}
       </p>
       <div className="subflow-actions">
@@ -338,7 +338,7 @@ function DispatchedView({
       <SubflowHeader
         eyebrow="Специалист выехал"
         title="Ожидайте специалиста"
-        body="Статус обновлён выбранной организацией. Ожидаемое время приезда указано отдельно."
+        body="Статус обновлён выбранной медслужбой. Ожидаемое время приезда указано отдельно."
       />
       <div className="live-status">
         <Pulse />
@@ -375,7 +375,7 @@ function CompletedView({
       <SubflowHeader
         eyebrow="Завершено"
         title="Выезд завершён"
-        body="Спасибо. Можно оценить взаимодействие с выбранной организацией или начать новый подбор."
+        body="Спасибо. Можно оценить взаимодействие с выбранной медслужбой или начать новый подбор."
       />
       <StatusTrack stage="completed" />
       <div className="subflow-actions">

@@ -35,7 +35,7 @@ const allowedCorsOrigins = new Set(
 const mvpOffers: MvpOffer[] = [
   {
     id: "medservice-north",
-    name: "Медицинская организация «Север»",
+    name: "Медслужба «Север»",
     status: "лицензия проверена",
     zone: "САО · СЗАО · рядом",
     responseTime: "~10 мин",
@@ -44,11 +44,11 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "9 200 ₽",
     rating: "4.8",
     conditions: ["выезд после подтверждения", "условия можно уточнить в чате"],
-    note: "детали и стоимость подтверждает выбранная организация",
+    note: "детали и стоимость подтверждает выбранная медслужба",
   },
   {
     id: "medservice-center",
-    name: "Медицинская организация «Центр»",
+    name: "Медслужба «Центр»",
     status: "лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
     responseTime: "~15 мин",
@@ -57,11 +57,11 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "10 400 ₽",
     rating: "4.7",
     conditions: ["работает по зонам выезда", "стоимость подтвердят до выезда"],
-    note: "детали и стоимость подтверждает выбранная организация",
+    note: "детали и стоимость подтверждает выбранная медслужба",
   },
   {
     id: "medservice-night",
-    name: "Медицинская организация «Ночь»",
+    name: "Медслужба «Ночь»",
     status: "проверена · принимает заявки",
     zone: "Москва · по зонам выезда",
     responseTime: "~20 мин",
@@ -70,7 +70,7 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "11 300 ₽",
     rating: "4.6",
     conditions: ["доступна в позднее время", "время зависит от зоны выезда"],
-    note: "детали и стоимость подтверждает выбранная организация",
+    note: "детали и стоимость подтверждает выбранная медслужба",
   },
 ];
 
@@ -173,15 +173,24 @@ function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUp
     return false;
   }
 
-  if (value.priceMin !== undefined && typeof value.priceMin !== "number") {
+  if (
+    value.priceMin !== undefined &&
+    (typeof value.priceMin !== "number" || !Number.isFinite(value.priceMin) || value.priceMin < 0)
+  ) {
     return false;
   }
 
-  if (value.priceMax !== undefined && typeof value.priceMax !== "number") {
+  if (
+    value.priceMax !== undefined &&
+    (typeof value.priceMax !== "number" || !Number.isFinite(value.priceMax) || value.priceMax < 0)
+  ) {
     return false;
   }
 
-  if (value.etaMinutes !== undefined && typeof value.etaMinutes !== "number") {
+  if (
+    value.etaMinutes !== undefined &&
+    (typeof value.etaMinutes !== "number" || !Number.isFinite(value.etaMinutes) || value.etaMinutes < 0)
+  ) {
     return false;
   }
 
@@ -466,6 +475,15 @@ export function buildApp() {
     }
 
     const input = request.body;
+    const offer = mvpOffers.find((item) => item.id === input.offerId);
+
+    if (!offer) {
+      return reply.code(400).send(errorBody("unknown_offer", "Offer was not found."));
+    }
+
+    if (input.clinicId && input.clinicId !== offer.id) {
+      return reply.code(400).send(errorBody("offer_clinic_mismatch", "Offer and medservice do not match."));
+    }
 
     try {
       const db = await getPrisma();

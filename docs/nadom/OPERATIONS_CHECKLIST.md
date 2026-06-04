@@ -1,6 +1,6 @@
 # Nadom — Operations Checklist
 
-Internal code: IVhome. Public brand: Наdom / Надом.
+Internal code: IVhome. Public brand: Nadom / Надом.
 
 ---
 
@@ -13,7 +13,7 @@ Internal code: IVhome. Public brand: Наdom / Надом.
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `ADMIN_TOKEN` | Yes (prod) | Secret token for `/mvp/admin/*` routes. If absent and `ENABLE_MVP_DEV_API=true`, admin routes are open (local dev only). |
 | `ENABLE_MVP_DEV_API` | Optional | Set `true` to enable in-memory preview routes `/mvp/dev/*`. Also disables admin token requirement if `ADMIN_TOKEN` is absent. |
-| `CLINIC_AUTH_ENABLED` | Optional | Set `true` to validate `X-Clinic-Id` against Clinic rows in DB. When `false`, any ID is accepted (local dev). |
+| `CLINIC_AUTH_ENABLED` | Optional | Set `true` to validate `X-Clinic-Id` against Clinic rows in DB. When `false`, any non-empty ID is accepted and only request scoping limits access. Use `true` for pilot unless intentionally testing locally. |
 | `TELEGRAM_BOT_TOKEN` | Yes (bot) | Telegram bot token for init-data validation and bot commands. |
 | `CORS_ORIGINS` | Yes (prod) | Comma-separated list of allowed origins, e.g. `https://nadom.app,https://dashboard.nadom.app` |
 | `HOST` | Optional | Bind address, default `0.0.0.0` |
@@ -118,8 +118,8 @@ To fill the onboarding questionnaire via dashboard:
    - **DB-заявки** — persistent Postgres requests (via `/mvp/admin/requests`).
    - Request status actions via `/mvp/admin/requests/:id/status`.
    - Request chat view/replies via `/mvp/admin/requests/:id/chat`.
-   - Links to `/admin/onboarding/<clinicId>` for each MVP medical organization.
-   - **Preview-заявки** — in-memory requests (via `/mvp/dev/requests`, requires `ENABLE_MVP_DEV_API=true`) only when legacy preview data exists.
+   - Links to `/admin/onboarding/<clinicId>` for each MVP medservice.
+   - **Dev-заявки** — in-memory requests (via `/mvp/dev/requests`, requires `ENABLE_MVP_DEV_API=true`) only when legacy dev data exists.
 
 ---
 
@@ -172,6 +172,17 @@ The API Render build command includes `pnpm db:generate` before the API TypeScri
 available even when Render starts from a fresh install cache. Migrations remain manual to avoid changing production
 schema during an ordinary preview deploy.
 
+## Pilot Security Gate
+
+Before a real pilot with medservices:
+
+1. Confirm `ADMIN_TOKEN` is set on `nadom-api-preview`; admin routes are closed without it.
+2. Set `CLINIC_AUTH_ENABLED=true` on the API service after all pilot medservice rows exist in `Clinic`.
+3. Keep `ENABLE_MVP_DEV_API=false` for pilot unless testing legacy in-memory routes intentionally.
+4. Confirm `CORS_ORIGINS` contains only the deployed Mini App and dashboard origins.
+5. Confirm `VITE_ADMIN_TOKEN` and `VITE_CLINIC_TOKEN` are not set in shared/public static builds.
+6. Do not put phone numbers, exact addresses, or medical details in dashboard notes or chat test messages.
+
 ## Manual Pilot Smoke Test
 
 1. Open Mini App.
@@ -180,10 +191,10 @@ schema during an ordinary preview deploy.
 4. Verify the DB request appears.
 5. Open clinic dashboard with the selected clinic ID.
 6. Verify only that clinic's request appears.
-7. Send a user chat message.
-8. Reply from clinic.
+7. User sends a neutral chat message from Mini App.
+8. Medservice replies from the clinic dashboard.
 9. Confirm Mini App chat updates without leaving the chat.
-10. Update status, price, and ETA from admin or clinic.
+10. Admin or medservice updates status, price, and ETA.
 11. Confirm Mini App status updates without hard refresh.
 12. Open `/admin/onboarding/<clinicId>` and save draft/submitted.
 13. Restart or redeploy API and verify the request still exists.
@@ -192,9 +203,12 @@ schema during an ordinary preview deploy.
 
 ## Known Limitations (MVP)
 
-- **No real auth**: Admin and clinic routes use a single static bearer token. Multi-user auth is a follow-up.
+- **No full account auth**: Admin routes use a single static bearer token. Clinic routes use `X-Clinic-Id`; when `CLINIC_AUTH_ENABLED=true`, the ID must exist, but this is still not proof of a real logged-in clinic user. Multi-user auth is a follow-up.
+- **Clinic-ID MVP auth risk**: Anyone with a valid clinic ID and dashboard URL can act as that medservice in the MVP. Share IDs only with pilot operators and monitor request/chat changes manually.
+- **Admin token handling**: Treat `ADMIN_TOKEN` as a production secret. Rotate it if it is shared in chat, screenshots, logs, or docs.
+- **Dev API routes**: `/mvp/dev/*` must stay disabled for real pilot traffic. They are compatibility routes only and store data in memory.
 - **No file upload**: License scan upload is stubbed with a TODO in `OnboardingForm.tsx`.
-- **In-memory preview routes are compatibility-only**: The `/mvp/dev/*` store resets on restart and should be enabled only with `ENABLE_MVP_DEV_API=true`.
+- **In-memory preview routes are compatibility-only**: The `/mvp/dev/*` store resets on restart and should be enabled only with `ENABLE_MVP_DEV_API=true` during local/dev checks.
 - **Mini App uses persistent MVP requests by default**: offers load from `/mvp/offers`, request creation uses `/mvp/requests`, status reads `/mvp/requests/:id`, and post-submit chat uses `/mvp/requests/:id/chat`.
 - **No bot integration with DB**: The Telegram bot sends status notifications but is not yet wired to `MvpRequest` status changes.
 - **Bot notifications are helper-only**: neutral status/chat message text helpers exist, but automatic sends are not wired without safe user identity mapping.

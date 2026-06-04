@@ -163,19 +163,48 @@ async function createPersistentRequest(app: ReturnType<typeof buildApp>, clinicI
   return response.json() as RequestRow;
 }
 
-test("creates a persistent request and rejects an unknown clinic", async () => {
+test("creates a persistent request and rejects unknown or mismatched offers", async () => {
   await withDbApi(async (app) => {
     const created = await createPersistentRequest(app);
 
     assert.equal(created.status, "WAITING");
     assert.equal(created.clinicId, "medservice-north");
 
-    const unknownClinic = await app.inject({
+    const unknownOffer = await app.inject({
       method: "POST",
       url: "/mvp/requests",
       payload: {
         offerId: "missing",
-        clinicId: "missing",
+        district: "САО",
+        desiredTime: "Сегодня",
+        profile: "Сравнить условия выезда",
+      },
+    });
+
+    assert.equal(unknownOffer.statusCode, 400);
+    assert.equal(unknownOffer.json().code, "unknown_offer");
+
+    const mismatchedClinic = await app.inject({
+      method: "POST",
+      url: "/mvp/requests",
+      payload: {
+        offerId: "medservice-north",
+        clinicId: "medservice-center",
+        district: "САО",
+        desiredTime: "Сегодня",
+        profile: "Сравнить условия выезда",
+      },
+    });
+
+    assert.equal(mismatchedClinic.statusCode, 400);
+    assert.equal(mismatchedClinic.json().code, "offer_clinic_mismatch");
+
+    const unknownClinic = await app.inject({
+      method: "POST",
+      url: "/mvp/requests",
+      payload: {
+        offerId: "medservice-night",
+        clinicId: "medservice-night",
         district: "САО",
         desiredTime: "Сегодня",
         profile: "Сравнить условия выезда",
@@ -281,5 +310,15 @@ test("updates request status and quote fields from admin and clinic routes", asy
     assert.equal(clinicUpdate.statusCode, 200);
     assert.equal(clinicUpdate.json().status, "DISPATCHED");
     assert.equal(clinicUpdate.json().etaMinutes, 30);
+
+    const invalidQuote = await app.inject({
+      method: "PATCH",
+      url: `/mvp/admin/requests/${created.id}/status`,
+      headers: { Authorization: "Bearer test-admin-token" },
+      payload: { status: "PRICE_LOCK", priceMin: -1 },
+    });
+
+    assert.equal(invalidQuote.statusCode, 400);
+    assert.equal(invalidQuote.json().code, "invalid_request");
   });
 });
