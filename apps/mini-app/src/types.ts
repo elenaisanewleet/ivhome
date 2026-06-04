@@ -4,6 +4,8 @@ export type StepId = "welcome" | "consent" | "emergency" | "profile" | "location
 
 export type OfferView =
   | "details"
+  | "service"
+  | "custom"
   | "chat"
   | "confirmation"
   | "status"
@@ -25,7 +27,25 @@ export type Step = {
   iconLabel: string;
 };
 
-export type Offer = MvpOffer;
+export type OfferServiceSlug =
+  | "alcohol_hangover"
+  | "binge_or_near_binge"
+  | "intoxication"
+  | "urgent_visit"
+  | "planned_visit"
+  | "custom";
+
+export type OfferService = {
+  slug: OfferServiceSlug;
+  label: string;
+  shortLabel: string;
+  priceRange: string;
+  description: string;
+};
+
+export type Offer = MvpOffer & {
+  services: OfferService[];
+};
 
 export type ChatMessage = {
   id: string;
