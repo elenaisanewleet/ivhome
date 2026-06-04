@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Nadom Symbol B: IV Bag with drop (tertiary / drip animation base) v5 -->
+  <!-- Animate with @keyframes drip-fall on the <svg> or wrapper element -->
+  <!-- Dark: color="#3ABED6" Light: color="#0C7A8C" -->
+
+  <style>
+    @keyframes drip-fall {
+      0%   { transform: translateY(0);    opacity: 1; }
+      60%  { transform: translateY(20px); opacity: .6; }
+      100% { transform: translateY(0);    opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      svg { animation: none !important; }
+    }
+  </style>
+
+  <!-- IV hook / hanger loop at top -->
+  <circle cx="256" cy="92" r="14" fill="none" stroke="currentColor" stroke-width="16"/>
+
+  <!-- IV bag body -->
+  <rect x="188" y="118" width="136" height="150" rx="34" fill="none" stroke="currentColor" stroke-width="22"/>
+
+  <!-- Fluid level indicator inside bag -->
+  <path d="M198 210 Q256 188 314 210 L314 244 Q314 258 300 258 L212 258 Q198 258 198 244 Z"
+        fill="currentColor" opacity=".55"/>
+
+  <!-- Tube descending from bag -->
+  <path d="M256 268 V310" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- Drip / drop at bottom of tube -->
+  <path d="M256 330 C284 360 284 392 256 410 C228 392 228 360 256 330 Z" fill="currentColor"/>
+</svg>
