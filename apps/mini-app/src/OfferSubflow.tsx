@@ -155,7 +155,23 @@ function OfferDetails({
 
       <div className="conditions-panel">
         <p className="meta-label">Услуги и ориентиры</p>
-        <ServiceRows services={offer.services} selectedService={selectedService} onSelect={onSelectService} />
+        <ServiceRows services={catalogServices(offer)} selectedService={selectedService} onSelect={onSelectService} />
+      </div>
+
+      <div className="custom-request-panel">
+        <div>
+          <p className="meta-label">Не нашли подходящий вариант?</p>
+          <h3>Свой запрос</h3>
+          <p>Выбранная организация посмотрит запрос и подтвердит формат, возможность выезда и стоимость.</p>
+        </div>
+        <div className="custom-request-actions">
+          <button className="button button--secondary" onClick={onCustom} type="button">
+            Создать свой запрос
+          </button>
+          <button className="button button--teal" onClick={onChat} type="button">
+            Сначала написать специалисту
+          </button>
+        </div>
       </div>
 
       <div className="conditions-panel">
@@ -172,12 +188,6 @@ function OfferDetails({
       <div className="subflow-actions subflow-actions--grid">
         <button className="button button--primary" onClick={onChoose} type="button">
           Выбрать услугу
-        </button>
-        <button className="button button--secondary" onClick={onCustom} type="button">
-          Свой запрос
-        </button>
-        <button className="button button--teal" onClick={onChat} type="button">
-          Написать специалисту
         </button>
         <button className="button button--ghost" onClick={onBack} type="button">
           Назад к списку
@@ -240,7 +250,7 @@ function RequestTextFields({
       </label>
 
       <label className="text-field">
-        <span>Комментарий для организации</span>
+        <span>Комментарий для выбранной организации</span>
         <input
           autoComplete="off"
           maxLength={500}
@@ -289,7 +299,7 @@ function RequestFormView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow={isCustom ? "Свой запрос" : "Выбор услуги"}
-        title={isCustom ? "Опишите запрос для организации" : "Выберите услугу до заявки"}
+        title={isCustom ? "Опишите запрос для выбранной организации" : "Выберите услугу до заявки"}
         body="Не указывайте телефон и точный адрес. Организация подтвердит детали и стоимость до выезда."
       />
 
@@ -375,7 +385,7 @@ function ChatView({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Чат со специалистом организации"
+        eyebrow="Чат со специалистом выбранной организации"
         title={offer.name}
         body="Чат открыт по созданной заявке. Детали выезда уточняет специалист выбранной организации."
       />

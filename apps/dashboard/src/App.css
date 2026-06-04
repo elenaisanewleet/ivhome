@@ -863,3 +863,10 @@ nav a:hover {
 .request-context-panel__comment dd {
   overflow-wrap: anywhere;
 }
+
+.auth-helper {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
