@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { MvpChatActorType, MvpChatMessage } from "@ivhome/shared";
+import { MVP_SERVICE_CATALOG } from "@ivhome/shared";
+import type { MvpChatActorType, MvpChatMessage, MvpServiceCategorySlug } from "@ivhome/shared";
 
 import "./App.css";
 import { OnboardingForm } from "./OnboardingForm";
@@ -32,6 +33,13 @@ type MvpDbRequestRecord = {
   priceCurrency: string;
   etaMinutes: number | null;
   notes: string | null;
+  serviceSlug: MvpServiceCategorySlug | null;
+  serviceLabel: string | null;
+  servicePrice: string | null;
+  customRequest: string | null;
+  customImportant: string | null;
+  budget: string | null;
+  comment: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -395,6 +403,32 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
   );
 }
 
+
+function requestContextFields(req: MvpDbRequestRecord) {
+  const fallback = MVP_SERVICE_CATALOG.find((service) => service.slug === req.serviceSlug);
+  return {
+    service: req.serviceLabel ?? fallback?.label ?? "Услуга не выбрана",
+    price: req.servicePrice ?? fallback?.priceRange ?? "по согласованию",
+  };
+}
+
+function RequestContext({ req }: { req: MvpDbRequestRecord }) {
+  const context = requestContextFields(req);
+  return (
+    <div className="request-context-panel">
+      <p className="meta-label">Контекст заявки</p>
+      <dl className="request-fields">
+        <div><dt>Услуга</dt><dd>{context.service}</dd></div>
+        <div><dt>Ориентир</dt><dd>{context.price}</dd></div>
+        {req.customRequest ? <div><dt>Свой запрос</dt><dd>{req.customRequest}</dd></div> : null}
+        {req.customImportant ? <div><dt>Что важно</dt><dd>{req.customImportant}</dd></div> : null}
+        {req.budget ? <div className="request-context-panel__budget"><dt>Бюджет</dt><dd>{req.budget}</dd></div> : null}
+        {req.comment ? <div className="request-context-panel__comment"><dt>Комментарий</dt><dd>{req.comment}</dd></div> : null}
+      </dl>
+    </div>
+  );
+}
+
 function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequestRecord; isUpdating: boolean; onSave: (patch: DbStatusPatch) => void }) {
   const [status, setStatus] = useState<MvpDbStatus>(request.status);
   const [priceMin, setPriceMin] = useState(request.priceMin?.toString() ?? "");
@@ -628,6 +662,7 @@ function AdminView() {
       const saved = await sendAdminChatMessage(requestId, body, token);
       setChatMessages((current) => ({ ...current, [requestId]: [...(current[requestId] ?? []), saved] }));
       setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+      await refreshChat(requestId);
     } catch {
       setChatError("Не удалось отправить сообщение.");
     } finally {
@@ -746,7 +781,7 @@ function AdminView() {
               {req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}
               <div><dt>Обновлено</dt><dd>{formatDate(req.updatedAt)}</dd></div>
             </dl>
-            <RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
+            <RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
             <div className="status-actions" aria-label="Изменить статус заявки">
               {dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeDbStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}
               <button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button>
@@ -934,6 +969,7 @@ function ClinicView() {
       const saved = await sendClinicChatMessage(requestId, body, auth);
       setChatMessages((current) => ({ ...current, [requestId]: [...(current[requestId] ?? []), saved] }));
       setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+      await refreshChat(requestId);
     } catch {
       setChatError("Не удалось отправить сообщение.");
     } finally {
@@ -948,7 +984,7 @@ function ClinicView() {
       <div className="dashboard-toolbar"><div><p className="meta-label">Медслужба: {auth.publicName}</p><h2>Заявки вашей медслужбы</h2><p>Доступ хранится в sessionStorage. После выхода ссылка с отозванным токеном доступа должна перестать открываться.</p></div><div style={{ display: "flex", gap: "8px" }}><button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button><button onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button></div></div>
       {message ? <p className="dashboard-message">{message}</p> : null}
       {requests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Заявок для этой медслужбы пока нет</h3><p>Создайте заявку в Mini App с выбором этой медслужбы.</p></div> : null}
-      <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
+      <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
     </section>
   );
 }

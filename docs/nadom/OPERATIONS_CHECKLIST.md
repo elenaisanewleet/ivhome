@@ -186,18 +186,18 @@ Before a real pilot with medservices:
 ## Manual Pilot Smoke Test
 
 1. Open Mini App.
-2. Submit a request.
-3. Open admin dashboard with `ADMIN_TOKEN`.
-4. Verify the DB request appears.
-5. Open clinic dashboard with the selected clinic ID.
-6. Verify only that clinic's request appears.
-7. User sends a neutral chat message from Mini App.
-8. Medservice replies from the clinic dashboard.
-9. Confirm Mini App chat updates without leaving the chat.
-10. Admin or medservice updates status, price, and ETA.
-11. Confirm Mini App status updates without hard refresh.
-12. Open `/admin/onboarding/<clinicId>` and save draft/submitted.
-13. Restart or redeploy API and verify the request still exists.
+2. Choose profile, district, urgency.
+3. See medservice list with services and price ranges.
+4. Open medservice card.
+5. Choose service.
+6. Add optional comment/budget.
+7. Send request and open chat.
+8. Send user chat message.
+9. Open dashboard/admin and clinic cabinet.
+10. See request context and chat.
+11. Medservice replies, sets price/ETA, updates status.
+12. Mini App shows updated chat/status/price lock.
+13. Bot `/help`, `/support`, `/status` return neutral useful messages.
 
 ---
 

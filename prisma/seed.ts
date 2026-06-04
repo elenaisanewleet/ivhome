@@ -14,6 +14,12 @@ const categoryIds = {
   homeMedicalVisit: "demo-category-home-medical-visit",
   nurseVisit: "demo-category-nurse-visit",
   ivTherapyReview: "demo-category-iv-therapy-review",
+  alcoholHangover: "demo-category-alcohol-hangover",
+  bingeOrNearBinge: "demo-category-binge-or-near-binge",
+  intoxication: "demo-category-intoxication",
+  urgentVisit: "demo-category-urgent-visit",
+  plannedVisit: "demo-category-planned-visit",
+  custom: "demo-category-custom",
 } as const;
 
 async function main() {
@@ -40,6 +46,12 @@ async function main() {
         publicDescription:
           "Заявка передаётся на рассмотрение выбранной медслужбе. Надом не рекомендует препараты или состав капельницы.",
       },
+      { id: categoryIds.alcoholHangover, slug: "alcohol_hangover", publicName: "Плохо после алкоголя", publicDescription: "Детали и стоимость подтверждает выбранная медслужба." },
+      { id: categoryIds.bingeOrNearBinge, slug: "binge_or_near_binge", publicName: "Запойная или около-запойная ситуация", publicDescription: "Седативные препараты — только по решению специалиста медслужбы и в рамках лицензии." },
+      { id: categoryIds.intoxication, slug: "intoxication", publicName: "Интоксикация / отравление веществами", publicDescription: "Возможность выезда подтверждает выбранная медслужба." },
+      { id: categoryIds.urgentVisit, slug: "urgent_visit", publicName: "Срочный неэкстренный выезд специалиста", publicDescription: "Для неэкстренного выезда специалиста выбранной медслужбы." },
+      { id: categoryIds.plannedVisit, slug: "planned_visit", publicName: "Плановый выезд специалиста", publicDescription: "Плановый выезд после подтверждения выбранной медслужбой." },
+      { id: categoryIds.custom, slug: "custom", publicName: "Свой запрос", publicDescription: "Нейтральный пользовательский запрос для выбранной медслужбы." },
     ];
 
     for (const category of categories) {
@@ -148,10 +160,16 @@ async function main() {
       [clinicIds.partnerOne, categoryIds.homeMedicalVisit, "3500.00", "5200.00", 60, 120],
       [clinicIds.partnerOne, categoryIds.nurseVisit, "2500.00", "3900.00", 45, 90],
       [clinicIds.partnerOne, categoryIds.ivTherapyReview, "3000.00", "4800.00", 60, 120],
+      [clinicIds.partnerOne, categoryIds.alcoholHangover, "8500.00", "12000.00", 40, 90],
+      [clinicIds.partnerOne, categoryIds.urgentVisit, "6000.00", "9000.00", 35, 80],
       [clinicIds.homeCare, categoryIds.homeMedicalVisit, "3800.00", "5500.00", 90, 150],
       [clinicIds.homeCare, categoryIds.nurseVisit, "2700.00", "4100.00", 60, 120],
+      [clinicIds.homeCare, categoryIds.plannedVisit, "5500.00", "8500.00", 90, 150],
+      [clinicIds.homeCare, categoryIds.intoxication, "10000.00", "14000.00", 70, 140],
       [clinicIds.nightService, categoryIds.homeMedicalVisit, "4500.00", "6200.00", 75, 150],
       [clinicIds.nightService, categoryIds.nurseVisit, "3200.00", "4700.00", 60, 120],
+      [clinicIds.nightService, categoryIds.bingeOrNearBinge, "11000.00", "16000.00", 70, 150],
+      [clinicIds.nightService, categoryIds.custom, null, null, 75, 150],
     ] as const;
 
     for (const [clinicId, serviceCategoryId, priceFrom, priceTo, etaFrom, etaTo] of offers) {
