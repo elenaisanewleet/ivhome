@@ -670,6 +670,13 @@ model MvpRequest {
   district     String
   desiredTime  String
   profile      String
+  serviceSlug  String           @default("custom")
+  serviceLabel String           @default("Свой запрос")
+  servicePrice String           @default("по описанию запроса")
+  customRequest String?
+  customImportant String?
+  budget       String?
+  comment      String?
   status       MvpRequestStatus @default(WAITING)
   priceMin     Int?
   priceMax     Int?
