@@ -91,18 +91,20 @@ function ChatView({
 
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
         <p className="chat-window__date">Сегодня</p>
-        <div className="chat-bubble chat-bubble--service">
-          Здравствуйте. Я специалист выбранной медслужбы. Можно уточнить условия выезда.
-        </div>
-        <div className="chat-bubble chat-bubble--user">Подскажите, когда сможете подтвердить время?</div>
-        <div className="chat-bubble chat-bubble--service">
-          Обычно отвечаем за {offer.responseTime}. Возможность выезда подтверждаем отдельно.
-        </div>
-        {messages.map((message) => (
-          <div className="chat-bubble chat-bubble--user" key={message.id}>
-            {message.text}
+        {messages.length === 0 ? (
+          <div className="chat-bubble chat-bubble--service">
+            Здравствуйте. Напишите вопрос — специалист выбранной медслужбы ответит в ближайшее время.
           </div>
-        ))}
+        ) : (
+          messages.map((message) => (
+            <div
+              className={`chat-bubble chat-bubble--${message.author === "user" ? "user" : "service"}`}
+              key={message.id}
+            >
+              {message.text}
+            </div>
+          ))
+        )}
       </div>
 
       {/* Chat content must not be duplicated into Telegram notifications or stored without explicit backend/privacy design. */}

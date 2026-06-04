@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import "./App.css";
+import { OnboardingForm } from "./OnboardingForm";
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
 type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
@@ -170,6 +171,18 @@ async function loadClinicRequests(clinicId: string) {
   });
 
   return response.requests;
+}
+
+async function updateClinicRequestStatus(id: string, status: MvpDbStatus, clinicId: string) {
+  return requestJson<MvpDbRequestRecord>(
+    `/mvp/clinic/requests/${encodeURIComponent(id)}/status`,
+    {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ status }),
+    },
+    { "X-Clinic-Id": clinicId },
+  );
 }
 
 // ─── Auth gate component ─────────────────────────────────────────────────────
@@ -445,6 +458,15 @@ function AdminView() {
                   {dbStatusLabels[status]}
                 </button>
               ))}
+              {req.clinicId ? (
+                <a
+                  className="button button--ghost"
+                  href={`/admin/onboarding/${encodeURIComponent(req.clinicId)}`}
+                  style={{ fontSize: "0.8rem" }}
+                >
+                  Анкета медслужбы
+                </a>
+              ) : null}
             </div>
           </article>
         ))}
@@ -507,10 +529,26 @@ function ClinicView() {
   const [requests, setRequests] = useState<MvpDbRequestRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
   const isConfigured = Boolean(apiBaseUrl);
 
   function handleAuth(token: string) {
     setClinicId(token);
+  }
+
+  async function changeClinicStatus(req: MvpDbRequestRecord, status: MvpDbStatus) {
+    setUpdatingId(req.id);
+    setMessage(null);
+
+    try {
+      const updated = await updateClinicRequestStatus(req.id, status, clinicId);
+
+      setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
+    } catch {
+      setMessage("Не удалось обновить статус. Проверьте подключение.");
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
   async function refreshRequests(id: string) {
@@ -602,9 +640,44 @@ function ClinicView() {
               <div><dt>Формат</dt><dd>{req.profile}</dd></div>
               <div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div>
             </dl>
+
+            <div className="status-actions" aria-label="Изменить статус заявки">
+              {dbStatusOrder.map((status) => (
+                <button
+                  disabled={updatingId === req.id || req.status === status}
+                  key={status}
+                  onClick={() => void changeClinicStatus(req, status)}
+                  type="button"
+                >
+                  {dbStatusLabels[status]}
+                </button>
+              ))}
+            </div>
           </article>
         ))}
       </div>
+    </section>
+  );
+}
+
+// ─── Onboarding view ──────────────────────────────────────────────────────────
+
+function OnboardingView({ clinicId }: { clinicId: string }) {
+  const [adminToken, setAdminToken] = useState(() => readStoredToken("nadom_admin_token"));
+  const storageKey = "nadom_admin_token";
+
+  const handleAuth = useCallback((token: string) => {
+    setAdminToken(token);
+  }, []);
+
+  if (!adminToken) {
+    return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={handleAuth} />;
+  }
+
+  return (
+    <section className="dashboard-card">
+      <a href="/admin" className="back-link">← Назад к заявкам</a>
+      <OnboardingForm adminToken={adminToken} apiBaseUrl={apiBaseUrl} clinicId={clinicId} />
     </section>
   );
 }
@@ -619,6 +692,8 @@ export function App() {
 
   const isAdmin = pathname.startsWith("/admin");
   const isClinic = pathname.startsWith("/clinic");
+  const onboardingMatch = pathname.match(/^\/admin\/onboarding\/([^/]+)$/u);
+  const onboardingClinicId = onboardingMatch?.[1] ? decodeURIComponent(onboardingMatch[1]) : null;
 
   return (
     <main className="dashboard-shell">
@@ -640,6 +715,8 @@ export function App() {
             <h2>API не подключён</h2>
             <p>Укажите VITE_API_BASE_URL, чтобы подключить API.</p>
           </section>
+        ) : onboardingClinicId ? (
+          <OnboardingView clinicId={onboardingClinicId} />
         ) : isAdmin ? (
           <AdminView />
         ) : isClinic ? (

@@ -30,6 +30,7 @@ export type Offer = MvpOffer;
 export type ChatMessage = {
   id: string;
   text: string;
+  author: "user" | "service";
 };
 
 export type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";

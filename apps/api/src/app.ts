@@ -638,6 +638,55 @@ export function buildApp() {
     }
   });
 
+  // Clinic: update request status (requires X-Clinic-Id header)
+  app.patch<{ Params: { id: string }; Body: unknown }>("/mvp/clinic/requests/:id/status", async (request, reply) => {
+    const clinicId = request.headers["x-clinic-id"];
+
+    if (typeof clinicId !== "string" || !clinicId) {
+      return reply.code(401).send({ error: "missing_clinic_id" });
+    }
+
+    const body = request.body;
+
+    if (
+      !body ||
+      typeof body !== "object" ||
+      !("status" in body) ||
+      typeof (body as Record<string, unknown>).status !== "string"
+    ) {
+      return reply.code(400).send({ error: "invalid_body" });
+    }
+
+    const { status } = body as { status: string };
+    const validStatuses = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
+
+    if (!validStatuses.includes(status)) {
+      return reply.code(400).send({ error: "invalid_status" });
+    }
+
+    try {
+      const db = await getPrisma();
+      const existing = await db.mvpRequest.findUnique({ where: { id: request.params.id } });
+
+      if (!existing) {
+        return reply.code(404).send({ error: "not_found" });
+      }
+
+      if (existing.clinicId !== clinicId) {
+        return reply.code(403).send({ error: "forbidden" });
+      }
+
+      const updated = await db.mvpRequest.update({
+        where: { id: request.params.id },
+        data: { status: status as import("@prisma/client").MvpRequestStatus, updatedAt: new Date() },
+      });
+
+      return toMvpDbRequest(updated);
+    } catch {
+      return reply.code(503).send({ error: "db_unavailable" });
+    }
+  });
+
   // Onboarding: save/update onboarding form for a clinic
   app.post<{ Body: unknown; Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {

@@ -4,11 +4,13 @@ import "./App.css";
 import "./App.mobile.css";
 import "./App.chat.css";
 import {
-  createMvpRequest,
+  getChatMessages as getChatMessagesApi,
+  getRequestStatus,
   isApiConfigured,
-  loadMvpRequestStatus,
   loadOffers,
   readSupportUrl,
+  sendChatMessage as sendChatMessageApi,
+  submitRequest,
 } from "./api";
 import {
   DISTRICT_OPTIONS,
@@ -53,7 +55,7 @@ export function App() {
   const [offerView, setOfferView] = useState<OfferView | null>(initialOfferView);
   const [supportReturnView, setSupportReturnView] = useState<Exclude<OfferView, "support">>("completed");
   const [rating, setRating] = useState<number | null>(null);
-  const [chatMessages, setChatMessages] = useState<{ id: string; text: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<import("./types").ChatMessage[]>([]);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
@@ -218,13 +220,22 @@ export function App() {
     setOfferView("support");
   }
 
-  function sendChatMessage(message: string) {
+  async function sendChatMessage(message: string) {
+    if (requestId && isApiConfigured()) {
+      try {
+        const sent = await sendChatMessageApi(requestId, message, "USER");
+
+        setChatMessages((current) => [...current, { id: sent.id, text: sent.body, author: "user" }]);
+
+        return;
+      } catch {
+        // fall through to local optimistic update
+      }
+    }
+
     setChatMessages((current) => [
       ...current,
-      {
-        id: `local-chat-${Date.now()}-${current.length}`,
-        text: message,
-      },
+      { id: `local-${Date.now()}-${current.length}`, text: message, author: "user" },
     ]);
   }
 
@@ -237,14 +248,14 @@ export function App() {
     setSubmitPending(true);
 
     try {
-      const response = await createMvpRequest({
+      const response = await submitRequest({
         offerId: selectedOffer.id,
         district,
         desiredTime: time,
         profile: selectedProfile ?? "Формат уточняется",
       });
 
-      setRequestId(response.requestId);
+      setRequestId(response.id);
       setStatusNotice(null);
       setOfferView(offerViewForStatus(response.status));
       hapticNotice("success");
@@ -263,11 +274,11 @@ export function App() {
     }
 
     try {
-      const response = await loadMvpRequestStatus(requestId);
+      const response = await getRequestStatus(requestId);
 
       setOfferView(offerViewForStatus(response.status));
       setStatusNotice(
-        response.status === "waiting"
+        response.status === "WAITING"
           ? "Медслужба ещё проверяет возможность выезда. Можно обновить статус позже."
           : null,
       );
@@ -275,6 +286,26 @@ export function App() {
       setStatusNotice("Не получилось обновить статус. Попробуйте ещё раз.");
     }
   }
+
+  useEffect(() => {
+    if (offerView !== "chat" || !requestId || !isApiConfigured()) {
+      return;
+    }
+
+    getChatMessagesApi(requestId)
+      .then((msgs) => {
+        setChatMessages(
+          msgs.map((m) => ({
+            id: m.id,
+            text: m.body,
+            author: m.actorType === "USER" ? ("user" as const) : ("service" as const),
+          })),
+        );
+      })
+      .catch(() => {
+        /* silent — chat still works locally */
+      });
+  }, [offerView, requestId]);
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
     hapticNotice("warning");
