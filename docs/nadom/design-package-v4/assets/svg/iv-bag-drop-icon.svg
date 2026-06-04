@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nadom secondary brand symbol — IV bag + falling drop.
+     Use for: drip animation, loading/waiting states, welcome detail, alternate avatar, status illustrations.
+     The <animate> blocks are optional; strip them for a static asset. Respects prefers-reduced-motion when inlined. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Надом — капельница">
+  <defs>
+    <linearGradient id="nadomBag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7EB8D4"/>
+      <stop offset="1" stop-color="#4A7FA5"/>
+    </linearGradient>
+  </defs>
+  <!-- hanger loop -->
+  <circle cx="256" cy="92" r="14" fill="none" stroke="url(#nadomBag)" stroke-width="16"/>
+  <!-- bag body -->
+  <rect x="188" y="118" width="136" height="150" rx="34" fill="none" stroke="url(#nadomBag)" stroke-width="22"/>
+  <!-- fluid fill -->
+  <path d="M198 210 Q256 188 314 210 L314 244 Q314 258 300 258 L212 258 Q198 258 198 244 Z" fill="#4A7FA5" opacity="0.9"/>
+  <!-- stem -->
+  <path d="M256 268 V310" stroke="url(#nadomBag)" stroke-width="20" stroke-linecap="round"/>
+  <!-- falling drop (leaf form) -->
+  <path d="M256 330 C284 360 284 392 256 410 C228 392 228 360 256 330 Z" fill="url(#nadomBag)">
+    <animateTransform attributeName="transform" type="translate" values="0 0; 0 16; 0 0" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="1; .6; 1" dur="2.4s" repeatCount="indefinite"/>
+  </path>
+</svg>
