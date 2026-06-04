@@ -18,6 +18,23 @@ export type MvpOffersResponse = {
   offers: MvpOffer[];
 };
 
+export type MvpServiceCatalogItem = {
+  slug: string;
+  label: string;
+  price: string;
+};
+
+export const MVP_SERVICE_CATALOG = [
+  { slug: "alcohol_hangover", label: "После алкоголя", price: "от 8 500 ₽" },
+  { slug: "binge_or_near_binge", label: "После длительного употребления", price: "от 10 500 ₽" },
+  { slug: "intoxication", label: "Похоже на интоксикацию", price: "от 9 500 ₽" },
+  { slug: "urgent_visit", label: "Нужен выезд сегодня", price: "от 9 900 ₽" },
+  { slug: "planned_visit", label: "Плановый выезд", price: "от 7 500 ₽" },
+  { slug: "custom", label: "Свой запрос", price: "по описанию запроса" },
+] as const satisfies readonly MvpServiceCatalogItem[];
+
+export type MvpServiceSlug = (typeof MVP_SERVICE_CATALOG)[number]["slug"];
+
 export type MvpRequestCreateInput = {
   offerId: string;
   district: string;
@@ -63,6 +80,13 @@ export type MvpDbRequest = {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug: string;
+  serviceLabel: string;
+  servicePrice: string;
+  customRequest: string | null;
+  customImportant: string | null;
+  budget: string | null;
+  comment: string | null;
   status: MvpDbStatus;
   priceMin: number | null;
   priceMax: number | null;
@@ -79,6 +103,13 @@ export type MvpDbRequestCreateInput = {
   district: string;
   desiredTime: string;
   profile: string;
+  serviceSlug?: string;
+  serviceLabel?: string;
+  servicePrice?: string;
+  customRequest?: string;
+  customImportant?: string;
+  budget?: string;
+  comment?: string;
 };
 
 export type MvpDbRequestStatusUpdateInput = {
