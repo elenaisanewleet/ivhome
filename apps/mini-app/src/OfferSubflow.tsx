@@ -155,7 +155,23 @@ function OfferDetails({
 
       <div className="conditions-panel">
         <p className="meta-label">Услуги и ориентиры</p>
-        <ServiceRows services={offer.services} selectedService={selectedService} onSelect={onSelectService} />
+        <ServiceRows services={catalogServices(offer)} selectedService={selectedService} onSelect={onSelectService} />
+      </div>
+
+      <div className="custom-request-panel">
+        <div>
+          <p className="meta-label">Свой запрос</p>
+          <h3>Не нашли подходящий вариант?</h3>
+          <p>Опишите, что нужно — выбранная медслужба посмотрит запрос и подтвердит формат, возможность выезда и стоимость.</p>
+        </div>
+        <div className="custom-request-panel__actions">
+          <button className="button button--secondary" onClick={onCustom} type="button">
+            Свой запрос
+          </button>
+          <button className="button button--ghost" onClick={onChat} type="button">
+            Сначала написать специалисту
+          </button>
+        </div>
       </div>
 
       <div className="conditions-panel">
@@ -172,9 +188,6 @@ function OfferDetails({
       <div className="subflow-actions subflow-actions--grid">
         <button className="button button--primary" onClick={onChoose} type="button">
           Выбрать услугу
-        </button>
-        <button className="button button--secondary" onClick={onCustom} type="button">
-          Свой запрос
         </button>
         <button className="button button--teal" onClick={onChat} type="button">
           Написать специалисту
@@ -228,7 +241,9 @@ function RequestTextFields({
       ) : null}
 
       <label className="text-field">
-        <span>Ориентир по бюджету, если есть</span>
+        <span>
+          Бюджет <small>необязательно</small>
+        </span>
         <input
           autoComplete="off"
           maxLength={120}
@@ -239,17 +254,19 @@ function RequestTextFields({
         />
       </label>
 
-      <label className="text-field">
-        <span>Комментарий для организации</span>
-        <input
-          autoComplete="off"
-          maxLength={500}
-          onChange={(event) => onChangeDraft({ comment: event.target.value })}
-          placeholder="Без телефона, адреса и лишних данных"
-          type="text"
-          value={draft.comment}
-        />
-      </label>
+      {!includeCustomFields ? (
+        <label className="text-field">
+          <span>Комментарий для организации</span>
+          <input
+            autoComplete="off"
+            maxLength={500}
+            onChange={(event) => onChangeDraft({ comment: event.target.value })}
+            placeholder="Без телефона, адреса и лишних данных"
+            type="text"
+            value={draft.comment}
+          />
+        </label>
+      ) : null}
     </div>
   );
 }
@@ -267,6 +284,7 @@ function RequestFormView({
   onChangeDraft,
   onSelectService,
   onSubmit,
+  onSecondary,
 }: {
   district: string;
   draft: RequestDraft;
@@ -280,6 +298,7 @@ function RequestFormView({
   onChangeDraft: (patch: Partial<RequestDraft>) => void;
   onSelectService: (service: OfferService) => void;
   onSubmit: () => void;
+  onSecondary: () => void;
 }) {
   const selectedTitle = isCustom ? "Свой запрос" : displayServiceTitle(selectedService);
   const selectedPrice = isCustom ? "по согласованию" : displayServicePrice(selectedService);
@@ -289,8 +308,8 @@ function RequestFormView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow={isCustom ? "Свой запрос" : "Выбор услуги"}
-        title={isCustom ? "Опишите запрос для организации" : "Выберите услугу до заявки"}
-        body="Не указывайте телефон и точный адрес. Организация подтвердит детали и стоимость до выезда."
+        title={isCustom ? "Не нашли подходящий вариант?" : "Выберите услугу до заявки"}
+        body={isCustom ? "Опишите, что нужно — выбранная медслужба посмотрит запрос и подтвердит формат, возможность выезда и стоимость." : "Не указывайте телефон и точный адрес. Организация подтвердит детали и стоимость до выезда."}
       />
 
       <OfferBadge offer={offer} />
@@ -330,8 +349,8 @@ function RequestFormView({
         <button className="button button--primary" disabled={!canSubmit || submitPending} onClick={onSubmit} type="button">
           {submitPending ? <Dots label="Отправляем" /> : isCustom ? "Отправить запрос и открыть чат" : "Отправить заявку и открыть чат"}
         </button>
-        <button className="button button--secondary" onClick={onBack} type="button">
-          Вернуться к карточке
+        <button className="button button--secondary" onClick={isCustom ? onSecondary : onBack} type="button">
+          {isCustom ? "Сначала написать специалисту" : "Вернуться к карточке"}
         </button>
       </div>
     </section>
@@ -836,6 +855,7 @@ export function OfferSubflow({
         onChangeDraft={onChangeDraft}
         onSelectService={onSelectService}
         onSubmit={onSubmit}
+        onSecondary={() => onChangeView("details")}
         requestError={requestError}
         selectedService={isCustomService(selectedService) ? null : selectedService}
         submitPending={submitPending}
@@ -855,6 +875,7 @@ export function OfferSubflow({
         onChangeDraft={onChangeDraft}
         onSelectService={onSelectService}
         onSubmit={onSubmit}
+        onSecondary={() => onChangeView(requestId ? "chat" : "service")}
         requestError={requestError}
         selectedService={selectedService}
         submitPending={submitPending}
@@ -874,6 +895,7 @@ export function OfferSubflow({
         onChangeDraft={onChangeDraft}
         onSelectService={onSelectService}
         onSubmit={onSubmit}
+        onSecondary={() => onChangeView(requestId ? "chat" : "service")}
         requestError={requestError}
         selectedService={selectedService}
         submitPending={submitPending}

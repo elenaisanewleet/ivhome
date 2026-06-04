@@ -1463,10 +1463,43 @@ h1 {
   box-shadow: 0 0 0 2px rgba(58,138,130,0.10);
 }
 
-.service-row--binge_or_near_binge,
-.service-row--custom { background: linear-gradient(135deg, var(--dust-light), rgba(126,184,212,0.08)), var(--surface-muted); }
+.service-row--binge_or_near_binge { background: linear-gradient(135deg, var(--dust-light), rgba(126,184,212,0.08)), var(--surface-muted); }
 .service-row--urgent_visit { background: linear-gradient(135deg, var(--warn-light), rgba(126,184,212,0.08)), var(--surface-muted); }
 .service-row--intoxication { background: linear-gradient(135deg, var(--accent-light), rgba(58,138,130,0.08)), var(--surface-muted); }
+
+.custom-request-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 0.5px solid rgba(126,184,212,0.28);
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(126,184,212,0.14), rgba(184,144,144,0.10)), var(--surface-card);
+}
+
+.custom-request-panel h3,
+.custom-request-panel p {
+  margin: 0;
+}
+
+.custom-request-panel h3 {
+  margin-top: 5px;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.custom-request-panel p:not(.meta-label) {
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.custom-request-panel__actions {
+  display: grid;
+  gap: 8px;
+}
 
 .service-area {
   color: var(--text-secondary);

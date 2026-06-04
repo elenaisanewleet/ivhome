@@ -102,7 +102,16 @@ type MvpRequestStatusResponse = {
   updatedAt: string;
 };
 
-type DashboardError = Error & { status?: number };
+type DashboardError = Error & { endpoint?: string; status?: number; code?: string };
+
+type DashboardDiagnostic = {
+  id: string;
+  tone: "note" | "warning";
+  title: string;
+  endpoint: string;
+  statusCode: string;
+  hint: string;
+};
 
 const statusLabels: Record<MvpRequestStatus, string> = {
   waiting: "Ожидаем",
@@ -144,8 +153,8 @@ function BrandMark() {
 }
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
-const configuredAdminToken = import.meta.env.VITE_ADMIN_TOKEN ?? "";
-const configuredClinicToken = import.meta.env.VITE_CLINIC_TOKEN ?? "";
+const configuredAdminToken = import.meta.env.DEV ? import.meta.env.VITE_ADMIN_TOKEN ?? "" : "";
+const configuredClinicToken = import.meta.env.DEV ? import.meta.env.VITE_CLINIC_TOKEN ?? "" : "";
 
 function readStoredToken(key: string): string {
   return sessionStorage.getItem(key) ?? "";
@@ -160,21 +169,75 @@ function writeStoredToken(key: string, value: string): void {
 }
 
 async function requestJson<T>(path: string, options?: RequestInit, extraHeaders?: Record<string, string>): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...options,
-    headers: {
-      ...(options?.headers as Record<string, string> | undefined),
-      ...extraHeaders,
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...options,
+      headers: {
+        ...(options?.headers as Record<string, string> | undefined),
+        ...extraHeaders,
+      },
+    });
+  } catch {
+    const error: DashboardError = new Error("Nadom dashboard request failed before response");
+    error.endpoint = path;
+    error.code = "fetch_failed";
+    throw error;
+  }
 
   if (!response.ok) {
     const error: DashboardError = new Error(`Nadom dashboard request failed with status ${response.status}`);
+    error.endpoint = path;
     error.status = response.status;
+
+    try {
+      const body = (await response.clone().json()) as { code?: unknown };
+      if (typeof body.code === "string") error.code = body.code;
+    } catch {
+      // Keep diagnostics safe and header-free when the body is not JSON.
+    }
+
     throw error;
   }
 
   return (await response.json()) as T;
+}
+
+function dashboardHint(error: DashboardError) {
+  const statusOrCode = error.status ?? error.code;
+
+  if (error.status === 401 || error.status === 403) {
+    return "Проверьте ADMIN_TOKEN в API и введённый admin token. Не храните admin token в VITE_* на production.";
+  }
+
+  if (error.status === 404 || error.code === "fetch_failed" || error.code === "cors") {
+    return "Проверьте VITE_API_BASE_URL и CORS_ORIGINS.";
+  }
+
+  if (statusOrCode === 500 || statusOrCode === 503) {
+    return "Проверьте DATABASE_URL, миграции и логи API.";
+  }
+
+  return "Проверьте настройки API, доступы и логи без публикации токенов.";
+}
+
+function statusCodeLabel(error: DashboardError) {
+  const parts = [error.status ? String(error.status) : null, error.code ?? null].filter(Boolean);
+  return parts.length > 0 ? parts.join(" / ") : "нет ответа";
+}
+
+function diagnosticFromError(id: string, title: string, endpoint: string, error: unknown, tone: DashboardDiagnostic["tone"] = "warning"): DashboardDiagnostic {
+  const dashboardError = error as DashboardError;
+
+  return {
+    id,
+    tone,
+    title,
+    endpoint: dashboardError.endpoint ?? endpoint,
+    statusCode: statusCodeLabel(dashboardError),
+    hint: dashboardHint(dashboardError),
+  };
 }
 
 async function loadRequests(adminToken: string) {
@@ -319,11 +382,8 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
 
   useEffect(() => {
     const preset = storageKey === "nadom_admin_token" ? configuredAdminToken : configuredClinicToken;
-    if (preset) {
-      writeStoredToken(storageKey, preset);
-      onAuth(preset);
-    }
-  }, [storageKey, onAuth]);
+    if (preset) setInput(preset);
+  }, [storageKey]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -348,6 +408,9 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
           <span>Токен доступа</span>
           <input autoComplete="current-password" onChange={(e) => { setInput(e.target.value); setError(false); }} placeholder="Введите токен" ref={inputRef} type="password" value={input} />
         </label>
+        {storageKey === "nadom_admin_token" ? (
+          <p className="auth-helper">Admin token хранится только в sessionStorage этого браузера. Не вставляйте его в чат и не коммитьте в репозиторий.</p>
+        ) : null}
         {error ? <p className="auth-error">Укажите токен доступа</p> : null}
         <button type="submit">Войти</button>
       </form>
@@ -492,6 +555,7 @@ function AdminView() {
   const [clinicForm, setClinicForm] = useState(emptyClinicForm);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<DashboardDiagnostic[]>([]);
   const [lastAction, setLastAction] = useState<"idle" | "success" | "error">("idle");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [openChatId, setOpenChatId] = useState<string | null>(null);
@@ -509,24 +573,52 @@ function AdminView() {
     if (!isConfigured) return;
     setIsLoading(true);
     setMessage(null);
+    setDiagnostics([]);
     setLastAction("idle");
 
-    try {
-      const [legacy, db, clinicList] = await Promise.allSettled([loadRequests(authToken), loadDbRequests(authToken), loadClinics(authToken)]);
-      if (legacy.status === "fulfilled") setRequests(legacy.value);
-      if (db.status === "fulfilled") setDbRequests(db.value);
-      else setMessage("Postgres-заявки недоступны. Проверьте миграции и API.");
-      if (clinicList.status === "fulfilled") setClinics(clinicList.value);
-      if (successMessage) {
-        setMessage(successMessage);
-        setLastAction("success");
-      }
-    } catch {
-      setMessage("Не удалось загрузить данные. Проверьте VITE_API_BASE_URL и токен доступа.");
-      setLastAction("error");
-    } finally {
-      setIsLoading(false);
+    const [legacy, db, clinicList] = await Promise.allSettled([loadRequests(authToken), loadDbRequests(authToken), loadClinics(authToken)]);
+    const nextDiagnostics: DashboardDiagnostic[] = [];
+
+    if (legacy.status === "fulfilled") {
+      setRequests(legacy.value);
+    } else {
+      setRequests([]);
+      const legacyError = legacy.reason as DashboardError;
+      const isExpectedProductionDisabled = legacyError.status === 503 && legacyError.code === "mvp_dev_api_disabled";
+      const diagnostic = diagnosticFromError(
+        "dev-requests",
+        isExpectedProductionDisabled ? "Dev-заявки отключены в production" : "Dev-заявки недоступны",
+        "/mvp/dev/requests",
+        legacy.reason,
+        isExpectedProductionDisabled ? "note" : "warning",
+      );
+      if (isExpectedProductionDisabled) diagnostic.hint = "Ожидаемо для production: in-memory dev API отключён. Рабочие заявки смотрите через /mvp/admin/requests.";
+      nextDiagnostics.push(diagnostic);
     }
+
+    if (db.status === "fulfilled") {
+      setDbRequests(db.value);
+    } else {
+      setDbRequests([]);
+      nextDiagnostics.push(diagnosticFromError("admin-requests", "Postgres-заявки недоступны", "/mvp/admin/requests", db.reason));
+    }
+
+    if (clinicList.status === "fulfilled") {
+      setClinics(clinicList.value);
+    } else {
+      setClinics([]);
+      nextDiagnostics.push(diagnosticFromError("admin-clinics", "Список медслужб недоступен", "/mvp/admin/clinics", clinicList.reason));
+    }
+
+    setDiagnostics(nextDiagnostics);
+    if (successMessage) {
+      setMessage(successMessage);
+      setLastAction("success");
+    } else if (nextDiagnostics.some((diagnostic) => diagnostic.tone === "warning")) {
+      setLastAction("error");
+    }
+
+    setIsLoading(false);
   }, [isConfigured]);
 
   useEffect(() => {
@@ -699,11 +791,25 @@ function AdminView() {
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
-          <button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); }} type="button">Выйти</button>
+          <button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); setDiagnostics([]); }} type="button">Выйти</button>
         </div>
       </div>
 
       {message ? <p className={`dashboard-message dashboard-message--${lastAction}`}>{message}</p> : null}
+      {diagnostics.length > 0 ? (
+        <div className="dashboard-diagnostics" aria-label="Диагностика API">
+          {diagnostics.map((diagnostic) => (
+            <article className={`diagnostic-card diagnostic-card--${diagnostic.tone}`} key={diagnostic.id}>
+              <h3>{diagnostic.title}</h3>
+              <dl>
+                <div><dt>Endpoint</dt><dd>{diagnostic.endpoint}</dd></div>
+                <div><dt>Status/code</dt><dd>{diagnostic.statusCode}</dd></div>
+                <div><dt>Hint</dt><dd>{diagnostic.hint}</dd></div>
+              </dl>
+            </article>
+          ))}
+        </div>
+      ) : null}
 
       <section className="clinic-access-panel">
         <div className="dashboard-toolbar">
