@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nadom primary brand symbol — abstract IV / drop "node".
+     Use for: bot avatar, Mini App splash, welcome banners, website hero, status/loading identity.
+     currentColor-driven so it adapts to light/dark surfaces. Accent: #7EB8D4 / #4A7FA5. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Надом">
+  <defs>
+    <linearGradient id="nadomAbstract" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7EB8D4"/>
+      <stop offset="1" stop-color="#4A7FA5"/>
+    </linearGradient>
+  </defs>
+  <!-- chamber (large node) -->
+  <circle cx="286" cy="196" r="58" fill="none" stroke="url(#nadomAbstract)" stroke-width="20"/>
+  <!-- satellite node -->
+  <circle cx="196" cy="178" r="22" fill="none" stroke="url(#nadomAbstract)" stroke-width="18"/>
+  <!-- drip line -->
+  <path d="M286 254 V330" stroke="url(#nadomAbstract)" stroke-width="20" stroke-linecap="round"/>
+  <!-- falling drop -->
+  <circle cx="286" cy="360" r="24" fill="url(#nadomAbstract)"/>
+</svg>

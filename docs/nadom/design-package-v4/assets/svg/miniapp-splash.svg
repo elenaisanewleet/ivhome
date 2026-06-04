@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Nadom Mini App splash. Telegram-compatible: single viewBox, no external refs, safe on light & dark.
+     Background token swaps via the two rects (light default; set #nadom-splash-bg to #0A0A09 for dark export). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Надом">
+  <defs>
+    <linearGradient id="splashMark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7EB8D4"/>
+      <stop offset="1" stop-color="#4A7FA5"/>
+    </linearGradient>
+  </defs>
+  <rect id="nadom-splash-bg" width="512" height="512" rx="0" fill="#F5F4F0"/>
+  <g transform="translate(0,-24)">
+    <circle cx="286" cy="196" r="52" fill="none" stroke="url(#splashMark)" stroke-width="18"/>
+    <circle cx="200" cy="180" r="20" fill="none" stroke="url(#splashMark)" stroke-width="16"/>
+    <path d="M286 248 V320" stroke="url(#splashMark)" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="286" cy="348" r="22" fill="url(#splashMark)"/>
+  </g>
+  <text x="256" y="430" text-anchor="middle" font-family="'Unbounded',system-ui,sans-serif" font-size="42" font-weight="700" letter-spacing="-2" fill="#0F0F0E">Надом</text>
+</svg>
