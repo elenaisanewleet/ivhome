@@ -21,6 +21,14 @@ import type {
   MvpRequestStatusResponse,
   MvpRequestStatusUpdateInput,
 } from "@ivhome/shared";
+import type {
+  AuditAction,
+  ClinicStatus,
+  MvpClinicAccessRole,
+  MvpClinicAccessTokenStatus,
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
 
 import { validateTelegramInitData } from "./telegram/init-data.js";
 
@@ -85,6 +93,10 @@ function isMvpDevApiEnabled() {
   return process.env.ENABLE_MVP_DEV_API === "true";
 }
 
+function isClinicAuthEnabled() {
+  return process.env.CLINIC_AUTH_ENABLED === "true";
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -129,12 +141,15 @@ function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
 // ─── DB-backed MVP helpers ───────────────────────────────────────────────────
 
 const dbStatuses: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
+const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile"]);
+const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "etaMinutes", "notes"]);
+const clinicCreateAllowedFields = new Set(["id", "publicName", "legalName", "inn", "status"]);
+const clinicUpdateAllowedFields = new Set(["publicName", "legalName", "inn", "status"]);
+const clinicStatuses = new Set(["DRAFT", "PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]);
 
 function isMvpDbStatus(value: unknown): value is MvpDbStatus {
   return typeof value === "string" && dbStatuses.includes(value as MvpDbStatus);
 }
-
-const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile"]);
 
 function isMvpDbRequestCreateInput(value: unknown): value is MvpDbRequestCreateInput {
   if (!isRecord(value)) {
@@ -156,8 +171,6 @@ function isMvpDbRequestCreateInput(value: unknown): value is MvpDbRequestCreateI
   );
 }
 
-const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "etaMinutes", "notes"]);
-
 function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUpdateInput {
   if (!isRecord(value)) {
     return false;
@@ -173,24 +186,15 @@ function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUp
     return false;
   }
 
-  if (
-    value.priceMin !== undefined &&
-    (typeof value.priceMin !== "number" || !Number.isFinite(value.priceMin) || value.priceMin < 0)
-  ) {
+  if (value.priceMin !== undefined && (typeof value.priceMin !== "number" || !Number.isFinite(value.priceMin) || value.priceMin < 0)) {
     return false;
   }
 
-  if (
-    value.priceMax !== undefined &&
-    (typeof value.priceMax !== "number" || !Number.isFinite(value.priceMax) || value.priceMax < 0)
-  ) {
+  if (value.priceMax !== undefined && (typeof value.priceMax !== "number" || !Number.isFinite(value.priceMax) || value.priceMax < 0)) {
     return false;
   }
 
-  if (
-    value.etaMinutes !== undefined &&
-    (typeof value.etaMinutes !== "number" || !Number.isFinite(value.etaMinutes) || value.etaMinutes < 0)
-  ) {
+  if (value.etaMinutes !== undefined && (typeof value.etaMinutes !== "number" || !Number.isFinite(value.etaMinutes) || value.etaMinutes < 0)) {
     return false;
   }
 
@@ -209,16 +213,11 @@ function isMvpChatMessagePublicCreateInput(value: unknown): value is MvpChatMess
   return Object.keys(value).every((key) => key === "body") && isShortText(value.body, 2000);
 }
 
-
-const clinicCreateAllowedFields = new Set(["id", "publicName", "legalName", "inn", "status"]);
-const clinicUpdateAllowedFields = new Set(["publicName", "legalName", "inn", "status"]);
-const clinicStatuses = new Set(["DRAFT", "PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]);
-
-function isClinicStatus(value: unknown): value is import("@prisma/client").ClinicStatus {
+function isClinicStatus(value: unknown): value is ClinicStatus {
   return typeof value === "string" && clinicStatuses.has(value);
 }
 
-function isClinicCreateInput(value: unknown): value is { id: string; publicName: string; legalName: string; inn: string; status?: import("@prisma/client").ClinicStatus } {
+function isClinicCreateInput(value: unknown): value is { id: string; publicName: string; legalName: string; inn: string; status?: ClinicStatus } {
   if (!isRecord(value) || Object.keys(value).some((key) => !clinicCreateAllowedFields.has(key))) {
     return false;
   }
@@ -233,7 +232,7 @@ function isClinicCreateInput(value: unknown): value is { id: string; publicName:
   );
 }
 
-function isClinicUpdateInput(value: unknown): value is { publicName?: string; legalName?: string; inn?: string; status?: import("@prisma/client").ClinicStatus } {
+function isClinicUpdateInput(value: unknown): value is { publicName?: string; legalName?: string; inn?: string; status?: ClinicStatus } {
   if (!isRecord(value) || Object.keys(value).some((key) => !clinicUpdateAllowedFields.has(key))) {
     return false;
   }
@@ -246,7 +245,7 @@ function isClinicUpdateInput(value: unknown): value is { publicName?: string; le
   );
 }
 
-function isAccessTokenCreateInput(value: unknown): value is { label?: string; role?: "OPERATOR" | "ADMIN"; expiresAt?: string } {
+function isAccessTokenCreateInput(value: unknown): value is { label?: string; role?: MvpClinicAccessRole; expiresAt?: string } {
   if (value === undefined || value === null) {
     return true;
   }
@@ -262,19 +261,48 @@ function isAccessTokenCreateInput(value: unknown): value is { label?: string; ro
   );
 }
 
-function toClinicResponse(row: { id: string; publicName: string; legalName: string; inn: string; status: import("@prisma/client").ClinicStatus; createdAt: Date; updatedAt: Date }) {
+function isOnboardingStatus(value: unknown): value is "DRAFT" | "SUBMITTED" | "APPROVED" {
+  return value === "DRAFT" || value === "SUBMITTED" || value === "APPROVED";
+}
+
+type ClinicRowForResponse = {
+  id: string;
+  publicName: string;
+  legalName: string;
+  inn: string;
+  status: ClinicStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  mvpAccessTokens?: Array<{ status: MvpClinicAccessTokenStatus; revokedAt: Date | null }>;
+};
+
+function toClinicResponse(row: ClinicRowForResponse) {
+  const activeAccessTokenCount = row.mvpAccessTokens?.filter((token) => token.status === "ACTIVE" && token.revokedAt === null).length ?? 0;
+
   return {
     id: row.id,
     publicName: row.publicName,
     legalName: row.legalName,
     inn: row.inn,
     status: row.status,
+    activeAccessTokenCount,
+    hasActiveAccessToken: activeAccessTokenCount > 0,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
 }
 
-function toAccessTokenResponse(row: { id: string; clinicId: string; label: string; role: "OPERATOR" | "ADMIN"; status: "ACTIVE" | "REVOKED"; lastUsedAt: Date | null; expiresAt: Date | null; createdAt: Date; revokedAt: Date | null }) {
+function toAccessTokenResponse(row: {
+  id: string;
+  clinicId: string;
+  label: string;
+  role: MvpClinicAccessRole;
+  status: MvpClinicAccessTokenStatus;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
+  createdAt: Date;
+  revokedAt: Date | null;
+}) {
   return {
     id: row.id,
     clinicId: row.clinicId,
@@ -286,13 +314,6 @@ function toAccessTokenResponse(row: { id: string; clinicId: string; label: strin
     createdAt: row.createdAt.toISOString(),
     revokedAt: row.revokedAt?.toISOString() ?? null,
   };
-}
-
-// ─── Token auth helpers ──────────────────────────────────────────────────────
-
-
-function isClinicAuthEnabled() {
-  return process.env.CLINIC_AUTH_ENABLED === "true";
 }
 
 function hashSecret(secret: string): string {
@@ -321,16 +342,16 @@ function bearerToken(authHeader: string | undefined): string | null {
   return match?.[1] ?? null;
 }
 
-function auditMetadata(value: Record<string, unknown>): import("@prisma/client").Prisma.InputJsonValue {
-  return value as import("@prisma/client").Prisma.InputJsonValue;
+function auditMetadata(value: Record<string, unknown>): Prisma.InputJsonValue {
+  return value as Prisma.InputJsonValue;
 }
 
 async function writeAuditLog(
-  db: import("@prisma/client").PrismaClient,
+  db: PrismaClient,
   data: {
     actorType: "CLINIC_MEMBER" | "PLATFORM_STAFF" | "SYSTEM";
     actorId?: string | null;
-    action: import("@prisma/client").AuditAction;
+    action: AuditAction;
     entityType: string;
     entityId?: string | null;
     clinicId?: string | null;
@@ -355,18 +376,24 @@ async function writeAuditLog(
 type ClinicAccessContext = {
   clinicId: string;
   accessTokenId: string | null;
-  role: "OPERATOR" | "ADMIN";
+  role: MvpClinicAccessRole;
   publicName?: string;
 };
 
 async function authenticateClinicRequest(
-  db: import("@prisma/client").PrismaClient,
+  db: PrismaClient,
   headers: { authorization?: string; "x-clinic-id"?: string | string[]; "x-clinic-access-token"?: string | string[] },
 ): Promise<ClinicAccessContext | null> {
   const legacyClinicId = typeof headers["x-clinic-id"] === "string" ? headers["x-clinic-id"] : null;
 
   if (!isClinicAuthEnabled()) {
-    return legacyClinicId ? { clinicId: legacyClinicId, accessTokenId: null, role: "OPERATOR" } : null;
+    if (!legacyClinicId) {
+      return null;
+    }
+
+    const clinic = await db.clinic.findUnique({ where: { id: legacyClinicId }, select: { id: true, publicName: true, status: true } });
+
+    return clinic ? { clinicId: clinic.id, accessTokenId: null, role: "OPERATOR", publicName: clinic.publicName } : null;
   }
 
   const suppliedToken = bearerToken(headers.authorization) ??
@@ -410,33 +437,24 @@ async function authenticateClinicRequest(
 function checkAdminToken(authHeader: string | undefined): boolean {
   const adminToken = process.env.ADMIN_TOKEN;
 
-  // If no token configured and MVP dev API is enabled, allow without auth (local dev)
   if (!adminToken && isMvpDevApiEnabled()) {
     return true;
   }
 
-  if (!adminToken) {
-    return false;
-  }
-
-  if (!authHeader) {
+  if (!adminToken || !authHeader) {
     return false;
   }
 
   const match = /^Bearer (.+)$/u.exec(authHeader);
 
-  if (!match) {
-    return false;
-  }
-
-  return match[1] === adminToken;
+  return match?.[1] === adminToken;
 }
 
 // ─── Lazy Prisma client — only imported when DB routes are used ───────────────
 
-let _prisma: import("@prisma/client").PrismaClient | null = null;
+let _prisma: PrismaClient | null = null;
 
-async function getPrisma(): Promise<import("@prisma/client").PrismaClient> {
+async function getPrisma(): Promise<PrismaClient> {
   if (!_prisma) {
     const { PrismaClient } = await import("@prisma/client");
 
@@ -446,7 +464,7 @@ async function getPrisma(): Promise<import("@prisma/client").PrismaClient> {
   return _prisma;
 }
 
-export function setPrismaForTesting(prisma: import("@prisma/client").PrismaClient | null) {
+export function setPrismaForTesting(prisma: PrismaClient | null) {
   _prisma = prisma;
 }
 
@@ -457,8 +475,6 @@ function errorBody(code: string, message: string) {
 function isPrismaKnownRequestError(error: unknown, code: string) {
   return isRecord(error) && error.code === code;
 }
-
-// ─── DB row → API shape ───────────────────────────────────────────────────────
 
 function toMvpDbRequest(row: {
   id: string;
@@ -511,9 +527,7 @@ function toMvpChatMessage(row: {
 // ─── App factory ─────────────────────────────────────────────────────────────
 
 export function buildApp() {
-  const app = Fastify({
-    logger: true,
-  });
+  const app = Fastify({ logger: true });
 
   app.addHook("onRequest", async (request, reply) => {
     const origin = request.headers.origin;
@@ -529,40 +543,24 @@ export function buildApp() {
 
   app.options("/*", async (_request, reply) => reply.code(204).send());
 
-  app.get("/health/live", async () => ({
-    status: "ok",
-    service,
-  }));
+  app.get("/health/live", async () => ({ status: "ok", service }));
+  app.get("/health/ready", async () => ({ status: "ok", service, checks: { process: "ok" } }));
 
-  app.get("/health/ready", async () => ({
-    status: "ok",
-    service,
-    checks: {
-      process: "ok",
-    },
-  }));
+  app.post<{ Body: { initData?: unknown } }>("/telegram/init-data/validate", async (request, reply) => {
+    const initData = request.body?.initData;
 
-  app.post<{ Body: { initData?: unknown } }>(
-    "/telegram/init-data/validate",
-    async (request, reply) => {
-      const initData = request.body?.initData;
+    if (typeof initData !== "string") {
+      return reply.code(400).send({ valid: false });
+    }
 
-      if (typeof initData !== "string") {
-        return reply.code(400).send({ valid: false });
-      }
+    const result = validateTelegramInitData(initData, process.env.TELEGRAM_BOT_TOKEN ?? "");
 
-      const result = validateTelegramInitData(
-        initData,
-        process.env.TELEGRAM_BOT_TOKEN ?? "",
-      );
+    if (!result.valid) {
+      return reply.code(401).send({ valid: false });
+    }
 
-      if (!result.valid) {
-        return reply.code(401).send({ valid: false });
-      }
-
-      return { valid: true };
-    },
-  );
+    return { valid: true };
+  });
 
   // ─── In-memory MVP dev routes (preview contract) ───────────────────────────
 
@@ -579,9 +577,7 @@ export function buildApp() {
       return reply.code(503).send({ error: "mvp_dev_api_disabled" });
     }
 
-    return {
-      requests: [...requestStore.values()].sort((left, right) => right.createdAt.localeCompare(left.createdAt)),
-    } satisfies MvpRequestListResponse;
+    return { requests: [...requestStore.values()].sort((left, right) => right.createdAt.localeCompare(left.createdAt)) } satisfies MvpRequestListResponse;
   });
 
   app.post<{ Body: unknown }>("/mvp/dev/requests", async (request, reply) => {
@@ -599,7 +595,6 @@ export function buildApp() {
       return reply.code(400).send({ error: "unknown_offer" });
     }
 
-    // In-memory preview contract only. Do not add chat, medical, contact, or Telegram data here.
     const now = new Date().toISOString();
     const record = {
       requestId: randomUUID(),
@@ -646,26 +641,124 @@ export function buildApp() {
       return reply.code(404).send({ error: "request_not_found" });
     }
 
-    const updatedRecord = {
-      ...record,
-      status: request.body.status,
-      updatedAt: new Date().toISOString(),
-    } satisfies MvpRequestRecord;
-
+    const updatedRecord = { ...record, status: request.body.status, updatedAt: new Date().toISOString() } satisfies MvpRequestRecord;
     requestStore.set(updatedRecord.requestId, updatedRecord);
 
     return toStatusResponse(updatedRecord);
   });
 
-  // ─── Postgres-backed MVP routes ────────────────────────────────────────────
+  // ─── Public MVP routes ─────────────────────────────────────────────────────
 
-  // Public: list offers (from static data — DB offers sync is a follow-up)
-  app.get("/mvp/offers", async () => {
-    return { offers: mvpOffers } satisfies MvpOffersResponse;
+  app.get("/mvp/offers", async () => ({ offers: mvpOffers } satisfies MvpOffersResponse));
+
+  app.post<{ Body: unknown }>("/mvp/requests", async (request, reply) => {
+    if (!isMvpDbRequestCreateInput(request.body)) {
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
+    }
+
+    const input = request.body;
+    const offer = mvpOffers.find((item) => item.id === input.offerId);
+
+    if (!offer) {
+      return reply.code(400).send(errorBody("unknown_offer", "Offer was not found."));
+    }
+
+    if (input.clinicId && input.clinicId !== offer.id) {
+      return reply.code(400).send(errorBody("offer_clinic_mismatch", "Offer and medservice do not match."));
+    }
+
+    try {
+      const db = await getPrisma();
+
+      if (input.clinicId) {
+        const clinic = await db.clinic.findUnique({ where: { id: input.clinicId }, select: { id: true } });
+
+        if (!clinic) {
+          return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
+        }
+      }
+
+      const row = await db.mvpRequest.create({
+        data: {
+          offerId: input.offerId,
+          clinicId: input.clinicId ?? null,
+          district: input.district,
+          desiredTime: input.desiredTime,
+          profile: input.profile,
+        },
+      });
+
+      return reply.code(201).send(toMvpDbRequest(row));
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
   });
 
+  app.get<{ Params: { id: string } }>("/mvp/requests/:id", async (request, reply) => {
+    try {
+      const db = await getPrisma();
+      const row = await db.mvpRequest.findUnique({ where: { id: request.params.id } });
 
-  // Admin: manage pilot medservices
+      if (!row) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+
+      return {
+        id: row.id,
+        offerId: row.offerId,
+        status: row.status as MvpDbStatus,
+        priceMin: row.priceMin,
+        priceMax: row.priceMax,
+        priceCurrency: row.priceCurrency,
+        etaMinutes: row.etaMinutes,
+        createdAt: row.createdAt.toISOString(),
+        updatedAt: row.updatedAt.toISOString(),
+      };
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+  app.get<{ Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { id: true } });
+
+      if (!exists) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+
+      const rows = await db.mvpChatMessage.findMany({ where: { requestId: request.params.id }, orderBy: { createdAt: "asc" } });
+
+      return { messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })) } satisfies MvpChatMessagesResponse;
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+  app.post<{ Body: unknown; Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
+    if (!isMvpChatMessagePublicCreateInput(request.body)) {
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const exists = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { id: true } });
+
+      if (!exists) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+
+      const row = await db.mvpChatMessage.create({ data: { requestId: request.params.id, actorType: "USER", body: request.body.body } });
+
+      return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+  // ─── Admin medservice access routes ────────────────────────────────────────
+
   app.get("/mvp/admin/clinics", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -674,8 +767,9 @@ export function buildApp() {
     try {
       const db = await getPrisma();
       const rows = await db.clinic.findMany({
-        where: { id: { startsWith: "medservice-" } },
-        orderBy: { id: "asc" },
+        where: { status: { not: "REJECTED" } },
+        include: { mvpAccessTokens: { select: { status: true, revokedAt: true } } },
+        orderBy: [{ createdAt: "desc" }, { id: "asc" }],
       });
 
       return { clinics: rows.map(toClinicResponse) };
@@ -704,7 +798,15 @@ export function buildApp() {
           status: request.body.status ?? "ACTIVE",
         },
       });
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_CLINIC_CREATE", entityType: "Clinic", entityId: row.id, clinicId: row.id, metadata: { status: row.status } });
+
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: "MVP_CLINIC_CREATE",
+        entityType: "Clinic",
+        entityId: row.id,
+        clinicId: row.id,
+        metadata: { status: row.status },
+      });
 
       return reply.code(201).send(toClinicResponse(row));
     } catch (error) {
@@ -728,7 +830,14 @@ export function buildApp() {
     try {
       const db = await getPrisma();
       const row = await db.clinic.update({ where: { id: request.params.clinicId }, data: request.body });
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_CLINIC_UPDATE", entityType: "Clinic", entityId: row.id, clinicId: row.id, metadata: { status: row.status } });
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: "MVP_CLINIC_UPDATE",
+        entityType: "Clinic",
+        entityId: row.id,
+        clinicId: row.id,
+        metadata: { status: row.status },
+      });
 
       return toClinicResponse(row);
     } catch (error) {
@@ -751,10 +860,14 @@ export function buildApp() {
 
     try {
       const db = await getPrisma();
-      const clinic = await db.clinic.findUnique({ where: { id: request.params.clinicId }, select: { id: true } });
+      const clinic = await db.clinic.findUnique({ where: { id: request.params.clinicId }, select: { id: true, status: true } });
 
       if (!clinic) {
         return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
+      }
+
+      if (clinic.status !== "ACTIVE") {
+        return reply.code(409).send(errorBody("clinic_not_active", "Clinic must be active before access can be created."));
       }
 
       const rawToken = generateClinicAccessToken();
@@ -767,7 +880,15 @@ export function buildApp() {
           expiresAt: request.body?.expiresAt ? new Date(request.body.expiresAt) : null,
         },
       });
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_CLINIC_ACCESS_TOKEN_CREATE", entityType: "MvpClinicAccessToken", entityId: row.id, clinicId: row.clinicId, metadata: { role: row.role, expiresAt: row.expiresAt?.toISOString() ?? null } });
+
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: "MVP_CLINIC_ACCESS_TOKEN_CREATE",
+        entityType: "MvpClinicAccessToken",
+        entityId: row.id,
+        clinicId: row.clinicId,
+        metadata: { role: row.role, expiresAt: row.expiresAt?.toISOString() ?? null },
+      });
 
       return reply.code(201).send({ accessToken: toAccessTokenResponse(row), rawToken });
     } catch {
@@ -797,22 +918,27 @@ export function buildApp() {
 
     try {
       const db = await getPrisma();
+      const existing = await db.mvpClinicAccessToken.findFirst({ where: { id: request.params.tokenId, clinicId: request.params.clinicId }, select: { id: true } });
+
+      if (!existing) {
+        return reply.code(404).send(errorBody("token_not_found", "Access token was not found."));
+      }
+
       const row = await db.mvpClinicAccessToken.update({
         where: { id: request.params.tokenId },
         data: { status: "REVOKED", revokedAt: new Date() },
       });
 
-      if (row.clinicId !== request.params.clinicId) {
-        return reply.code(404).send(errorBody("token_not_found", "Access token was not found."));
-      }
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: "MVP_CLINIC_ACCESS_TOKEN_REVOKE",
+        entityType: "MvpClinicAccessToken",
+        entityId: row.id,
+        clinicId: row.clinicId,
+      });
 
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_CLINIC_ACCESS_TOKEN_REVOKE", entityType: "MvpClinicAccessToken", entityId: row.id, clinicId: row.clinicId });
       return toAccessTokenResponse(row);
-    } catch (error) {
-      if (isPrismaKnownRequestError(error, "P2025")) {
-        return reply.code(404).send(errorBody("token_not_found", "Access token was not found."));
-      }
-
+    } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
@@ -829,13 +955,13 @@ export function buildApp() {
     try {
       const db = await getPrisma();
       const ctx = await authenticateClinicRequest(db, { authorization: `Bearer ${request.body.token}` });
+
       return { valid: Boolean(ctx), clinicId: ctx?.clinicId ?? null, publicName: ctx?.publicName ?? null };
     } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
-  // Clinic: authenticate pilot access token and return clinic context.
   app.post<{ Body: unknown }>("/mvp/clinic/auth", async (request, reply) => {
     if (!isRecord(request.body) || !isShortText(request.body.token, 200) || (request.body.clinicId !== undefined && !isShortText(request.body.clinicId, 80))) {
       return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
@@ -858,141 +984,8 @@ export function buildApp() {
     }
   });
 
-  // Public (MVP): create a request persisted to Postgres
-  app.post<{ Body: unknown }>("/mvp/requests", async (request, reply) => {
-    if (!isMvpDbRequestCreateInput(request.body)) {
-      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
-    }
+  // ─── Admin request routes ──────────────────────────────────────────────────
 
-    const input = request.body;
-    const offer = mvpOffers.find((item) => item.id === input.offerId);
-
-    if (!offer) {
-      return reply.code(400).send(errorBody("unknown_offer", "Offer was not found."));
-    }
-
-    if (input.clinicId && input.clinicId !== offer.id) {
-      return reply.code(400).send(errorBody("offer_clinic_mismatch", "Offer and medservice do not match."));
-    }
-
-    try {
-      const db = await getPrisma();
-      if (input.clinicId) {
-        const clinic = await db.clinic.findUnique({
-          where: { id: input.clinicId },
-          select: { id: true },
-        });
-
-        if (!clinic) {
-          return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
-        }
-      }
-
-      const row = await db.mvpRequest.create({
-        data: {
-          offerId: input.offerId,
-          clinicId: input.clinicId ?? null,
-          district: input.district,
-          desiredTime: input.desiredTime,
-          profile: input.profile,
-        },
-      });
-
-      return reply.code(201).send(toMvpDbRequest(row));
-    } catch {
-      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
-    }
-  });
-
-  // Public (MVP): get request status — no sensitive data exposed
-  app.get<{ Params: { id: string } }>("/mvp/requests/:id", async (request, reply) => {
-    try {
-      const db = await getPrisma();
-      const row = await db.mvpRequest.findUnique({
-        where: { id: request.params.id },
-      });
-
-      if (!row) {
-        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
-      }
-
-      // Return only non-sensitive fields
-      return {
-        id: row.id,
-        offerId: row.offerId,
-        status: row.status as MvpDbStatus,
-        priceMin: row.priceMin,
-        priceMax: row.priceMax,
-        priceCurrency: row.priceCurrency,
-        etaMinutes: row.etaMinutes,
-        createdAt: row.createdAt.toISOString(),
-        updatedAt: row.updatedAt.toISOString(),
-      };
-    } catch {
-      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
-    }
-  });
-
-  // Chat: get messages for a request (body only, no phone/address)
-  app.get<{ Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
-    try {
-      const db = await getPrisma();
-      const exists = await db.mvpRequest.findUnique({
-        where: { id: request.params.id },
-        select: { id: true },
-      });
-
-      if (!exists) {
-        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
-      }
-
-      const rows = await db.mvpChatMessage.findMany({
-        where: { requestId: request.params.id },
-        orderBy: { createdAt: "asc" },
-      });
-
-      return {
-        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
-      } satisfies MvpChatMessagesResponse;
-    } catch {
-      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
-    }
-  });
-
-  // Chat: add a user message. Dashboards use scoped admin/clinic chat routes below.
-  app.post<{ Body: unknown; Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
-    if (!isMvpChatMessagePublicCreateInput(request.body)) {
-      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
-    }
-
-    const input = request.body;
-
-    try {
-      const db = await getPrisma();
-      const exists = await db.mvpRequest.findUnique({
-        where: { id: request.params.id },
-        select: { id: true },
-      });
-
-      if (!exists) {
-        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
-      }
-
-      const row = await db.mvpChatMessage.create({
-        data: {
-          requestId: request.params.id,
-          actorType: "USER",
-          body: input.body,
-        },
-      });
-
-      return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
-    } catch {
-      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
-    }
-  });
-
-  // Admin: list all DB requests (requires ADMIN_TOKEN or local dev)
   app.get("/mvp/admin/requests", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -1000,10 +993,7 @@ export function buildApp() {
 
     try {
       const db = await getPrisma();
-      const rows = await db.mvpRequest.findMany({
-        orderBy: { createdAt: "desc" },
-      });
-
+      const rows = await db.mvpRequest.findMany({ orderBy: { createdAt: "desc" } });
       await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_REQUEST_LIST_VIEW", entityType: "MvpRequest", metadata: { scope: "admin", count: rows.length } });
 
       return { requests: rows.map(toMvpDbRequest) };
@@ -1012,7 +1002,6 @@ export function buildApp() {
     }
   });
 
-  // Admin: update request status
   app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/status", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -1036,7 +1025,16 @@ export function buildApp() {
           ...(input.notes !== undefined ? { notes: input.notes } : {}),
         },
       });
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_REQUEST_STATUS_UPDATE", entityType: "MvpRequest", entityId: row.id, clinicId: row.clinicId, requestId: row.id, metadata: { status: row.status, hasPrice: row.priceMin !== null || row.priceMax !== null, hasEta: row.etaMinutes !== null } });
+
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: "MVP_REQUEST_STATUS_UPDATE",
+        entityType: "MvpRequest",
+        entityId: row.id,
+        clinicId: row.clinicId,
+        requestId: row.id,
+        metadata: { status: row.status, hasPrice: row.priceMin !== null || row.priceMax !== null, hasEta: row.etaMinutes !== null },
+      });
 
       return toMvpDbRequest(row);
     } catch (error) {
@@ -1048,7 +1046,6 @@ export function buildApp() {
     }
   });
 
-  // Admin: read request chat
   app.get<{ Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -1056,29 +1053,20 @@ export function buildApp() {
 
     try {
       const db = await getPrisma();
-      const exists = await db.mvpRequest.findUnique({
-        where: { id: request.params.id },
-        select: { id: true },
-      });
+      const exists = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { id: true } });
 
       if (!exists) {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
-      const rows = await db.mvpChatMessage.findMany({
-        where: { requestId: request.params.id },
-        orderBy: { createdAt: "asc" },
-      });
+      const rows = await db.mvpChatMessage.findMany({ where: { requestId: request.params.id }, orderBy: { createdAt: "asc" } });
 
-      return {
-        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
-      } satisfies MvpChatMessagesResponse;
+      return { messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })) } satisfies MvpChatMessagesResponse;
     } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
-  // Admin: reply to request chat
   app.post<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -1090,22 +1078,13 @@ export function buildApp() {
 
     try {
       const db = await getPrisma();
-      const exists = await db.mvpRequest.findUnique({
-        where: { id: request.params.id },
-        select: { id: true },
-      });
+      const exists = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { id: true } });
 
       if (!exists) {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
-      const row = await db.mvpChatMessage.create({
-        data: {
-          requestId: request.params.id,
-          actorType: "ADMIN",
-          body: request.body.body,
-        },
-      });
+      const row = await db.mvpChatMessage.create({ data: { requestId: request.params.id, actorType: "ADMIN", body: request.body.body } });
       const req = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { clinicId: true } });
       await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_CHAT_MESSAGE_SEND", entityType: "MvpChatMessage", entityId: row.id, clinicId: req?.clinicId ?? null, requestId: request.params.id, metadata: { actorType: "ADMIN" } });
 
@@ -1115,7 +1094,8 @@ export function buildApp() {
     }
   });
 
-  // Clinic: list requests for the authenticated medservice.
+  // ─── Clinic routes ─────────────────────────────────────────────────────────
+
   app.get("/mvp/clinic/requests", async (request, reply) => {
     try {
       const db = await getPrisma();
@@ -1125,11 +1105,7 @@ export function buildApp() {
         return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
       }
 
-      const rows = await db.mvpRequest.findMany({
-        where: { clinicId: clinic.clinicId },
-        orderBy: { createdAt: "desc" },
-      });
-
+      const rows = await db.mvpRequest.findMany({ where: { clinicId: clinic.clinicId }, orderBy: { createdAt: "desc" } });
       await writeAuditLog(db, { actorType: "CLINIC_MEMBER", actorId: clinic.accessTokenId, action: "MVP_REQUEST_LIST_VIEW", entityType: "MvpRequest", clinicId: clinic.clinicId, metadata: { count: rows.length } });
 
       return { clinic: { id: clinic.clinicId, publicName: clinic.publicName ?? clinic.clinicId }, requests: rows.map(toMvpDbRequest) };
@@ -1138,7 +1114,6 @@ export function buildApp() {
     }
   });
 
-  // Clinic: update only own request status
   app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/clinic/requests/:id/status", async (request, reply) => {
     if (!isMvpDbStatusUpdateInput(request.body)) {
       return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
@@ -1154,10 +1129,7 @@ export function buildApp() {
         return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
       }
 
-      const exists = await db.mvpRequest.findFirst({
-        where: { id: request.params.id, clinicId: clinic.clinicId },
-        select: { id: true },
-      });
+      const exists = await db.mvpRequest.findFirst({ where: { id: request.params.id, clinicId: clinic.clinicId }, select: { id: true } });
 
       if (!exists) {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
@@ -1174,7 +1146,16 @@ export function buildApp() {
         },
       });
 
-      await writeAuditLog(db, { actorType: "CLINIC_MEMBER", actorId: clinic.accessTokenId, action: "MVP_REQUEST_STATUS_UPDATE", entityType: "MvpRequest", entityId: row.id, clinicId: clinic.clinicId, requestId: row.id, metadata: { status: row.status, hasPrice: row.priceMin !== null || row.priceMax !== null, hasEta: row.etaMinutes !== null } });
+      await writeAuditLog(db, {
+        actorType: "CLINIC_MEMBER",
+        actorId: clinic.accessTokenId,
+        action: "MVP_REQUEST_STATUS_UPDATE",
+        entityType: "MvpRequest",
+        entityId: row.id,
+        clinicId: clinic.clinicId,
+        requestId: row.id,
+        metadata: { status: row.status, hasPrice: row.priceMin !== null || row.priceMax !== null, hasEta: row.etaMinutes !== null },
+      });
 
       return toMvpDbRequest(row);
     } catch {
@@ -1182,7 +1163,6 @@ export function buildApp() {
     }
   });
 
-  // Clinic: read only own request chat
   app.get<{ Params: { id: string } }>("/mvp/clinic/requests/:id/chat", async (request, reply) => {
     try {
       const db = await getPrisma();
@@ -1192,29 +1172,20 @@ export function buildApp() {
         return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
       }
 
-      const exists = await db.mvpRequest.findFirst({
-        where: { id: request.params.id, clinicId: clinic.clinicId },
-        select: { id: true },
-      });
+      const exists = await db.mvpRequest.findFirst({ where: { id: request.params.id, clinicId: clinic.clinicId }, select: { id: true } });
 
       if (!exists) {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
-      const rows = await db.mvpChatMessage.findMany({
-        where: { requestId: request.params.id },
-        orderBy: { createdAt: "asc" },
-      });
+      const rows = await db.mvpChatMessage.findMany({ where: { requestId: request.params.id }, orderBy: { createdAt: "asc" } });
 
-      return {
-        messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
-      } satisfies MvpChatMessagesResponse;
+      return { messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })) } satisfies MvpChatMessagesResponse;
     } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
-  // Clinic: reply only to own request chat
   app.post<{ Body: unknown; Params: { id: string } }>("/mvp/clinic/requests/:id/chat", async (request, reply) => {
     if (!isMvpChatMessagePublicCreateInput(request.body)) {
       return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
@@ -1228,23 +1199,13 @@ export function buildApp() {
         return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
       }
 
-      const exists = await db.mvpRequest.findFirst({
-        where: { id: request.params.id, clinicId: clinic.clinicId },
-        select: { id: true },
-      });
+      const exists = await db.mvpRequest.findFirst({ where: { id: request.params.id, clinicId: clinic.clinicId }, select: { id: true } });
 
       if (!exists) {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
-      const row = await db.mvpChatMessage.create({
-        data: {
-          requestId: request.params.id,
-          actorType: "CLINIC",
-          body: request.body.body,
-        },
-      });
-
+      const row = await db.mvpChatMessage.create({ data: { requestId: request.params.id, actorType: "CLINIC", body: request.body.body } });
       await writeAuditLog(db, { actorType: "CLINIC_MEMBER", actorId: clinic.accessTokenId, action: "MVP_CHAT_MESSAGE_SEND", entityType: "MvpChatMessage", entityId: row.id, clinicId: clinic.clinicId, requestId: request.params.id, metadata: { actorType: "CLINIC" } });
 
       return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
@@ -1253,7 +1214,34 @@ export function buildApp() {
     }
   });
 
-  // Onboarding: save/update onboarding form for a clinic
+  // ─── Onboarding ────────────────────────────────────────────────────────────
+
+  app.get<{ Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
+    if (!checkAdminToken(request.headers.authorization)) {
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const row = await db.mvpOnboarding.findUnique({ where: { clinicId: request.params.clinicId } });
+
+      if (!row) {
+        return reply.code(404).send(errorBody("onboarding_not_found", "Onboarding form was not found."));
+      }
+
+      return {
+        id: row.id,
+        clinicId: row.clinicId,
+        data: row.data,
+        status: row.status,
+        submittedAt: row.submittedAt?.toISOString() ?? null,
+        updatedAt: row.updatedAt.toISOString(),
+      };
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
   app.post<{ Body: unknown; Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
       return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
@@ -1263,62 +1251,33 @@ export function buildApp() {
       return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
-    const { clinicId } = request.params;
     const { status: submittedStatus, ...formData } = request.body;
-    const onboardingStatus =
-      submittedStatus === "SUBMITTED" || submittedStatus === "APPROVED" ? submittedStatus : "DRAFT";
-    // Prisma requires InputJsonValue; formData is a plain object and is safe to cast.
-    const jsonData = formData as import("@prisma/client").Prisma.InputJsonValue;
+    const onboardingStatus = isOnboardingStatus(submittedStatus) ? submittedStatus : "DRAFT";
+    const submittedAt = onboardingStatus === "SUBMITTED" || onboardingStatus === "APPROVED" ? new Date() : undefined;
+    const jsonData = formData as Prisma.InputJsonValue;
 
     try {
       const db = await getPrisma();
-      const row = await db.mvpOnboarding.upsert({
-        where: { clinicId },
-        update: {
-          data: jsonData,
-          status: onboardingStatus,
-          submittedAt: onboardingStatus === "SUBMITTED" || onboardingStatus === "APPROVED" ? new Date() : undefined,
-        },
-        create: {
-          clinicId,
-          data: jsonData,
-          status: onboardingStatus,
-          submittedAt: onboardingStatus === "SUBMITTED" || onboardingStatus === "APPROVED" ? new Date() : null,
-        },
-      });
+      const clinic = await db.clinic.findUnique({ where: { id: request.params.clinicId }, select: { id: true } });
 
-      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: onboardingStatus === "DRAFT" ? "MVP_ONBOARDING_SAVE" : "MVP_ONBOARDING_SUBMIT", entityType: "MvpOnboarding", entityId: row.id, clinicId: row.clinicId, metadata: { status: row.status } });
-
-      return {
-        id: row.id,
-        clinicId: row.clinicId,
-        status: row.status,
-        submittedAt: row.submittedAt?.toISOString() ?? null,
-        updatedAt: row.updatedAt.toISOString(),
-      };
-    } catch (error) {
-      if (isPrismaKnownRequestError(error, "P2003")) {
+      if (!clinic) {
         return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
       }
 
-      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
-    }
-  });
-
-  app.get<{ Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
-    if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
-    }
-
-    try {
-      const db = await getPrisma();
-      const row = await db.mvpOnboarding.findUnique({
+      const row = await db.mvpOnboarding.upsert({
         where: { clinicId: request.params.clinicId },
+        update: { data: jsonData, status: onboardingStatus, ...(submittedAt ? { submittedAt } : {}) },
+        create: { clinicId: request.params.clinicId, data: jsonData, status: onboardingStatus, submittedAt: submittedAt ?? null },
       });
 
-      if (!row) {
-        return reply.code(404).send(errorBody("not_found", "Resource was not found."));
-      }
+      await writeAuditLog(db, {
+        actorType: "PLATFORM_STAFF",
+        action: onboardingStatus === "DRAFT" ? "MVP_ONBOARDING_SAVE" : "MVP_ONBOARDING_SUBMIT",
+        entityType: "MvpOnboarding",
+        entityId: row.id,
+        clinicId: row.clinicId,
+        metadata: { status: row.status },
+      });
 
       return {
         id: row.id,
