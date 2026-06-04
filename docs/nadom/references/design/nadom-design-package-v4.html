@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Надом — Design Package v4</title>
+<title>Надом — Design Package v4.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -23,8 +23,15 @@
   --d-accent:#8FC4DE; --d-accent-l:rgba(143,196,222,.16);
   --d-teal-l:rgba(74,170,160,.20); --d-ok-l:rgba(90,180,130,.20);
   --d-warn-l:rgba(180,140,70,.20); --d-err-l:rgba(190,90,90,.22); --d-dust-l:rgba(184,144,144,.18);
-  --f-display:'Unbounded',system-ui,sans-serif; --f-body:'Onest',system-ui,sans-serif;
+  --f-display:'Unbounded',system-ui,sans-serif; --f-body:'Onest','Manrope',system-ui,sans-serif;
   --f-mono:'SF Mono','Fira Code','Fira Mono',monospace;
+  /* ── v4.1 additions ── */
+  /* Reference-exact button colors (from screenshot §3) */
+  --btn-primary-ref:#0C6E8C;   /* solid primary action */
+  --btn-teal-ref:#1A9080;      /* solid teal action / arrival ETA value */
+  /* Symbol A hero display (§1 from screenshot notes) */
+  --sym-hero-bg:#080E14;       /* deep dark square behind hero icon */
+  --sym-petrol:#3ABED6;        /* electric petrol stroke for hero icon */
   --r-xs:4px; --r-sm:8px; --r-md:14px; --r-lg:20px; --r-xl:28px; --r-ph:38px;
   --pw:300px; --ph:600px;
 }
@@ -344,6 +351,7 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
   <a href="#select">21 Выбор</a><a href="#custom">22 Custom</a><a href="#chat">23 Чат</a><a href="#status">24 Статус</a>
   <a href="#dash-l">25 Dash L</a><a href="#dash-d">26 Dash D</a><a href="#web">27 Сайт</a><a href="#icons">28 Иконки</a>
   <a href="#states">29 States</a><a href="#impl">30 CodeX</a><a href="#copy">31 Словарь</a><a href="#export">32 Export</a>
+  <a href="#buttons">33 Кнопки v4.1</a>
 </nav>
 
 <div class="page">
@@ -353,7 +361,7 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
   <div class="hero">
     <div>
       <div class="hero-wm">На<span>дом</span></div>
-      <div class="hero-tag">DESIGN PACKAGE V4 · MINI APP · BOT · DASHBOARD · WEB</div>
+      <div class="hero-tag">DESIGN PACKAGE V4.1 · MINI APP · BOT · DASHBOARD · WEB</div>
     </div>
     <div class="hero-concept">
       <strong>Надом</strong> — приватный технологический сервис подбора медслужбы с выездом на дом в Москве.
@@ -436,14 +444,19 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
       <div class="tok-row"><span class="tok-n">--radius-lg</span><span class="tok-v">20px</span></div>
       <div class="tok-row"><span class="tok-n">--radius-xl</span><span class="tok-v">28px</span></div>
       <div class="tok-row"><span class="tok-n">--font-display</span><span class="tok-v">'Unbounded'</span></div>
-      <div class="tok-row"><span class="tok-n">--font-body</span><span class="tok-v">'Onest' / 'Manrope'</span></div>
+      <div class="tok-row"><span class="tok-n">--font-body</span><span class="tok-v">'Onest' → fallback 'Manrope'</span></div>
       <div class="tok-row"><span class="tok-n">--font-mono</span><span class="tok-v">'Space Mono'/SF Mono</span></div>
+      <div class="tok-row"><span class="tok-sw" style="background:#0C6E8C"></span><span class="tok-n">--btn-primary-ref</span><span class="tok-v">#0C6E8C (ref primary)</span></div>
+      <div class="tok-row"><span class="tok-sw" style="background:#1A9080"></span><span class="tok-n">--btn-teal-ref</span><span class="tok-v">#1A9080 (ref teal/arrival)</span></div>
+      <div class="tok-row"><span class="tok-sw" style="background:#3ABED6"></span><span class="tok-n">--sym-petrol</span><span class="tok-v">#3ABED6 (hero icon stroke)</span></div>
+      <div class="tok-row"><span class="tok-sw" style="background:#080E14"></span><span class="tok-n">--sym-hero-bg</span><span class="tok-v">#080E14 (hero icon bg)</span></div>
       <div class="tok-row"><span class="tok-n">space scale</span><span class="tok-v">4 · 6 · 8 · 12 · 16 · 20 · 28</span></div>
       <div class="tok-row"><span class="tok-n">stroke (иконки)</span><span class="tok-v">1.8px / 24-grid</span></div>
       <div class="tok-row"><span class="tok-n">tap target min</span><span class="tok-v">44×44px</span></div>
       <div class="tok-row"><span class="tok-n">body text</span><span class="tok-v">14–16px</span></div>
       <div class="tok-row"><span class="tok-n">mono label</span><span class="tok-v">10–12px (secondary)</span></div>
       <div class="callout ok" style="margin-top:14px">Пилюли используют пару <span class="kbd">*-l</span> (фон) + основной (текст): спокойный, но читаемый цветной ритм. Не делать UI монохромным.</div>
+      <div class="callout" style="margin-top:8px"><strong>Font fallback:</strong> <span class="kbd">'Onest'</span> — основной body-шрифт. <span class="kbd">'Manrope'</span> — допустимый fallback с аналогичными пропорциями (ссылка из референсов). Unbounded — только для display/заголовков; Manrope не заменяет Unbounded.</div>
     </div>
   </div>
 </section>
