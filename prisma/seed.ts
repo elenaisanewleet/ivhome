@@ -22,23 +22,23 @@ async function main() {
       {
         id: categoryIds.homeMedicalVisit,
         slug: "home_medical_visit",
-        publicName: "At-home medical visit",
+        publicName: "Медицинский выезд на дом",
         publicDescription:
-          "Request an at-home visit for partner review. IVhome does not diagnose or prescribe treatment.",
+          "Заявка на медицинский выезд на дом. Надом не диагностирует и не назначает лечение.",
       },
       {
         id: categoryIds.nurseVisit,
         slug: "nurse_visit",
-        publicName: "At-home nurse visit",
+        publicName: "Выезд медицинского специалиста",
         publicDescription:
-          "Request an at-home nurse visit. A partner confirms whether the service can be provided.",
+          "Заявка на выезд медицинского специалиста. Возможность выезда подтверждает выбранная медслужба.",
       },
       {
         id: categoryIds.ivTherapyReview,
         slug: "iv_therapy_review",
-        publicName: "IV therapy request review",
+        publicName: "Рассмотрение заявки на капельное введение",
         publicDescription:
-          "Ask a partner to review an at-home IV therapy request. IVhome does not recommend medication or IV composition.",
+          "Заявка передаётся на рассмотрение выбранной медслужбе. Надом не рекомендует препараты или состав капельницы.",
       },
     ];
 
@@ -60,24 +60,24 @@ async function main() {
     const clinics = [
       {
         id: clinicIds.partnerOne,
-        legalName: "Demo Medical Partner One LLC",
-        publicName: "Demo Medical Partner One",
+        legalName: "ООО «Медслужба Север» (локальные данные)",
+        publicName: "Медслужба «Север»",
         inn: "DEMO-INN-0001",
         ogrn: "DEMO-OGRN-0001",
         status: "ACTIVE" as const,
       },
       {
         id: clinicIds.homeCare,
-        legalName: "Demo Home Care Partner LLC",
-        publicName: "Demo Home Care Partner",
+        legalName: "ООО «Медслужба Центр» (локальные данные)",
+        publicName: "Медслужба «Центр»",
         inn: "DEMO-INN-0002",
         ogrn: "DEMO-OGRN-0002",
         status: "ACTIVE" as const,
       },
       {
         id: clinicIds.nightService,
-        legalName: "Demo Clinic Night Service LLC",
-        publicName: "Demo Clinic Night Service",
+        legalName: "ООО «Медслужба Ночь» (локальные данные)",
+        publicName: "Медслужба «Ночь»",
         inn: "DEMO-INN-0003",
         ogrn: "DEMO-OGRN-0003",
         status: "PENDING_REVIEW" as const,
@@ -127,19 +127,19 @@ async function main() {
         where: { id: license.id },
         update: {
           ...license,
-          authorityName: "Demo authority for local development only",
+          authorityName: "Локальные тестовые лицензионные данные",
           registryUrl: null,
           registryRecordId: null,
-          licensedActivities: ["fake-demo-at-home-service"],
-          licensedAddresses: ["fake-demo-address"],
-          verificationNotes: "Fake demo license for local development only",
+          licensedActivities: ["локальный тестовый выезд на дом"],
+          licensedAddresses: ["локальная тестовая зона"],
+          verificationNotes: "Тестовые лицензионные данные только для локальной разработки",
         },
         create: {
           ...license,
-          authorityName: "Demo authority for local development only",
-          licensedActivities: ["fake-demo-at-home-service"],
-          licensedAddresses: ["fake-demo-address"],
-          verificationNotes: "Fake demo license for local development only",
+          authorityName: "Локальные тестовые лицензионные данные",
+          licensedActivities: ["локальный тестовый выезд на дом"],
+          licensedAddresses: ["локальная тестовая зона"],
+          verificationNotes: "Тестовые лицензионные данные только для локальной разработки",
         },
       });
     }
@@ -165,8 +165,8 @@ async function main() {
           preliminaryPriceTo: priceTo,
           etaMinutesFrom: etaFrom,
           etaMinutesTo: etaTo,
-          cancellationTerms: "Fake demo cancellation terms",
-          publicConditions: "Subject to partner review and confirmation",
+          cancellationTerms: "Тестовые условия отмены",
+          publicConditions: "Выезд после подтверждения выбранной медслужбой",
         },
         create: {
           clinicId,
@@ -176,8 +176,8 @@ async function main() {
           preliminaryPriceTo: priceTo,
           etaMinutesFrom: etaFrom,
           etaMinutesTo: etaTo,
-          cancellationTerms: "Fake demo cancellation terms",
-          publicConditions: "Subject to partner review and confirmation",
+          cancellationTerms: "Тестовые условия отмены",
+          publicConditions: "Выезд после подтверждения выбранной медслужбой",
         },
       });
     }
@@ -187,7 +187,7 @@ async function main() {
       [clinicIds.partnerOne, "svao", "North-Eastern Administrative Okrug"],
       [clinicIds.homeCare, "zao", "Western Administrative Okrug"],
       [clinicIds.homeCare, "yuzao", "South-Western Administrative Okrug"],
-      [clinicIds.nightService, "all_moscow", "All Moscow demo service area"],
+      [clinicIds.nightService, "all_moscow", "Вся Москва (локальная тестовая зона)"],
     ] as const;
 
     for (const [clinicId, districtCode, districtName] of serviceAreas) {
@@ -203,7 +203,7 @@ async function main() {
         id: "demo-contact-dashboard-0001",
         clinicId: clinicIds.partnerOne,
         type: "DASHBOARD" as const,
-        label: "Demo dashboard queue",
+        label: "Локальная очередь dashboard",
         valueMasked: "dashboard-only",
         isPrimary: true,
       },
@@ -211,15 +211,15 @@ async function main() {
         id: "demo-contact-telegram-0001",
         clinicId: clinicIds.partnerOne,
         type: "TELEGRAM" as const,
-        label: "Demo Telegram contact",
-        valueMasked: "@demo_partner_one",
+        label: "Локальный Telegram-контакт",
+        valueMasked: "@nadom_dev_contact",
         isPrimary: false,
       },
       {
         id: "demo-contact-phone-0002",
         clinicId: clinicIds.homeCare,
         type: "PHONE" as const,
-        label: "Demo masked phone",
+        label: "Локальный маскированный телефон",
         valueMasked: "+7 *** ***-**-02",
         isPrimary: true,
       },
@@ -227,7 +227,7 @@ async function main() {
         id: "demo-contact-dashboard-0003",
         clinicId: clinicIds.nightService,
         type: "DASHBOARD" as const,
-        label: "Demo dashboard queue",
+        label: "Локальная очередь dashboard",
         valueMasked: "dashboard-only",
         isPrimary: true,
       },
@@ -246,41 +246,41 @@ async function main() {
         id: "demo-consent-personal-data-v1",
         type: "PERSONAL_DATA_PROCESSING" as const,
         version: "demo-v1",
-        title: "Demo personal data processing consent",
-        contentHash: "demo-sha256-personal-data-v1",
-        documentUrl: "https://example.invalid/ivhome/demo/personal-data-v1",
+        title: "Локальное согласие на обработку персональных данных",
+        contentHash: "dev-sha256-personal-data-v1",
+        documentUrl: "https://example.invalid/nadom/dev/personal-data-v1",
       },
       {
         id: "demo-consent-health-data-v1",
         type: "HEALTH_DATA_PROCESSING" as const,
         version: "demo-v1",
-        title: "Demo health data processing consent",
-        contentHash: "demo-sha256-health-data-v1",
-        documentUrl: "https://example.invalid/ivhome/demo/health-data-v1",
+        title: "Локальное согласие на обработку данных о здоровье",
+        contentHash: "dev-sha256-health-data-v1",
+        documentUrl: "https://example.invalid/nadom/dev/health-data-v1",
       },
       {
         id: "demo-consent-partner-transfer-v1",
         type: "PARTNER_DATA_TRANSFER" as const,
         version: "demo-v1",
-        title: "Demo partner data transfer consent",
-        contentHash: "demo-sha256-partner-transfer-v1",
-        documentUrl: "https://example.invalid/ivhome/demo/partner-transfer-v1",
+        title: "Локальное согласие на передачу данных выбранной медслужбе",
+        contentHash: "dev-sha256-medservice-transfer-v1",
+        documentUrl: "https://example.invalid/nadom/dev/medservice-transfer-v1",
       },
       {
         id: "demo-consent-terms-v1",
         type: "TERMS_OF_USE" as const,
         version: "demo-v1",
-        title: "Demo terms of use",
-        contentHash: "demo-sha256-terms-v1",
-        documentUrl: "https://example.invalid/ivhome/demo/terms-v1",
+        title: "Локальные условия использования",
+        contentHash: "dev-sha256-terms-v1",
+        documentUrl: "https://example.invalid/nadom/dev/terms-v1",
       },
       {
         id: "demo-consent-privacy-policy-v1",
         type: "PRIVACY_POLICY_ACKNOWLEDGEMENT" as const,
         version: "demo-v1",
-        title: "Demo privacy policy acknowledgement",
-        contentHash: "demo-sha256-privacy-policy-v1",
-        documentUrl: "https://example.invalid/ivhome/demo/privacy-policy-v1",
+        title: "Локальное подтверждение политики конфиденциальности",
+        contentHash: "dev-sha256-privacy-policy-v1",
+        documentUrl: "https://example.invalid/nadom/dev/privacy-policy-v1",
       },
     ];
 
@@ -303,15 +303,15 @@ async function main() {
     const patient = await tx.user.upsert({
       where: { id: "demo-user-patient-0001" },
       update: {
-        displayName: "Demo Patient",
-        phoneEncrypted: "fake-encrypted:demo-patient-phone",
-        emailEncrypted: "fake-encrypted:demo-patient-email",
+        displayName: "Локальный пользователь",
+        phoneEncrypted: "dev-encrypted:user-phone",
+        emailEncrypted: "dev-encrypted:user-email",
       },
       create: {
         id: "demo-user-patient-0001",
-        displayName: "Demo Patient",
-        phoneEncrypted: "fake-encrypted:demo-patient-phone",
-        emailEncrypted: "fake-encrypted:demo-patient-email",
+        displayName: "Локальный пользователь",
+        phoneEncrypted: "dev-encrypted:user-phone",
+        emailEncrypted: "dev-encrypted:user-email",
       },
     });
 
@@ -342,10 +342,10 @@ async function main() {
 
     const authorizedStaff = await tx.user.upsert({
       where: { id: "demo-user-authorized-staff-0001" },
-      update: { displayName: "Demo Authorized Partner Staff" },
+      update: { displayName: "Локальный сотрудник медслужбы" },
       create: {
         id: "demo-user-authorized-staff-0001",
-        displayName: "Demo Authorized Partner Staff",
+        displayName: "Локальный сотрудник медслужбы",
       },
     });
 
@@ -371,19 +371,19 @@ async function main() {
         update: {
           userId: patient.id,
           consentDocumentId: document.id,
-          ipHash: "demo-sha256-ip-hash",
-          userAgentHash: "demo-sha256-user-agent-hash",
+          ipHash: "dev-sha256-ip-hash",
+          userAgentHash: "dev-sha256-user-agent-hash",
           telegramUserId: 900000000001n,
-          evidence: { source: "fake-demo-seed" },
+          evidence: { source: "local-seed" },
         },
         create: {
           id: `demo-acceptance-${document.id}`,
           userId: patient.id,
           consentDocumentId: document.id,
-          ipHash: "demo-sha256-ip-hash",
-          userAgentHash: "demo-sha256-user-agent-hash",
+          ipHash: "dev-sha256-ip-hash",
+          userAgentHash: "dev-sha256-user-agent-hash",
           telegramUserId: 900000000001n,
-          evidence: { source: "fake-demo-seed" },
+          evidence: { source: "local-seed" },
         },
       });
     }
@@ -392,20 +392,20 @@ async function main() {
       where: { id: "demo-screening-passed-0001" },
       update: {
         userId: patient.id,
-        schemaVersion: "demo-routing-v1",
+        schemaVersion: "dev-routing-v1",
         answers: {
           emergencyWarningAcknowledged: true,
-          route: "demo-non-emergency-flow",
+          route: "dev-non-emergency-flow",
         },
         outcome: "PASSED",
       },
       create: {
         id: "demo-screening-passed-0001",
         userId: patient.id,
-        schemaVersion: "demo-routing-v1",
+        schemaVersion: "dev-routing-v1",
         answers: {
           emergencyWarningAcknowledged: true,
-          route: "demo-non-emergency-flow",
+          route: "dev-non-emergency-flow",
         },
         outcome: "PASSED",
       },
@@ -420,9 +420,9 @@ async function main() {
         emergencyScreeningId: screening.id,
         status: "BOOKED",
         districtCode: "cao",
-        addressEncrypted: "fake-encrypted:demo-address-in-cao",
-        addressCommentEncrypted: "fake-encrypted:demo-address-comment",
-        patientCommentEncrypted: "fake-encrypted:demo-request-without-medical-details",
+        addressEncrypted: "dev-encrypted:address-in-cao",
+        addressCommentEncrypted: "dev-encrypted:address-comment",
+        patientCommentEncrypted: "dev-encrypted:request-without-medical-details",
         requestedWindowFrom: date("2026-06-01T10:00:00.000Z"),
         requestedWindowTo: date("2026-06-01T12:00:00.000Z"),
         submittedAt: date("2026-05-31T08:00:00.000Z"),
@@ -435,9 +435,9 @@ async function main() {
         emergencyScreeningId: screening.id,
         status: "BOOKED",
         districtCode: "cao",
-        addressEncrypted: "fake-encrypted:demo-address-in-cao",
-        addressCommentEncrypted: "fake-encrypted:demo-address-comment",
-        patientCommentEncrypted: "fake-encrypted:demo-request-without-medical-details",
+        addressEncrypted: "dev-encrypted:address-in-cao",
+        addressCommentEncrypted: "dev-encrypted:address-comment",
+        patientCommentEncrypted: "dev-encrypted:request-without-medical-details",
         requestedWindowFrom: date("2026-06-01T10:00:00.000Z"),
         requestedWindowTo: date("2026-06-01T12:00:00.000Z"),
         submittedAt: date("2026-05-31T08:00:00.000Z"),
@@ -471,11 +471,11 @@ async function main() {
         clinicId: clinicIds.partnerOne,
         status: "ACCEPTED",
         fixedPrice: "2900.00",
-        priceBreakdown: { kind: "fake-demo-fixed-price" },
+        priceBreakdown: { kind: "local-fixed-price" },
         confirmedEtaAt: date("2026-06-01T10:30:00.000Z"),
         validUntil: date("2026-05-31T12:00:00.000Z"),
-        cancellationTerms: "Fake demo cancellation terms",
-        conditionsSnapshot: { source: "fake-demo-seed" },
+        cancellationTerms: "Тестовые условия отмены",
+        conditionsSnapshot: { source: "local-seed" },
         medicalFeasibilityConfirmedAt: date("2026-05-31T08:15:00.000Z"),
         confirmedByMemberId: clinicMembership.id,
       },
@@ -486,11 +486,11 @@ async function main() {
         version: 1,
         status: "ACCEPTED",
         fixedPrice: "2900.00",
-        priceBreakdown: { kind: "fake-demo-fixed-price" },
+        priceBreakdown: { kind: "local-fixed-price" },
         confirmedEtaAt: date("2026-06-01T10:30:00.000Z"),
         validUntil: date("2026-05-31T12:00:00.000Z"),
-        cancellationTerms: "Fake demo cancellation terms",
-        conditionsSnapshot: { source: "fake-demo-seed" },
+        cancellationTerms: "Тестовые условия отмены",
+        conditionsSnapshot: { source: "local-seed" },
         medicalFeasibilityConfirmedAt: date("2026-05-31T08:15:00.000Z"),
         confirmedByMemberId: clinicMembership.id,
       },
@@ -521,7 +521,7 @@ async function main() {
         metricType: "ARRIVAL",
         dueAt: date("2026-06-01T10:30:00.000Z"),
         status: "PENDING",
-        metadata: { source: "fake-demo-seed" },
+        metadata: { source: "local-seed" },
       },
       create: {
         id: "demo-sla-arrival-0001",
@@ -529,7 +529,7 @@ async function main() {
         metricType: "ARRIVAL",
         dueAt: date("2026-06-01T10:30:00.000Z"),
         status: "PENDING",
-        metadata: { source: "fake-demo-seed" },
+        metadata: { source: "local-seed" },
       },
     });
 
@@ -544,7 +544,7 @@ async function main() {
         sentAt: date("2026-05-31T08:01:00.000Z"),
         acceptedAt: date("2026-05-31T08:10:00.000Z"),
         convertedAt: date("2026-05-31T08:20:00.000Z"),
-        metadata: { source: "fake-demo-seed" },
+        metadata: { source: "local-seed" },
       },
       create: {
         id: "demo-partner-lead-0001",
@@ -556,7 +556,7 @@ async function main() {
         sentAt: date("2026-05-31T08:01:00.000Z"),
         acceptedAt: date("2026-05-31T08:10:00.000Z"),
         convertedAt: date("2026-05-31T08:20:00.000Z"),
-        metadata: { source: "fake-demo-seed" },
+        metadata: { source: "local-seed" },
       },
     });
 
@@ -710,7 +710,7 @@ async function main() {
     }
   }
 
-    console.log("Seeded fake IVhome development data.");
+    console.log("Seeded Nadom development data.");
   });
 }
 

@@ -73,9 +73,9 @@ const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", 
 const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
 
 const offerNames: Record<string, string> = {
-  "medservice-north": "Медицинская организация «Север»",
-  "medservice-center": "Медицинская организация «Центр»",
-  "medservice-night": "Медицинская организация «Ночь»",
+  "medservice-north": "Медслужба «Север»",
+  "medservice-center": "Медслужба «Центр»",
+  "medservice-night": "Медслужба «Ночь»",
 };
 
 const mvpMedservices = Object.entries(offerNames).map(([id, name]) => ({ id, name }));
@@ -315,19 +315,19 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
 
 function routeTitle(pathname: string) {
   if (pathname.startsWith("/clinic")) {
-    return "Кабинет организации";
+    return "Кабинет медслужбы";
   }
 
   if (pathname.startsWith("/admin")) {
     return "Надом Admin";
   }
 
-  return "Надом Preview Dashboard";
+  return "Надом Dashboard";
 }
 
 function routeDescription(pathname: string) {
   if (pathname.startsWith("/clinic")) {
-    return "Экран для уполномоченных сотрудников выбранной организации.";
+    return "Экран для уполномоченных сотрудников выбранной медслужбы.";
   }
 
   if (pathname.startsWith("/admin")) {
@@ -355,7 +355,7 @@ function chatActorLabel(actorType: MvpChatActorType) {
     case "USER":
       return "Пользователь";
     case "CLINIC":
-      return "Выбранная организация";
+      return "Выбранная медслужба";
     case "ADMIN":
       return "Admin";
   }
@@ -385,7 +385,7 @@ function RequestChat({
       <div className="request-chat__head">
         <div>
           <p className="meta-label">Чат заявки</p>
-          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.</p>
+          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.</p>
         </div>
         <button disabled={isLoading} onClick={onRefresh} type="button">
           {isLoading ? "Загружаем…" : "Обновить чат"}
@@ -420,7 +420,7 @@ function RequestChat({
         <input
           autoComplete="off"
           onChange={(event) => onDraftChange(event.target.value)}
-          placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной организации…"}
+          placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной медслужбы…"}
           type="text"
           value={draft}
         />
@@ -551,7 +551,7 @@ function AdminView() {
         setDbRequests(db.value);
       } else {
         // DB might not be migrated yet — show a note but don't fail hard
-        setMessage("Postgres-заявки недоступны (проверьте миграции). Показаны preview-заявки из памяти.");
+        setMessage("Postgres-заявки недоступны (проверьте миграции). Показаны dev-заявки из памяти.");
       }
     } catch {
       setMessage("Не удалось загрузить заявки. Проверьте VITE_API_BASE_URL и токен.");
@@ -581,7 +581,7 @@ function AdminView() {
         ),
       );
     } catch {
-      setMessage("Не удалось обновить статус preview-заявки.");
+      setMessage("Не удалось обновить статус dev-заявки.");
     } finally {
       setUpdatingId(null);
     }
@@ -803,7 +803,7 @@ function AdminView() {
         <>
           <div className="dashboard-toolbar" style={{ marginTop: "24px" }}>
             <div>
-              <p className="meta-label">Preview-заявки (в памяти)</p>
+              <p className="meta-label">Dev-заявки (в памяти)</p>
               <h2>In-memory заявки</h2>
               <p>Сбрасываются при перезапуске API. Для совместимости с предыдущей версией.</p>
             </div>
@@ -915,7 +915,7 @@ function ClinicView() {
 
       setRequests(loaded);
     } catch {
-      setMessage("Не удалось загрузить заявки. Проверьте ID организации и настройки API.");
+      setMessage("Не удалось загрузить заявки. Проверьте ID медслужбы и настройки API.");
     } finally {
       setIsLoading(false);
     }
@@ -1023,7 +1023,7 @@ function ClinicView() {
     return (
       <AuthGate
         storageKey={storageKey}
-        label="Кабинет организации — вход"
+        label="Кабинет медслужбы — вход"
         onAuth={handleAuth}
       />
     );
@@ -1033,9 +1033,9 @@ function ClinicView() {
     <section className="dashboard-card">
       <div className="dashboard-toolbar">
         <div>
-          <p className="meta-label">Организация: {clinicId}</p>
-          <h2>Заявки вашей организации</h2>
-          <p>Заявки, направленные выбранной организации. Без телефона, адреса и личных данных пациента.</p>
+          <p className="meta-label">Медслужба: {clinicId}</p>
+          <h2>Заявки вашей медслужбы</h2>
+          <p>Заявки, направленные выбранной медслужбе. Без телефона, адреса и личных данных пациента.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button disabled={isLoading} onClick={() => void refreshRequests(clinicId)} type="button">
@@ -1061,8 +1061,8 @@ function ClinicView() {
       {requests.length === 0 && !isLoading ? (
         <div className="dashboard-empty-list">
           <p className="meta-label">Пусто</p>
-          <h3>Заявок для этой организации пока нет</h3>
-          <p>Создайте заявку в Mini App с выбором этой организации.</p>
+          <h3>Заявок для этой медслужбы пока нет</h3>
+          <p>Создайте заявку в Mini App с выбором этой медслужбы.</p>
         </div>
       ) : null}
 
