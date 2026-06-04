@@ -2,6 +2,8 @@ import type { Offer, OfferView } from "./types";
 import { SlaGrid } from "./ui";
 
 export function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: OfferView) => void }) {
+  const previewServices = offer.services.filter((service) => service.slug !== "custom").slice(0, 3);
+
   return (
     <article className="offer-card">
       <button className="offer-card__header" onClick={() => onOpen("details")} type="button">
@@ -18,13 +20,17 @@ export function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: Offe
       <p className="offer-zone">{offer.zone}</p>
       <SlaGrid offer={offer} />
 
-      <div className="price-row">
-        <span>стоимость</span>
-        <strong>{offer.price}</strong>
+      <div className="service-preview" aria-label="Услуги и ориентиры стоимости">
+        {previewServices.map((service) => (
+          <div className="service-preview__row" key={service.slug}>
+            <span>{service.shortLabel}</span>
+            <strong>{service.priceRange}</strong>
+          </div>
+        ))}
       </div>
 
       <ul className="condition-list condition-list--compact">
-        {offer.conditions.map((condition) => (
+        {offer.conditions.slice(0, 2).map((condition) => (
           <li key={condition}>{condition}</li>
         ))}
       </ul>
@@ -32,11 +38,14 @@ export function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: Offe
       <p className="offer-note">{offer.note}</p>
 
       <div className="offer-actions">
-        <button className="button button--teal" onClick={() => onOpen("chat")} type="button">
+        <button className="button button--primary" onClick={() => onOpen("service")} type="button">
+          Выбрать услугу
+        </button>
+        <button className="button button--teal" onClick={() => onOpen("service")} type="button">
           Написать специалисту
         </button>
-        <button className="button button--primary" onClick={() => onOpen("confirmation")} type="button">
-          Подтвердить заявку
+        <button className="button button--secondary" onClick={() => onOpen("details")} type="button">
+          Открыть карточку
         </button>
       </div>
     </article>
