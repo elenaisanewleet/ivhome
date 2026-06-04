@@ -115,7 +115,7 @@ export const TIME_OPTIONS = ["Как можно скорее", "Сегодня",
 export const FALLBACK_OFFERS: Offer[] = [
   {
     id: "medservice-north",
-    name: "Медслужба «Север»",
+    name: "Медицинская организация «Север»",
     status: "лицензия проверена",
     zone: "САО · СЗАО · рядом",
     responseTime: "~10 мин",
@@ -128,7 +128,7 @@ export const FALLBACK_OFFERS: Offer[] = [
   },
   {
     id: "medservice-center",
-    name: "Медслужба «Центр»",
+    name: "Медицинская организация «Центр»",
     status: "лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
     responseTime: "~15 мин",
@@ -141,7 +141,7 @@ export const FALLBACK_OFFERS: Offer[] = [
   },
   {
     id: "medservice-night",
-    name: "Медслужба «Ночь»",
+    name: "Медицинская организация «Ночь»",
     status: "проверена · принимает заявки",
     zone: "Москва · по зонам выезда",
     responseTime: "~20 мин",
@@ -156,7 +156,7 @@ export const FALLBACK_OFFERS: Offer[] = [
 
 export const STATUS_ITEMS = [
   "Заявка создана",
-  "Передали медслужбе",
+  "Передали выбранной организации",
   "Ждём подтверждение",
   "Организация подтвердила",
   "Стоимость подтверждена",

@@ -5,6 +5,7 @@ import {
   createFallbackMessage,
   createHelpMessage,
   createMessageForIncomingText,
+  createNeutralRequestNotification,
   createStartMessage,
   createStatusUpdateMessage,
   isHelpCommand,
@@ -62,4 +63,15 @@ test("creates neutral protected status notifications without request details", (
 
   assert.equal(createStatusUpdateMessage("booked").protect_content, true);
   assert.match(createStatusUpdateMessage("en_route").text, /специалист выехал/u);
+});
+
+test("creates neutral request notifications without chat content", () => {
+  assert.deepEqual(createNeutralRequestNotification("status_updated"), {
+    text: "Статус заявки обновлён. Откройте Надом.",
+    protect_content: true,
+  });
+  assert.deepEqual(createNeutralRequestNotification("chat_message"), {
+    text: "Новое сообщение по заявке. Откройте Надом.",
+    protect_content: true,
+  });
 });
