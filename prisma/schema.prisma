@@ -115,6 +115,16 @@ enum AuditAction {
   BOOKING_STATUS_CHANGE
   PARTNER_LEAD_SEND
   PARTNER_LEAD_STATUS_CHANGE
+  MVP_CLINIC_CREATE
+  MVP_CLINIC_UPDATE
+  MVP_CLINIC_ACCESS_TOKEN_CREATE
+  MVP_CLINIC_ACCESS_TOKEN_REVOKE
+  MVP_CLINIC_ACCESS_TOKEN_USE
+  MVP_REQUEST_LIST_VIEW
+  MVP_REQUEST_STATUS_UPDATE
+  MVP_CHAT_MESSAGE_SEND
+  MVP_ONBOARDING_SAVE
+  MVP_ONBOARDING_SUBMIT
 }
 
 enum AuditActorType {
@@ -244,8 +254,9 @@ model Clinic {
   quotes          Quote[]
   bookings        Booking[]
   ratings         Rating[]
-  mvpRequests     MvpRequest[]
-  mvpOnboarding   MvpOnboarding?
+  mvpRequests      MvpRequest[]
+  mvpOnboarding    MvpOnboarding?
+  mvpAccessTokens  MvpClinicAccessToken[]
 
   @@index([status])
 }
@@ -621,6 +632,34 @@ enum MvpOnboardingStatus {
   DRAFT
   SUBMITTED
   APPROVED
+}
+
+enum MvpClinicAccessRole {
+  OPERATOR
+  ADMIN
+}
+
+enum MvpClinicAccessTokenStatus {
+  ACTIVE
+  REVOKED
+}
+
+model MvpClinicAccessToken {
+  id         String                       @id @default(cuid())
+  clinicId   String
+  tokenHash  String                       @unique
+  label      String
+  role       MvpClinicAccessRole          @default(OPERATOR)
+  status     MvpClinicAccessTokenStatus   @default(ACTIVE)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime                     @default(now())
+  revokedAt  DateTime?
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId, status])
+  @@index([expiresAt])
 }
 
 model MvpRequest {
