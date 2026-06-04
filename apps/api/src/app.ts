@@ -2,7 +2,7 @@ import { createHash, randomBytes, randomUUID, timingSafeEqual } from "node:crypt
 
 import Fastify from "fastify";
 
-import { PROJECT_NAME } from "@ivhome/shared";
+import { MVP_SERVICE_CATALOG, PROJECT_NAME } from "@ivhome/shared";
 import type {
   MvpChatActorType,
   MvpChatMessagePublicCreateInput,
@@ -52,7 +52,8 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "9 200 ₽",
     rating: "4.8",
     conditions: ["выезд после подтверждения", "условия можно уточнить в чате"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
   {
     id: "medservice-center",
@@ -65,7 +66,8 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "10 400 ₽",
     rating: "4.7",
     conditions: ["работает по зонам выезда", "стоимость подтвердят до выезда"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
   {
     id: "medservice-night",
@@ -78,7 +80,8 @@ const mvpOffers: MvpOffer[] = [
     finalPrice: "11 300 ₽",
     rating: "4.6",
     conditions: ["доступна в позднее время", "время зависит от зоны выезда"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
 ];
 
@@ -141,7 +144,7 @@ function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
 // ─── DB-backed MVP helpers ───────────────────────────────────────────────────
 
 const dbStatuses: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
-const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile"]);
+const dbRequestCreateFields = new Set(["offerId", "clinicId", "district", "desiredTime", "profile", "serviceSlug", "serviceLabel", "servicePrice", "customRequest", "customImportant", "budget", "comment"]);
 const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "etaMinutes", "notes"]);
 const clinicCreateAllowedFields = new Set(["id", "publicName", "legalName", "inn", "status"]);
 const clinicUpdateAllowedFields = new Set(["publicName", "legalName", "inn", "status"]);
@@ -167,7 +170,14 @@ function isMvpDbRequestCreateInput(value: unknown): value is MvpDbRequestCreateI
     isShortText(value.district, 80) &&
     isShortText(value.desiredTime, 80) &&
     isShortText(value.profile, 120) &&
-    (value.clinicId === undefined || isShortText(value.clinicId, 80))
+    (value.clinicId === undefined || isShortText(value.clinicId, 80)) &&
+    (value.serviceSlug === undefined || isShortText(value.serviceSlug, 80)) &&
+    (value.serviceLabel === undefined || isShortText(value.serviceLabel, 160)) &&
+    (value.servicePrice === undefined || isShortText(value.servicePrice, 80)) &&
+    (value.customRequest === undefined || isShortText(value.customRequest, 500)) &&
+    (value.customImportant === undefined || typeof value.customImportant === "string" && value.customImportant.length <= 500) &&
+    (value.budget === undefined || typeof value.budget === "string" && value.budget.length <= 120) &&
+    (value.comment === undefined || typeof value.comment === "string" && value.comment.length <= 500)
   );
 }
 
@@ -489,6 +499,13 @@ function toMvpDbRequest(row: {
   priceCurrency: string;
   etaMinutes: number | null;
   notes: string | null;
+  serviceSlug: string | null;
+  serviceLabel: string | null;
+  servicePrice: string | null;
+  customRequest: string | null;
+  customImportant: string | null;
+  budget: string | null;
+  comment: string | null;
   createdAt: Date;
   updatedAt: Date;
 }): MvpDbRequest {
@@ -505,6 +522,13 @@ function toMvpDbRequest(row: {
     priceCurrency: row.priceCurrency,
     etaMinutes: row.etaMinutes,
     notes: row.notes,
+    serviceSlug: row.serviceSlug as MvpDbRequest["serviceSlug"],
+    serviceLabel: row.serviceLabel,
+    servicePrice: row.servicePrice,
+    customRequest: row.customRequest,
+    customImportant: row.customImportant,
+    budget: row.budget,
+    comment: row.comment,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -685,6 +709,13 @@ export function buildApp() {
           district: input.district,
           desiredTime: input.desiredTime,
           profile: input.profile,
+          serviceSlug: input.serviceSlug ?? null,
+          serviceLabel: input.serviceLabel ?? null,
+          servicePrice: input.servicePrice ?? null,
+          customRequest: input.customRequest?.trim() || null,
+          customImportant: input.customImportant?.trim() || null,
+          budget: input.budget?.trim() || null,
+          comment: input.comment?.trim() || null,
         },
       });
 
@@ -711,6 +742,15 @@ export function buildApp() {
         priceMax: row.priceMax,
         priceCurrency: row.priceCurrency,
         etaMinutes: row.etaMinutes,
+        district: row.district,
+        desiredTime: row.desiredTime,
+        serviceSlug: row.serviceSlug,
+        serviceLabel: row.serviceLabel,
+        servicePrice: row.servicePrice,
+        customRequest: row.customRequest,
+        customImportant: row.customImportant,
+        budget: row.budget,
+        comment: row.comment,
         createdAt: row.createdAt.toISOString(),
         updatedAt: row.updatedAt.toISOString(),
       };

@@ -676,6 +676,13 @@ model MvpRequest {
   priceCurrency String          @default("RUB")
   etaMinutes   Int?
   notes        String?
+  serviceSlug  String?
+  serviceLabel String?
+  servicePrice String?
+  customRequest String?
+  customImportant String?
+  budget       String?
+  comment      String?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 

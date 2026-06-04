@@ -102,7 +102,7 @@ export async function submitRequest(data: MvpDbRequestCreateInput): Promise<MvpD
   });
 }
 
-export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequest, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "createdAt" | "updatedAt">> {
+export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequest, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "district" | "desiredTime" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment" | "createdAt" | "updatedAt">> {
   return requestJson(`/mvp/requests/${encodeURIComponent(id)}`);
 }
 

@@ -838,3 +838,15 @@ nav a:hover {
   border-radius: 14px;
   padding: 10px 12px;
 }
+
+.request-context-panel {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid rgba(126,184,212,0.22);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(126,184,212,0.12), rgba(58,138,130,0.08));
+}
+
+.request-context-panel .request-fields {
+  margin-top: 8px;
+}

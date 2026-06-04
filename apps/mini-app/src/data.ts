@@ -1,3 +1,4 @@
+import { MVP_SERVICE_CATALOG } from "@ivhome/shared";
 import type { Offer, OfferView, Step, SymbolTone } from "./types";
 
 export const STEPS: Step[] = [
@@ -124,7 +125,8 @@ export const FALLBACK_OFFERS: Offer[] = [
     finalPrice: "9 200 ₽",
     rating: "4.8",
     conditions: ["выезд после подтверждения", "условия можно уточнить в чате"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
   {
     id: "medservice-center",
@@ -137,7 +139,8 @@ export const FALLBACK_OFFERS: Offer[] = [
     finalPrice: "10 400 ₽",
     rating: "4.7",
     conditions: ["работает по зонам выезда", "стоимость подтвердят до выезда"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
   {
     id: "medservice-night",
@@ -150,7 +153,8 @@ export const FALLBACK_OFFERS: Offer[] = [
     finalPrice: "11 300 ₽",
     rating: "4.6",
     conditions: ["доступна в позднее время", "время зависит от зоны выезда"],
-    note: "детали и стоимость подтверждает выбранная медслужба",
+    note: "Детали и стоимость подтверждает выбранная медслужба.",
+    services: MVP_SERVICE_CATALOG,
   },
 ];
 
@@ -166,6 +170,8 @@ export const STATUS_ITEMS = [
 
 export const OFFER_VIEWS: OfferView[] = [
   "details",
+  "service",
+  "custom",
   "chat",
   "confirmation",
   "status",
