@@ -35,7 +35,7 @@ const allowedCorsOrigins = new Set(
 const mvpOffers: MvpOffer[] = [
   {
     id: "medservice-north",
-    name: "Медслужба «Север»",
+    name: "Медицинская организация «Север»",
     status: "лицензия проверена",
     zone: "САО · СЗАО · рядом",
     responseTime: "~10 мин",
@@ -48,7 +48,7 @@ const mvpOffers: MvpOffer[] = [
   },
   {
     id: "medservice-center",
-    name: "Медслужба «Центр»",
+    name: "Медицинская организация «Центр»",
     status: "лицензия проверена",
     zone: "ЦАО · ЗАО · ЮЗАО",
     responseTime: "~15 мин",
@@ -61,7 +61,7 @@ const mvpOffers: MvpOffer[] = [
   },
   {
     id: "medservice-night",
-    name: "Медслужба «Ночь»",
+    name: "Медицинская организация «Ночь»",
     status: "проверена · принимает заявки",
     zone: "Москва · по зонам выезда",
     responseTime: "~20 мин",
@@ -239,6 +239,18 @@ async function getPrisma(): Promise<import("@prisma/client").PrismaClient> {
   }
 
   return _prisma;
+}
+
+export function setPrismaForTesting(prisma: import("@prisma/client").PrismaClient | null) {
+  _prisma = prisma;
+}
+
+function errorBody(code: string, message: string) {
+  return { error: code, code, message };
+}
+
+function isPrismaKnownRequestError(error: unknown, code: string) {
+  return isRecord(error) && error.code === code;
 }
 
 // ─── DB row → API shape ───────────────────────────────────────────────────────
@@ -450,13 +462,24 @@ export function buildApp() {
   // Public (MVP): create a request persisted to Postgres
   app.post<{ Body: unknown }>("/mvp/requests", async (request, reply) => {
     if (!isMvpDbRequestCreateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     const input = request.body;
 
     try {
       const db = await getPrisma();
+      if (input.clinicId) {
+        const clinic = await db.clinic.findUnique({
+          where: { id: input.clinicId },
+          select: { id: true },
+        });
+
+        if (!clinic) {
+          return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
+        }
+      }
+
       const row = await db.mvpRequest.create({
         data: {
           offerId: input.offerId,
@@ -469,7 +492,7 @@ export function buildApp() {
 
       return reply.code(201).send(toMvpDbRequest(row));
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -482,7 +505,7 @@ export function buildApp() {
       });
 
       if (!row) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       // Return only non-sensitive fields
@@ -498,7 +521,7 @@ export function buildApp() {
         updatedAt: row.updatedAt.toISOString(),
       };
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -512,7 +535,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const rows = await db.mvpChatMessage.findMany({
@@ -524,14 +547,14 @@ export function buildApp() {
         messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
       } satisfies MvpChatMessagesResponse;
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Chat: add a user message. Dashboards use scoped admin/clinic chat routes below.
   app.post<{ Body: unknown; Params: { id: string } }>("/mvp/requests/:id/chat", async (request, reply) => {
     if (!isMvpChatMessagePublicCreateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     const input = request.body;
@@ -544,7 +567,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const row = await db.mvpChatMessage.create({
@@ -557,14 +580,14 @@ export function buildApp() {
 
       return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Admin: list all DB requests (requires ADMIN_TOKEN or local dev)
   app.get("/mvp/admin/requests", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     try {
@@ -575,18 +598,18 @@ export function buildApp() {
 
       return { requests: rows.map(toMvpDbRequest) };
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Admin: update request status
   app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/status", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     if (!isMvpDbStatusUpdateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     const input = request.body;
@@ -605,15 +628,19 @@ export function buildApp() {
       });
 
       return toMvpDbRequest(row);
-    } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+    } catch (error) {
+      if (isPrismaKnownRequestError(error, "P2025")) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Admin: read request chat
   app.get<{ Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     try {
@@ -624,7 +651,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const rows = await db.mvpChatMessage.findMany({
@@ -636,18 +663,18 @@ export function buildApp() {
         messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
       } satisfies MvpChatMessagesResponse;
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Admin: reply to request chat
   app.post<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/chat", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     if (!isMvpChatMessagePublicCreateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     try {
@@ -658,7 +685,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const row = await db.mvpChatMessage.create({
@@ -671,7 +698,7 @@ export function buildApp() {
 
       return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -680,7 +707,7 @@ export function buildApp() {
     const clinicId = request.headers["x-clinic-id"];
 
     if (typeof clinicId !== "string" || !clinicId) {
-      return reply.code(401).send({ error: "missing_clinic_id" });
+      return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
     }
 
     const clinicAuthEnabled = process.env.CLINIC_AUTH_ENABLED === "true";
@@ -696,7 +723,7 @@ export function buildApp() {
         });
 
         if (!clinic) {
-          return reply.code(403).send({ error: "clinic_not_found" });
+          return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
         }
       }
 
@@ -707,7 +734,7 @@ export function buildApp() {
 
       return { requests: rows.map(toMvpDbRequest) };
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -716,11 +743,11 @@ export function buildApp() {
     const clinicId = request.headers["x-clinic-id"];
 
     if (typeof clinicId !== "string" || !clinicId) {
-      return reply.code(401).send({ error: "missing_clinic_id" });
+      return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
     }
 
     if (!isMvpDbStatusUpdateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     const input = request.body;
@@ -733,7 +760,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const row = await db.mvpRequest.update({
@@ -749,7 +776,7 @@ export function buildApp() {
 
       return toMvpDbRequest(row);
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -758,7 +785,7 @@ export function buildApp() {
     const clinicId = request.headers["x-clinic-id"];
 
     if (typeof clinicId !== "string" || !clinicId) {
-      return reply.code(401).send({ error: "missing_clinic_id" });
+      return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
     }
 
     try {
@@ -769,7 +796,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const rows = await db.mvpChatMessage.findMany({
@@ -781,7 +808,7 @@ export function buildApp() {
         messages: rows.map((row) => toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType })),
       } satisfies MvpChatMessagesResponse;
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
@@ -790,11 +817,11 @@ export function buildApp() {
     const clinicId = request.headers["x-clinic-id"];
 
     if (typeof clinicId !== "string" || !clinicId) {
-      return reply.code(401).send({ error: "missing_clinic_id" });
+      return reply.code(401).send(errorBody("unauthorized", "Clinic authorization is required."));
     }
 
     if (!isMvpChatMessagePublicCreateInput(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     try {
@@ -805,7 +832,7 @@ export function buildApp() {
       });
 
       if (!exists) {
-        return reply.code(404).send({ error: "request_not_found" });
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
       const row = await db.mvpChatMessage.create({
@@ -818,18 +845,18 @@ export function buildApp() {
 
       return reply.code(201).send(toMvpChatMessage({ ...row, actorType: row.actorType as MvpChatActorType }));
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   // Onboarding: save/update onboarding form for a clinic
   app.post<{ Body: unknown; Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     if (!isRecord(request.body)) {
-      return reply.code(400).send({ error: "invalid_request" });
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
     }
 
     const { clinicId } = request.params;
@@ -863,14 +890,18 @@ export function buildApp() {
         submittedAt: row.submittedAt?.toISOString() ?? null,
         updatedAt: row.updatedAt.toISOString(),
       };
-    } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+    } catch (error) {
+      if (isPrismaKnownRequestError(error, "P2003")) {
+        return reply.code(404).send(errorBody("clinic_not_found", "Clinic was not found."));
+      }
+
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 
   app.get<{ Params: { clinicId: string } }>("/mvp/admin/onboarding/:clinicId", async (request, reply) => {
     if (!checkAdminToken(request.headers.authorization)) {
-      return reply.code(401).send({ error: "unauthorized" });
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
     }
 
     try {
@@ -880,7 +911,7 @@ export function buildApp() {
       });
 
       if (!row) {
-        return reply.code(404).send({ error: "not_found" });
+        return reply.code(404).send(errorBody("not_found", "Resource was not found."));
       }
 
       return {
@@ -892,7 +923,7 @@ export function buildApp() {
         updatedAt: row.updatedAt.toISOString(),
       };
     } catch {
-      return reply.code(503).send({ error: "db_unavailable" });
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
 

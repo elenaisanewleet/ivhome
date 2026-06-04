@@ -73,9 +73,9 @@ const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", 
 const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
 
 const offerNames: Record<string, string> = {
-  "medservice-north": "Медслужба «Север»",
-  "medservice-center": "Медслужба «Центр»",
-  "medservice-night": "Медслужба «Ночь»",
+  "medservice-north": "Медицинская организация «Север»",
+  "medservice-center": "Медицинская организация «Центр»",
+  "medservice-night": "Медицинская организация «Ночь»",
 };
 
 const mvpMedservices = Object.entries(offerNames).map(([id, name]) => ({ id, name }));
@@ -161,13 +161,21 @@ async function updateRequestStatus(requestId: string, status: MvpRequestStatus, 
   );
 }
 
-async function updateDbRequestStatus(id: string, status: MvpDbStatus, adminToken: string) {
+type DbStatusPatch = {
+  status: MvpDbStatus;
+  priceMin?: number;
+  priceMax?: number;
+  etaMinutes?: number;
+  notes?: string;
+};
+
+async function updateDbRequestStatus(id: string, patch: DbStatusPatch, adminToken: string) {
   return requestJson<MvpDbRequestRecord>(
     `/mvp/admin/requests/${encodeURIComponent(id)}/status`,
     {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(patch),
     },
     { Authorization: `Bearer ${adminToken}` },
   );
@@ -181,13 +189,13 @@ async function loadClinicRequests(clinicId: string) {
   return response.requests;
 }
 
-async function updateClinicRequestStatus(id: string, status: MvpDbStatus, clinicId: string) {
+async function updateClinicRequestStatus(id: string, patch: DbStatusPatch, clinicId: string) {
   return requestJson<MvpDbRequestRecord>(
     `/mvp/clinic/requests/${encodeURIComponent(id)}/status`,
     {
       method: "PATCH",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ status }),
+      body: JSON.stringify(patch),
     },
     { "X-Clinic-Id": clinicId },
   );
@@ -307,7 +315,7 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
 
 function routeTitle(pathname: string) {
   if (pathname.startsWith("/clinic")) {
-    return "Кабинет медслужбы";
+    return "Кабинет организации";
   }
 
   if (pathname.startsWith("/admin")) {
@@ -319,7 +327,7 @@ function routeTitle(pathname: string) {
 
 function routeDescription(pathname: string) {
   if (pathname.startsWith("/clinic")) {
-    return "Экран для уполномоченных сотрудников медслужбы.";
+    return "Экран для уполномоченных сотрудников выбранной организации.";
   }
 
   if (pathname.startsWith("/admin")) {
@@ -377,7 +385,7 @@ function RequestChat({
       <div className="request-chat__head">
         <div>
           <p className="meta-label">Чат заявки</p>
-          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.</p>
+          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.</p>
         </div>
         <button disabled={isLoading} onClick={onRefresh} type="button">
           {isLoading ? "Загружаем…" : "Обновить чат"}
@@ -421,6 +429,82 @@ function RequestChat({
         </button>
       </form>
     </div>
+  );
+}
+
+function RequestQuotePanel({
+  request,
+  isUpdating,
+  onSave,
+}: {
+  request: MvpDbRequestRecord;
+  isUpdating: boolean;
+  onSave: (patch: DbStatusPatch) => void;
+}) {
+  const [status, setStatus] = useState<MvpDbStatus>(request.status);
+  const [priceMin, setPriceMin] = useState(request.priceMin?.toString() ?? "");
+  const [priceMax, setPriceMax] = useState(request.priceMax?.toString() ?? "");
+  const [etaMinutes, setEtaMinutes] = useState(request.etaMinutes?.toString() ?? "");
+  const [notes, setNotes] = useState(request.notes ?? "");
+
+  useEffect(() => {
+    setStatus(request.status);
+    setPriceMin(request.priceMin?.toString() ?? "");
+    setPriceMax(request.priceMax?.toString() ?? "");
+    setEtaMinutes(request.etaMinutes?.toString() ?? "");
+    setNotes(request.notes ?? "");
+  }, [request]);
+
+  function optionalNumber(value: string) {
+    const trimmed = value.trim();
+
+    return trimmed ? Number(trimmed) : undefined;
+  }
+
+  return (
+    <form
+      className="quote-panel"
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSave({
+          status,
+          priceMin: optionalNumber(priceMin),
+          priceMax: optionalNumber(priceMax),
+          etaMinutes: optionalNumber(etaMinutes),
+          notes: notes.trim() || undefined,
+        });
+      }}
+    >
+      <label>
+        <span>Статус</span>
+        <select onChange={(event) => setStatus(event.target.value as MvpDbStatus)} value={status}>
+          {dbStatusOrder.map((item) => (
+            <option key={item} value={item}>
+              {dbStatusLabels[item]}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <span>Цена от</span>
+        <input inputMode="numeric" min={0} onChange={(event) => setPriceMin(event.target.value)} type="number" value={priceMin} />
+      </label>
+      <label>
+        <span>Цена до</span>
+        <input inputMode="numeric" min={0} onChange={(event) => setPriceMax(event.target.value)} type="number" value={priceMax} />
+      </label>
+      <label>
+        <span>ETA, мин</span>
+        <input inputMode="numeric" min={0} onChange={(event) => setEtaMinutes(event.target.value)} type="number" value={etaMinutes} />
+      </label>
+      <label className="quote-panel__notes">
+        <span>Операционная заметка</span>
+        <input onChange={(event) => setNotes(event.target.value)} placeholder="Без персональных и медицинских деталей" type="text" value={notes} />
+      </label>
+      <button disabled={isUpdating} type="submit">
+        {isUpdating ? "Сохраняем…" : "Сохранить статус и условия"}
+      </button>
+    </form>
   );
 }
 
@@ -508,13 +592,28 @@ function AdminView() {
     setMessage(null);
 
     try {
-      const updated = await updateDbRequestStatus(req.id, status, token);
+      const updated = await updateDbRequestStatus(req.id, { status }, token);
 
       setDbRequests((current) =>
         current.map((item) => (item.id === req.id ? updated : item)),
       );
     } catch {
       setMessage("Не удалось обновить статус Postgres-заявки.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function saveDbQuote(req: MvpDbRequestRecord, patch: DbStatusPatch) {
+    setUpdatingId(req.id);
+    setMessage(null);
+
+    try {
+      const updated = await updateDbRequestStatus(req.id, patch, token);
+
+      setDbRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
+    } catch {
+      setMessage("Не удалось сохранить статус и условия Postgres-заявки.");
     } finally {
       setUpdatingId(null);
     }
@@ -544,6 +643,18 @@ function AdminView() {
       await refreshChat(nextId);
     }
   }
+
+  useEffect(() => {
+    if (!openChatId || !token) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshChat(openChatId);
+    }, 5_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [openChatId, token]);
 
   async function sendChat(requestId: string) {
     const body = (chatDrafts[requestId] ?? "").trim();
@@ -646,6 +757,12 @@ function AdminView() {
               ) : null}
               <div><dt>Обновлено</dt><dd>{formatDate(req.updatedAt)}</dd></div>
             </dl>
+
+            <RequestQuotePanel
+              isUpdating={updatingId === req.id}
+              onSave={(patch) => void saveDbQuote(req, patch)}
+              request={req}
+            />
 
             <div className="status-actions" aria-label="Изменить статус заявки">
               {dbStatusOrder.map((status) => (
@@ -798,7 +915,7 @@ function ClinicView() {
 
       setRequests(loaded);
     } catch {
-      setMessage("Не удалось загрузить заявки. Проверьте ID медслужбы и настройки API.");
+      setMessage("Не удалось загрузить заявки. Проверьте ID организации и настройки API.");
     } finally {
       setIsLoading(false);
     }
@@ -815,11 +932,26 @@ function ClinicView() {
     setMessage(null);
 
     try {
-      const updated = await updateClinicRequestStatus(req.id, status, clinicId);
+      const updated = await updateClinicRequestStatus(req.id, { status }, clinicId);
 
       setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
     } catch {
       setMessage("Не удалось обновить статус заявки.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function saveQuote(req: MvpDbRequestRecord, patch: DbStatusPatch) {
+    setUpdatingId(req.id);
+    setMessage(null);
+
+    try {
+      const updated = await updateClinicRequestStatus(req.id, patch, clinicId);
+
+      setRequests((current) => current.map((item) => (item.id === req.id ? updated : item)));
+    } catch {
+      setMessage("Не удалось сохранить статус и условия заявки.");
     } finally {
       setUpdatingId(null);
     }
@@ -850,6 +982,18 @@ function ClinicView() {
     }
   }
 
+  useEffect(() => {
+    if (!openChatId || !clinicId) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshChat(openChatId);
+    }, 5_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [clinicId, openChatId]);
+
   async function sendChat(requestId: string) {
     const body = (chatDrafts[requestId] ?? "").trim();
 
@@ -879,7 +1023,7 @@ function ClinicView() {
     return (
       <AuthGate
         storageKey={storageKey}
-        label="Кабинет медслужбы — вход"
+        label="Кабинет организации — вход"
         onAuth={handleAuth}
       />
     );
@@ -890,8 +1034,8 @@ function ClinicView() {
       <div className="dashboard-toolbar">
         <div>
           <p className="meta-label">Организация: {clinicId}</p>
-          <h2>Заявки вашей медслужбы</h2>
-          <p>Заявки, направленные выбранной медслужбе. Без телефона, адреса и личных данных пациента.</p>
+          <h2>Заявки вашей организации</h2>
+          <p>Заявки, направленные выбранной организации. Без телефона, адреса и личных данных пациента.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button disabled={isLoading} onClick={() => void refreshRequests(clinicId)} type="button">
@@ -917,8 +1061,8 @@ function ClinicView() {
       {requests.length === 0 && !isLoading ? (
         <div className="dashboard-empty-list">
           <p className="meta-label">Пусто</p>
-          <h3>Заявок для этой медслужбы пока нет</h3>
-          <p>Создайте заявку в Mini App с выбором этой медслужбы.</p>
+          <h3>Заявок для этой организации пока нет</h3>
+          <p>Создайте заявку в Mini App с выбором этой организации.</p>
         </div>
       ) : null}
 
@@ -939,8 +1083,20 @@ function ClinicView() {
               <div><dt>Район</dt><dd>{req.district}</dd></div>
               <div><dt>Время</dt><dd>{req.desiredTime}</dd></div>
               <div><dt>Формат</dt><dd>{req.profile}</dd></div>
+              {req.priceMin !== null ? (
+                <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div>
+              ) : null}
+              {req.etaMinutes !== null ? (
+                <div><dt>ETA</dt><dd>{req.etaMinutes} мин</dd></div>
+              ) : null}
               <div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div>
             </dl>
+
+            <RequestQuotePanel
+              isUpdating={updatingId === req.id}
+              onSave={(patch) => void saveQuote(req, patch)}
+              request={req}
+            />
 
             <div className="status-actions" aria-label="Изменить статус заявки">
               {dbStatusOrder.map((status) => (

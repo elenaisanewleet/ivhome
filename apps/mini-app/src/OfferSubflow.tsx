@@ -17,9 +17,9 @@ function OfferDetails({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Карточка медслужбы"
+        eyebrow="Карточка организации"
         title={offer.name}
-        body="Проверьте условия и при необходимости задайте вопрос специалисту выбранной медслужбы."
+        body="Проверьте условия и при необходимости задайте вопрос специалисту выбранной организации."
       />
       <OfferBadge offer={offer} />
       <SlaGrid offer={offer} />
@@ -58,6 +58,7 @@ function ChatView({
   chatPending,
   chatError,
   onBack,
+  onRefresh,
   onSend,
 }: {
   messages: ChatMessage[];
@@ -66,6 +67,7 @@ function ChatView({
   chatPending: boolean;
   chatError: string | null;
   onBack: () => void;
+  onRefresh: () => void;
   onSend: (message: string) => Promise<void>;
 }) {
   const [draft, setDraft] = useState("");
@@ -86,11 +88,11 @@ function ChatView({
       <SubflowHeader
         eyebrow="Чат со специалистом"
         title={offer.name}
-        body="Детали выезда и возможность помощи уточняет специалист выбранной медслужбы. Надом не даёт медицинских рекомендаций."
+        body="Детали выезда и возможность помощи уточняет специалист выбранной организации. Надом не даёт медицинских рекомендаций."
       />
 
       <p className="chat-privacy-banner">
-        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.
+        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.
       </p>
 
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
@@ -139,6 +141,9 @@ function ChatView({
         </button>
       </form>
       <div className="subflow-actions">
+        <button className="button button--secondary" disabled={!requestId || chatPending} onClick={onRefresh} type="button">
+          {chatPending ? "Обновляем…" : "Обновить чат"}
+        </button>
         <button className="button button--ghost" onClick={onBack} type="button">
           Назад к заявке
         </button>
@@ -234,7 +239,7 @@ function WaitingView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Ждём подтверждение"
-        title="Заявка передана медслужбе"
+        title="Заявка передана выбранной организации"
         body="Выбранная организация проверяет возможность выезда. Когда ответят и приедут — отслеживается отдельно."
       />
       <div className="live-status">
@@ -248,7 +253,7 @@ function WaitingView({
       {statusNotice ? <p className="privacy-note">{statusNotice}</p> : null}
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
-          {usesApi ? "Обновить статус" : "Показать подтверждение медслужбы"}
+          {usesApi ? "Обновить статус" : "Показать подтверждение организации"}
         </button>
         <button className="button button--teal" onClick={onOpenChat} type="button">
           Открыть чат
@@ -257,28 +262,57 @@ function WaitingView({
           Написать в поддержку
         </button>
         <button className="button button--ghost" onClick={onChangeOffer} type="button">
-          Изменить медслужбу
+          Изменить организацию
         </button>
       </div>
     </section>
   );
 }
 
-function PriceLockView({ offer, onNext }: { offer: Offer; onNext: () => void }) {
+function formatConfirmedPrice(details: StatusDetails | null, fallback: string) {
+  if (!details?.priceMin) {
+    return fallback;
+  }
+
+  const currency = details.priceCurrency === "RUB" ? "₽" : details.priceCurrency;
+
+  if (details.priceMax && details.priceMax !== details.priceMin) {
+    return `${details.priceMin} – ${details.priceMax} ${currency}`;
+  }
+
+  return `${details.priceMin} ${currency}`;
+}
+
+function formatEta(details: StatusDetails | null, fallback: string) {
+  return details?.etaMinutes ? `~${details.etaMinutes} мин` : fallback;
+}
+
+function PriceLockView({
+  offer,
+  statusDetails,
+  onNext,
+}: {
+  offer: Offer;
+  statusDetails: StatusDetails | null;
+  onNext: () => void;
+}) {
   return (
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Стоимость подтверждена"
-        title="Стоимость подтверждена медслужбой"
-        body="Условия согласованы с выбранной медслужбой до выезда специалиста."
+        title="Стоимость подтверждена организацией"
+        body="Условия согласованы с выбранной организацией до выезда специалиста."
       />
       <StatusTrack stage="price-lock" />
       <SlaGrid offer={offer} label="Подтверждённые сроки" />
       <div className="price-lock">
         <span>итоговая стоимость</span>
-        <strong>{offer.finalPrice}</strong>
+        <strong>{formatConfirmedPrice(statusDetails, offer.finalPrice)}</strong>
       </div>
-      <p className="privacy-note">Итоговую стоимость и время прибытия подтверждает выбранная организация.</p>
+      <p className="privacy-note">
+        Итоговую стоимость и время прибытия подтверждает выбранная организация.
+        {statusDetails?.etaMinutes ? ` Ожидаемое прибытие после подтверждения: ${formatEta(statusDetails, offer.arrivalTime)}.` : ""}
+      </p>
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
           Продолжить
@@ -290,10 +324,12 @@ function PriceLockView({ offer, onNext }: { offer: Offer; onNext: () => void }) 
 
 function DispatchedView({
   offer,
+  statusDetails,
   onComplete,
   onSupport,
 }: {
   offer: Offer;
+  statusDetails: StatusDetails | null;
   onComplete: () => void;
   onSupport: () => void;
 }) {
@@ -302,7 +338,7 @@ function DispatchedView({
       <SubflowHeader
         eyebrow="Специалист выехал"
         title="Ожидайте специалиста"
-        body="Статус обновлён выбранной медслужбой. Ожидаемое время приезда указано отдельно."
+        body="Статус обновлён выбранной организацией. Ожидаемое время приезда указано отдельно."
       />
       <div className="live-status">
         <Pulse />
@@ -311,7 +347,7 @@ function DispatchedView({
       <StatusTrack stage="dispatched" />
       <div className="status-callout status-callout--teal">
         <span>приедут</span>
-        <strong>{offer.arrivalTime}</strong>
+        <strong>{formatEta(statusDetails, offer.arrivalTime)}</strong>
       </div>
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onComplete} type="button">
@@ -339,7 +375,7 @@ function CompletedView({
       <SubflowHeader
         eyebrow="Завершено"
         title="Выезд завершён"
-        body="Спасибо. Можно оценить взаимодействие с медслужбой или начать новый подбор."
+        body="Спасибо. Можно оценить взаимодействие с выбранной организацией или начать новый подбор."
       />
       <StatusTrack stage="completed" />
       <div className="subflow-actions">
@@ -491,6 +527,13 @@ export function OffersState({
   );
 }
 
+type StatusDetails = {
+  priceMin: number | null;
+  priceMax: number | null;
+  priceCurrency: string;
+  etaMinutes: number | null;
+};
+
 export function OfferSubflow({
   chatMessages,
   chatError,
@@ -501,6 +544,7 @@ export function OfferSubflow({
   requestError,
   requestId,
   statusNotice,
+  statusDetails,
   submitPending,
   supportReturnView,
   supportUrl,
@@ -511,6 +555,7 @@ export function OfferSubflow({
   onRate,
   onRestart,
   onSendChatMessage,
+  onRefreshChat,
   onShowSupport,
   onSubmit,
   onUpdateStatus,
@@ -524,6 +569,7 @@ export function OfferSubflow({
   requestError: string | null;
   requestId: string | null;
   statusNotice: string | null;
+  statusDetails: StatusDetails | null;
   submitPending: boolean;
   supportReturnView: Exclude<OfferView, "support">;
   supportUrl: string | null;
@@ -534,6 +580,7 @@ export function OfferSubflow({
   onRate: (rating: number) => void;
   onRestart: () => void;
   onSendChatMessage: (message: string) => Promise<void>;
+  onRefreshChat: () => void;
   onShowSupport: (returnView: Exclude<OfferView, "support">) => void;
   onSubmit: () => void;
   onUpdateStatus: () => void;
@@ -558,6 +605,7 @@ export function OfferSubflow({
         offer={offer}
         requestId={requestId}
         onBack={() => onChangeView(requestId ? "status" : "confirmation")}
+        onRefresh={onRefreshChat}
         onSend={onSendChatMessage}
       />
     );
@@ -595,13 +643,14 @@ export function OfferSubflow({
   }
 
   if (view === "price-lock") {
-    return <PriceLockView offer={offer} onNext={() => onChangeView("dispatched")} />;
+    return <PriceLockView offer={offer} statusDetails={statusDetails} onNext={() => onChangeView("dispatched")} />;
   }
 
   if (view === "dispatched") {
     return (
       <DispatchedView
         offer={offer}
+        statusDetails={statusDetails}
         onComplete={() => onChangeView("completed")}
         onSupport={() => onShowSupport("dispatched")}
       />

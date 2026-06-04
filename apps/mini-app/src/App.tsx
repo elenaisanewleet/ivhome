@@ -45,6 +45,16 @@ function toChatMessage(message: { id: string; actorType: ChatMessage["actorType"
   };
 }
 
+function mergeChatMessages(current: ChatMessage[], incoming: ChatMessage[]) {
+  const byId = new Map(current.map((message) => [message.id, message]));
+
+  for (const message of incoming) {
+    byId.set(message.id, message);
+  }
+
+  return [...byId.values()].sort((left, right) => left.createdAt.localeCompare(right.createdAt));
+}
+
 export function App() {
   const [preview] = useState<PreviewId | null>(() => readPreviewId());
   const startsOnOffers = preview !== null;
@@ -71,6 +81,12 @@ export function App() {
   const [requestError, setRequestError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
+  const [statusDetails, setStatusDetails] = useState<{
+    priceMin: number | null;
+    priceMax: number | null;
+    priceCurrency: string;
+    etaMinutes: number | null;
+  } | null>(null);
   const [inTelegram] = useState(() => isInsideTelegram());
 
   const step = getStep(stepIndex);
@@ -124,6 +140,65 @@ export function App() {
     };
   }, [isOffersStep, offersMode, preview]);
 
+  async function refreshChat({ quiet = false }: { quiet?: boolean } = {}) {
+    if (!requestId) {
+      return;
+    }
+
+    if (!quiet) {
+      setChatPending(true);
+    }
+    if (!quiet) {
+      setChatError(null);
+    }
+
+    try {
+      const messages = await getChatMessages(requestId);
+
+      setChatMessages((current) => mergeChatMessages(current, messages.map(toChatMessage)));
+      if (!quiet) {
+        setChatError(null);
+      }
+    } catch {
+      if (!quiet) {
+        setChatError("Не получилось загрузить чат. Попробуйте обновить позже.");
+      }
+    } finally {
+      if (!quiet) {
+        setChatPending(false);
+      }
+    }
+  }
+
+  async function refreshRequestStatus({ quiet = false }: { quiet?: boolean } = {}) {
+    if (!requestId) {
+      return;
+    }
+
+    try {
+      const response = await getRequestStatus(requestId);
+
+      setStatusDetails({
+        priceMin: response.priceMin,
+        priceMax: response.priceMax,
+        priceCurrency: response.priceCurrency,
+        etaMinutes: response.etaMinutes,
+      });
+      setOfferView(offerViewForDbStatus(response.status));
+      setStatusNotice(
+        response.status === "WAITING"
+          ? "Выбранная организация ещё проверяет возможность выезда. Можно обновить статус позже."
+          : response.status === "DECLINED"
+            ? "Выбранная организация не подтвердила выезд. Напишите в поддержку или выберите другой вариант."
+          : null,
+      );
+    } catch {
+      if (!quiet) {
+        setStatusNotice("Не получилось обновить статус. Попробуйте ещё раз.");
+      }
+    }
+  }
+
   useEffect(() => {
     if (!requestId || offerView !== "chat") {
       return;
@@ -137,7 +212,7 @@ export function App() {
     void getChatMessages(requestId)
       .then((messages) => {
         if (isCurrent) {
-          setChatMessages(messages.map(toChatMessage));
+          setChatMessages((current) => mergeChatMessages(current, messages.map(toChatMessage)));
         }
       })
       .catch(() => {
@@ -154,6 +229,30 @@ export function App() {
     return () => {
       isCurrent = false;
     };
+  }, [offerView, requestId]);
+
+  useEffect(() => {
+    if (!requestId || offerView !== "chat") {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshChat({ quiet: true });
+    }, 4_000);
+
+    return () => window.clearInterval(intervalId);
+  }, [offerView, requestId]);
+
+  useEffect(() => {
+    if (!requestId || !offerView || !["status", "price-lock", "dispatched", "completed"].includes(offerView)) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void refreshRequestStatus({ quiet: true });
+    }, 7_000);
+
+    return () => window.clearInterval(intervalId);
   }, [offerView, requestId]);
 
   const primaryLabel = useMemo(() => {
@@ -217,6 +316,7 @@ export function App() {
     setRequestId(null);
     setRequestError(null);
     setStatusNotice(null);
+    setStatusDetails(null);
     setStepIndex(TIME_STEP_INDEX);
   }
 
@@ -235,6 +335,7 @@ export function App() {
     setRequestId(null);
     setRequestError(null);
     setStatusNotice(null);
+    setStatusDetails(null);
     setStepIndex(PROFILE_STEP_INDEX);
   }
 
@@ -246,6 +347,7 @@ export function App() {
       setRequestId(null);
       setRequestError(null);
       setStatusNotice(null);
+      setStatusDetails(null);
     }
 
     setSelectedOffer(offer);
@@ -263,6 +365,7 @@ export function App() {
       setRequestId(null);
       setRequestError(null);
       setStatusNotice(null);
+      setStatusDetails(null);
     }
   }
 
@@ -283,7 +386,8 @@ export function App() {
     try {
       const saved = await postChatMessage(requestId, message);
 
-      setChatMessages((current) => [...current, toChatMessage(saved)]);
+      setChatMessages((current) => mergeChatMessages(current, [toChatMessage(saved)]));
+      void refreshChat({ quiet: true });
     } catch {
       setChatError("Не получилось отправить сообщение. Попробуйте ещё раз.");
     } finally {
@@ -309,6 +413,12 @@ export function App() {
       });
 
       setRequestId(response.id);
+      setStatusDetails({
+        priceMin: response.priceMin,
+        priceMax: response.priceMax,
+        priceCurrency: response.priceCurrency,
+        etaMinutes: response.etaMinutes,
+      });
       setStatusNotice(null);
       setOfferView(offerViewForDbStatus(response.status));
       hapticNotice("success");
@@ -326,20 +436,7 @@ export function App() {
       return;
     }
 
-    try {
-      const response = await getRequestStatus(requestId);
-
-      setOfferView(offerViewForDbStatus(response.status));
-      setStatusNotice(
-        response.status === "WAITING"
-          ? "Выбранная организация ещё проверяет возможность выезда. Можно обновить статус позже."
-          : response.status === "DECLINED"
-            ? "Выбранная организация не подтвердила выезд. Напишите в поддержку или выберите другой вариант."
-          : null,
-      );
-    } catch {
-      setStatusNotice("Не получилось обновить статус. Попробуйте ещё раз.");
-    }
+    await refreshRequestStatus();
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -399,6 +496,7 @@ export function App() {
               onRate={setRating}
               onRestart={restartSelection}
               onSendChatMessage={sendChatMessage}
+              onRefreshChat={() => void refreshChat()}
               onShowSupport={showSupport}
               onSubmit={() => void submitSelectedRequest()}
               onUpdateStatus={() => void updateSelectedRequestStatus()}
@@ -406,6 +504,7 @@ export function App() {
               requestError={requestError}
               requestId={requestId}
               statusNotice={statusNotice}
+              statusDetails={statusDetails}
               submitPending={submitPending}
               supportReturnView={supportReturnView}
               supportUrl={supportUrl}
@@ -435,7 +534,7 @@ export function App() {
                     <span>удобно</span>
                   </div>
                   <ul className="trust-chips" aria-label="Что видно до заявки">
-                    <li>Ответ медслужбы</li>
+                    <li>Ответ организации</li>
                     <li>Прибытие после подтверждения</li>
                     <li>Стоимость до выезда</li>
                   </ul>

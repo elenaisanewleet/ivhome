@@ -47,12 +47,15 @@ Internal code: IVhome. Public brand: Наdom / Надом.
 
 Current Render state:
 
-- PR #33 has already been merged into `main`.
+- PR #33 and PR #34 have already been merged into `main`.
 - Render PostgreSQL database `nadom-db` exists.
 - `DATABASE_URL` is configured on the Render `nadom-api` service.
 - `ADMIN_TOKEN` is configured on the Render `nadom-api` service.
+- Migration `20260603000000_add_mvp_request_and_chat` has already been applied on Render.
+- `pnpm db:seed` and `pnpm db:generate` have been run on Render.
+- `POST /mvp/requests` returns `201` on Render and Mini App requests persist in Postgres.
 
-Run these commands in the Render Shell for `nadom-api`:
+For a brand-new environment, run these commands in the Render Shell for `nadom-api`:
 
 ```bash
 pnpm db:migrate
@@ -62,7 +65,8 @@ pnpm db:generate
 
 ### 1. Apply migrations
 
-This applies all committed migrations under `prisma/migrations/`, including `20260603000000_add_mvp_request_and_chat` which adds:
+This applies all committed migrations under `prisma/migrations/`. On the current Render environment,
+`20260603000000_add_mvp_request_and_chat` is already applied and adds:
 - `MvpRequest` — persistent request records
 - `MvpChatMessage` — request chat messages
 - `MvpOnboarding` — medservice onboarding questionnaire
@@ -139,15 +143,19 @@ To fill the onboarding questionnaire via dashboard:
 5. The request is created via `POST /mvp/requests` and persisted as `MvpRequest`.
 6. Check the admin dashboard at `http://localhost:5174/admin` to see the new request.
 7. Check the clinic dashboard at `http://localhost:5174/clinic` with the selected clinic ID to see the same request.
-8. Change the status in admin or clinic dashboard and refresh the Mini App status screen.
-9. Open the Mini App request chat after submission. Messages are stored via `POST /mvp/requests/:id/chat` and loaded via `GET /mvp/requests/:id/chat`.
+8. Change the status, price range, ETA, or neutral operational note in admin or clinic dashboard.
+9. Confirm the Mini App status screen updates by polling without a hard refresh.
+10. Open the Mini App request chat after submission. Messages are stored via `POST /mvp/requests/:id/chat` and loaded via `GET /mvp/requests/:id/chat`.
+11. Send a message from the user and reply from admin or clinic dashboard.
+12. Confirm the Mini App chat updates by polling while the chat remains open.
 
 ---
 
 ## Migration / Deploy Commands (Render)
 
 ```bash
-# Apply migrations on Render (run as a pre-deploy step or one-off job)
+# Apply future migrations on Render as a one-off manual step.
+# Do not run migrations automatically unless that deployment policy changes intentionally.
 pnpm db:migrate
 
 # Seed (only needed once per environment, idempotent)
@@ -160,6 +168,26 @@ pnpm db:validate
 pnpm db:generate
 ```
 
+The API Render build command includes `pnpm db:generate` before the API TypeScript build so Prisma Client is
+available even when Render starts from a fresh install cache. Migrations remain manual to avoid changing production
+schema during an ordinary preview deploy.
+
+## Manual Pilot Smoke Test
+
+1. Open Mini App.
+2. Submit a request.
+3. Open admin dashboard with `ADMIN_TOKEN`.
+4. Verify the DB request appears.
+5. Open clinic dashboard with the selected clinic ID.
+6. Verify only that clinic's request appears.
+7. Send a user chat message.
+8. Reply from clinic.
+9. Confirm Mini App chat updates without leaving the chat.
+10. Update status, price, and ETA from admin or clinic.
+11. Confirm Mini App status updates without hard refresh.
+12. Open `/admin/onboarding/<clinicId>` and save draft/submitted.
+13. Restart or redeploy API and verify the request still exists.
+
 ---
 
 ## Known Limitations (MVP)
@@ -169,6 +197,8 @@ pnpm db:generate
 - **In-memory preview routes are compatibility-only**: The `/mvp/dev/*` store resets on restart and should be enabled only with `ENABLE_MVP_DEV_API=true`.
 - **Mini App uses persistent MVP requests by default**: offers load from `/mvp/offers`, request creation uses `/mvp/requests`, status reads `/mvp/requests/:id`, and post-submit chat uses `/mvp/requests/:id/chat`.
 - **No bot integration with DB**: The Telegram bot sends status notifications but is not yet wired to `MvpRequest` status changes.
+- **Bot notifications are helper-only**: neutral status/chat message text helpers exist, but automatic sends are not wired without safe user identity mapping.
 - **No Telegram chat notifications**: Request chat content is stored in Postgres only and is not sent into Telegram messages/notifications.
+- **Polling, not realtime sockets**: Mini App and dashboards poll chat/status during the pilot. WebSocket/SSE realtime is a follow-up.
 - **Offers are static**: `/mvp/offers` returns hardcoded offers. Dynamic DB-driven offers are a follow-up.
 - **No HTTPS enforcement**: Enforce HTTPS and set `Secure` cookies in production.
