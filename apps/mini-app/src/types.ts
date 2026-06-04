@@ -1,9 +1,11 @@
-import type { MvpChatActorType, MvpOffer } from "@ivhome/shared";
+import type { MvpChatActorType, MvpOffer, MvpServiceSlug } from "@ivhome/shared";
 
 export type StepId = "welcome" | "consent" | "emergency" | "profile" | "location" | "time" | "offers";
 
 export type OfferView =
   | "details"
+  | "service"
+  | "custom"
   | "chat"
   | "confirmation"
   | "status"
@@ -26,6 +28,15 @@ export type Step = {
 };
 
 export type Offer = MvpOffer;
+
+export type OfferService = {
+  slug: MvpServiceSlug;
+  label: string;
+  shortLabel: string;
+  priceRange: string;
+  description: string;
+  tone: "blue" | "teal" | "dust" | "warn" | "ok";
+};
 
 export type ChatMessage = {
   id: string;
