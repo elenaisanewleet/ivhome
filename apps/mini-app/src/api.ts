@@ -10,6 +10,9 @@ import type {
   MvpRequestStatusResponse,
 } from "@ivhome/shared";
 
+import { MVP_SERVICE_CATALOG } from "./data";
+import type { Offer, OfferServiceSlug } from "./types";
+
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
 
 async function requestJson<T>(path: string, options?: RequestInit): Promise<T> {
@@ -44,7 +47,36 @@ export function readSupportUrl() {
 
 // ─── Legacy in-memory dev endpoints (kept for backward compatibility) ─────────
 
-export async function loadOffers(fallbackOffers: MvpOffer[]) {
+type MvpOfferPayload = MvpOffer & { services?: Offer["services"] };
+
+type RequestContextInput = MvpDbRequestCreateInput & {
+  serviceSlug?: OfferServiceSlug;
+  serviceLabel?: string;
+  servicePrice?: string;
+  customRequest?: string;
+  customImportant?: string;
+  budget?: string;
+  comment?: string;
+};
+
+type MvpDbRequestWithContext = MvpDbRequest & {
+  serviceSlug?: OfferServiceSlug | null;
+  serviceLabel?: string | null;
+  servicePrice?: string | null;
+  customRequest?: string | null;
+  customImportant?: string | null;
+  budget?: string | null;
+  comment?: string | null;
+};
+
+function withServiceCatalog(offer: MvpOfferPayload): Offer {
+  return {
+    ...offer,
+    services: offer.services?.length ? offer.services : MVP_SERVICE_CATALOG,
+  };
+}
+
+export async function loadOffers(fallbackOffers: Offer[]) {
   if (!isApiConfigured()) {
     return fallbackOffers;
   }
@@ -88,21 +120,21 @@ export async function loadMvpRequestStatus(requestId: string) {
 
 // ─── Persistent Postgres-backed endpoints ─────────────────────────────────────
 
-export async function fetchOffers(): Promise<MvpOffer[]> {
+export async function fetchOffers(): Promise<Offer[]> {
   const response = await requestJson<MvpOffersResponse>("/mvp/offers");
 
-  return response.offers;
+  return (response.offers as MvpOfferPayload[]).map(withServiceCatalog);
 }
 
-export async function submitRequest(data: MvpDbRequestCreateInput): Promise<MvpDbRequest> {
-  return requestJson<MvpDbRequest>("/mvp/requests", {
+export async function submitRequest(data: RequestContextInput): Promise<MvpDbRequestWithContext> {
+  return requestJson<MvpDbRequestWithContext>("/mvp/requests", {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(data),
   });
 }
 
-export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequest, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "createdAt" | "updatedAt">> {
+export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequestWithContext, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "district" | "desiredTime" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment" | "createdAt" | "updatedAt">> {
   return requestJson(`/mvp/requests/${encodeURIComponent(id)}`);
 }
 

@@ -838,3 +838,84 @@ nav a:hover {
   border-radius: 14px;
   padding: 10px 12px;
 }
+
+.request-context-panel {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid rgba(126,184,212,0.22);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(126,184,212,0.12), rgba(58,138,130,0.08));
+}
+
+.request-context-panel .request-fields {
+  margin-top: 8px;
+}
+
+.request-context-panel {
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+}
+
+.request-context-panel__budget dd {
+  color: var(--warn, #8a6020);
+  font-weight: 800;
+}
+
+.request-context-panel__comment dd {
+  overflow-wrap: anywhere;
+}
+
+.auth-hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.diagnostics-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.diagnostic-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(126, 184, 212, 0.24);
+  border-radius: 18px;
+  color: var(--text-secondary);
+  background: linear-gradient(135deg, rgba(126, 184, 212, 0.12), rgba(58, 138, 130, 0.06)), var(--surface-muted);
+}
+
+.diagnostic-card--error {
+  border-color: rgba(138, 48, 48, 0.26);
+  background: linear-gradient(135deg, rgba(138, 48, 48, 0.08), rgba(126, 184, 212, 0.08)), var(--surface-muted);
+}
+
+.diagnostic-card h3 {
+  margin: 2px 0 0;
+  color: var(--text-primary);
+  font-size: 16px;
+}
+
+.diagnostic-card dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.diagnostic-card dl div {
+  display: grid;
+  gap: 2px;
+}
+
+.diagnostic-card dt {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.diagnostic-card dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

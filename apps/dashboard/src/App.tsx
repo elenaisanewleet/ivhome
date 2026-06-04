@@ -5,6 +5,24 @@ import type { MvpChatActorType, MvpChatMessage } from "@ivhome/shared";
 import "./App.css";
 import { OnboardingForm } from "./OnboardingForm";
 
+
+type MvpServiceCategorySlug =
+  | "alcohol_hangover"
+  | "binge_or_near_binge"
+  | "intoxication"
+  | "urgent_visit"
+  | "planned_visit"
+  | "custom";
+
+const MVP_SERVICE_CATALOG: Array<{ slug: MvpServiceCategorySlug; label: string; priceRange: string }> = [
+  { slug: "alcohol_hangover", label: "Плохо после алкоголя", priceRange: "8 500–12 000 ₽" },
+  { slug: "binge_or_near_binge", label: "Запойная или около-запойная ситуация", priceRange: "от 11 000 ₽" },
+  { slug: "intoxication", label: "Интоксикация / отравление веществами", priceRange: "от 10 000 ₽" },
+  { slug: "urgent_visit", label: "Срочный неэкстренный выезд специалиста", priceRange: "от 6 000 ₽" },
+  { slug: "planned_visit", label: "Плановый выезд специалиста", priceRange: "от 5 500 ₽" },
+  { slug: "custom", label: "Свой запрос", priceRange: "по согласованию" },
+];
+
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
 type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
 
@@ -32,6 +50,13 @@ type MvpDbRequestRecord = {
   priceCurrency: string;
   etaMinutes: number | null;
   notes: string | null;
+  serviceSlug: MvpServiceCategorySlug | null;
+  serviceLabel: string | null;
+  servicePrice: string | null;
+  customRequest: string | null;
+  customImportant: string | null;
+  budget: string | null;
+  comment: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -77,7 +102,17 @@ type MvpRequestStatusResponse = {
   updatedAt: string;
 };
 
-type DashboardError = Error & { status?: number };
+type DashboardError = Error & { status?: number; endpoint?: string; code?: string };
+
+type DashboardDiagnosticTone = "muted" | "error";
+
+type DashboardDiagnostic = {
+  endpoint: string;
+  title: string;
+  status: string;
+  hint: string;
+  tone: DashboardDiagnosticTone;
+};
 
 const statusLabels: Record<MvpRequestStatus, string> = {
   waiting: "Ожидаем",
@@ -98,9 +133,9 @@ const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", 
 const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
 
 const offerNames: Record<string, string> = {
-  "medservice-north": "Медслужба «Север»",
-  "medservice-center": "Медслужба «Центр»",
-  "medservice-night": "Медслужба «Ночь»",
+  "medservice-north": "Медорганизация «Север»",
+  "medservice-center": "Медорганизация «Центр»",
+  "medservice-night": "Медорганизация «Ночь»",
 };
 
 function offerName(offerId: string) {
@@ -135,21 +170,100 @@ function writeStoredToken(key: string, value: string): void {
 }
 
 async function requestJson<T>(path: string, options?: RequestInit, extraHeaders?: Record<string, string>): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...options,
-    headers: {
-      ...(options?.headers as Record<string, string> | undefined),
-      ...extraHeaders,
-    },
-  });
+  let response: Response;
+
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...options,
+      headers: {
+        ...(options?.headers as Record<string, string> | undefined),
+        ...extraHeaders,
+      },
+    });
+  } catch {
+    const error: DashboardError = new Error(`Nadom dashboard request failed: fetch failed`);
+    error.endpoint = path;
+    error.code = "fetch_failed";
+    throw error;
+  }
 
   if (!response.ok) {
     const error: DashboardError = new Error(`Nadom dashboard request failed with status ${response.status}`);
     error.status = response.status;
+    error.endpoint = path;
+
+    try {
+      const payload = (await response.clone().json()) as { error?: unknown };
+      if (typeof payload.error === "string") error.code = payload.error;
+    } catch {
+      // Keep diagnostics safe: status code is enough when the body is not JSON.
+    }
+
     throw error;
   }
 
   return (await response.json()) as T;
+}
+
+function errorStatus(error: unknown) {
+  const dashboardError = error as DashboardError;
+  if (dashboardError.status) return `${dashboardError.status}${dashboardError.code ? ` · ${dashboardError.code}` : ""}`;
+  return dashboardError.code === "fetch_failed" ? "fetch failed" : "unknown";
+}
+
+function diagnosticHint(error: unknown) {
+  const status = (error as DashboardError).status;
+  const code = (error as DashboardError).code;
+
+  if (status === 401 || status === 403) {
+    return "Проверьте ADMIN_TOKEN в API и введённый admin token. Не храните admin token в VITE_* на production.";
+  }
+
+  if (status === 404 || code === "fetch_failed") {
+    return "Проверьте VITE_API_BASE_URL и CORS_ORIGINS.";
+  }
+
+  if (status === 500 || status === 503) {
+    return "Проверьте DATABASE_URL, миграции и логи API.";
+  }
+
+  return "Проверьте настройки API, доступ и логи сервиса.";
+}
+
+function buildDiagnostic(endpoint: string, title: string, error: unknown, tone: DashboardDiagnosticTone): DashboardDiagnostic {
+  return {
+    endpoint,
+    title,
+    status: errorStatus(error),
+    hint: diagnosticHint(error),
+    tone,
+  };
+}
+
+function isDevApiDisabled(error: unknown) {
+  const dashboardError = error as DashboardError;
+  return dashboardError.status === 503 && dashboardError.code === "mvp_dev_api_disabled";
+}
+
+function DashboardDiagnostics({ diagnostics }: { diagnostics: DashboardDiagnostic[] }) {
+  if (diagnostics.length === 0) return null;
+
+  return (
+    <div className="diagnostics-list" aria-label="Диагностика API dashboard">
+      {diagnostics.map((diagnostic) => (
+        <article className={`diagnostic-card diagnostic-card--${diagnostic.tone}`} key={diagnostic.endpoint}>
+          <div>
+            <p className="meta-label">{diagnostic.endpoint}</p>
+            <h3>{diagnostic.title}</h3>
+          </div>
+          <dl>
+            <div><dt>Статус</dt><dd>{diagnostic.status}</dd></div>
+            <div><dt>Подсказка</dt><dd>{diagnostic.hint}</dd></div>
+          </dl>
+        </article>
+      ))}
+    </div>
+  );
 }
 
 async function loadRequests(adminToken: string) {
@@ -294,11 +408,8 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
 
   useEffect(() => {
     const preset = storageKey === "nadom_admin_token" ? configuredAdminToken : configuredClinicToken;
-    if (preset) {
-      writeStoredToken(storageKey, preset);
-      onAuth(preset);
-    }
-  }, [storageKey, onAuth]);
+    if (import.meta.env.DEV && preset) setInput(preset);
+  }, [storageKey]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -318,6 +429,9 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
     <div className="auth-gate">
       <BrandMark />
       <h2>{label}</h2>
+      {storageKey === "nadom_admin_token" ? (
+        <p className="auth-hint">Admin token хранится только в sessionStorage этого браузера. Не вставляйте его в чат и не коммитьте в репозиторий.</p>
+      ) : null}
       <form onSubmit={handleSubmit}>
         <label>
           <span>Токен доступа</span>
@@ -395,6 +509,32 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
   );
 }
 
+
+function requestContextFields(req: MvpDbRequestRecord) {
+  const fallback = MVP_SERVICE_CATALOG.find((service) => service.slug === req.serviceSlug);
+  return {
+    service: req.serviceLabel ?? fallback?.label ?? "Услуга не выбрана",
+    price: req.servicePrice ?? fallback?.priceRange ?? "по согласованию",
+  };
+}
+
+function RequestContext({ req }: { req: MvpDbRequestRecord }) {
+  const context = requestContextFields(req);
+  return (
+    <div className="request-context-panel">
+      <p className="meta-label">Контекст заявки</p>
+      <dl className="request-fields">
+        <div><dt>Услуга</dt><dd>{context.service}</dd></div>
+        <div><dt>Ориентир</dt><dd>{context.price}</dd></div>
+        {req.customRequest ? <div><dt>Свой запрос</dt><dd>{req.customRequest}</dd></div> : null}
+        {req.customImportant ? <div><dt>Что важно</dt><dd>{req.customImportant}</dd></div> : null}
+        {req.budget ? <div className="request-context-panel__budget"><dt>Бюджет</dt><dd>{req.budget}</dd></div> : null}
+        {req.comment ? <div className="request-context-panel__comment"><dt>Комментарий</dt><dd>{req.comment}</dd></div> : null}
+      </dl>
+    </div>
+  );
+}
+
 function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequestRecord; isUpdating: boolean; onSave: (patch: DbStatusPatch) => void }) {
   const [status, setStatus] = useState<MvpDbStatus>(request.status);
   const [priceMin, setPriceMin] = useState(request.priceMin?.toString() ?? "");
@@ -441,6 +581,7 @@ function AdminView() {
   const [clinicForm, setClinicForm] = useState(emptyClinicForm);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [diagnostics, setDiagnostics] = useState<DashboardDiagnostic[]>([]);
   const [lastAction, setLastAction] = useState<"idle" | "success" | "error">("idle");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [openChatId, setOpenChatId] = useState<string | null>(null);
@@ -458,24 +599,45 @@ function AdminView() {
     if (!isConfigured) return;
     setIsLoading(true);
     setMessage(null);
+    setDiagnostics([]);
     setLastAction("idle");
 
-    try {
-      const [legacy, db, clinicList] = await Promise.allSettled([loadRequests(authToken), loadDbRequests(authToken), loadClinics(authToken)]);
-      if (legacy.status === "fulfilled") setRequests(legacy.value);
-      if (db.status === "fulfilled") setDbRequests(db.value);
-      else setMessage("Postgres-заявки недоступны. Проверьте миграции и API.");
-      if (clinicList.status === "fulfilled") setClinics(clinicList.value);
-      if (successMessage) {
-        setMessage(successMessage);
-        setLastAction("success");
-      }
-    } catch {
-      setMessage("Не удалось загрузить данные. Проверьте VITE_API_BASE_URL и токен доступа.");
-      setLastAction("error");
-    } finally {
-      setIsLoading(false);
+    const [legacy, db, clinicList] = await Promise.allSettled([loadRequests(authToken), loadDbRequests(authToken), loadClinics(authToken)]);
+    const nextDiagnostics: DashboardDiagnostic[] = [];
+
+    if (legacy.status === "fulfilled") {
+      setRequests(legacy.value);
+    } else if (isDevApiDisabled(legacy.reason)) {
+      setRequests([]);
+      nextDiagnostics.push(buildDiagnostic("/mvp/dev/requests", "Dev API отключён — это нормально для production", legacy.reason, "muted"));
+    } else {
+      setRequests([]);
+      nextDiagnostics.push(buildDiagnostic("/mvp/dev/requests", "Dev-заявки недоступны", legacy.reason, "muted"));
     }
+
+    if (db.status === "fulfilled") {
+      setDbRequests(db.value);
+    } else {
+      setDbRequests([]);
+      nextDiagnostics.push(buildDiagnostic("/mvp/admin/requests", "Postgres-заявки недоступны", db.reason, "error"));
+    }
+
+    if (clinicList.status === "fulfilled") {
+      setClinics(clinicList.value);
+    } else {
+      setClinics([]);
+      nextDiagnostics.push(buildDiagnostic("/mvp/admin/clinics", "Список медслужб недоступен", clinicList.reason, "error"));
+    }
+
+    setDiagnostics(nextDiagnostics);
+    if (nextDiagnostics.some((diagnostic) => diagnostic.tone === "error")) setLastAction("error");
+
+    if (successMessage) {
+      setMessage(successMessage);
+      setLastAction("success");
+    }
+
+    setIsLoading(false);
   }, [isConfigured]);
 
   useEffect(() => {
@@ -628,6 +790,7 @@ function AdminView() {
       const saved = await sendAdminChatMessage(requestId, body, token);
       setChatMessages((current) => ({ ...current, [requestId]: [...(current[requestId] ?? []), saved] }));
       setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+      await refreshChat(requestId);
     } catch {
       setChatError("Не удалось отправить сообщение.");
     } finally {
@@ -647,11 +810,12 @@ function AdminView() {
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
-          <button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); }} type="button">Выйти</button>
+          <button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); setDiagnostics([]); }} type="button">Выйти</button>
         </div>
       </div>
 
       {message ? <p className={`dashboard-message dashboard-message--${lastAction}`}>{message}</p> : null}
+      <DashboardDiagnostics diagnostics={diagnostics} />
 
       <section className="clinic-access-panel">
         <div className="dashboard-toolbar">
@@ -746,7 +910,7 @@ function AdminView() {
               {req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}
               <div><dt>Обновлено</dt><dd>{formatDate(req.updatedAt)}</dd></div>
             </dl>
-            <RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
+            <RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
             <div className="status-actions" aria-label="Изменить статус заявки">
               {dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeDbStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}
               <button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button>
@@ -934,6 +1098,7 @@ function ClinicView() {
       const saved = await sendClinicChatMessage(requestId, body, auth);
       setChatMessages((current) => ({ ...current, [requestId]: [...(current[requestId] ?? []), saved] }));
       setChatDrafts((current) => ({ ...current, [requestId]: "" }));
+      await refreshChat(requestId);
     } catch {
       setChatError("Не удалось отправить сообщение.");
     } finally {
@@ -948,7 +1113,7 @@ function ClinicView() {
       <div className="dashboard-toolbar"><div><p className="meta-label">Медслужба: {auth.publicName}</p><h2>Заявки вашей медслужбы</h2><p>Доступ хранится в sessionStorage. После выхода ссылка с отозванным токеном доступа должна перестать открываться.</p></div><div style={{ display: "flex", gap: "8px" }}><button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button><button onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button></div></div>
       {message ? <p className="dashboard-message">{message}</p> : null}
       {requests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Заявок для этой медслужбы пока нет</h3><p>Создайте заявку в Mini App с выбором этой медслужбы.</p></div> : null}
-      <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
+      <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
     </section>
   );
 }
