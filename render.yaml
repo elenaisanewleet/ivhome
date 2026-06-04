@@ -3,7 +3,7 @@ services:
     name: nadom-api-preview
     runtime: node
     plan: starter
-    buildCommand: pnpm install --frozen-lockfile && pnpm db:generate && pnpm --filter @ivhome/api... build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @ivhome/api... build
     startCommand: pnpm --filter @ivhome/api start
     healthCheckPath: /health/live
     envVars:
