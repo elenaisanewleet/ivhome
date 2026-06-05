@@ -5,6 +5,28 @@ You are working in the IVhome repository.
 Internal repo/project name: **IVhome**.
 Public user-facing brand: **Nadom / Надом**.
 
+## Current priority — 2026-06-05 Nadom source of truth
+
+For Nadom / Надом tasks, read first:
+
+```text
+docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
+```
+
+These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+
 Before any task, follow these rules.
 
 ## 1. Read the relevant Nadom docs first

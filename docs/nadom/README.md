@@ -1,6 +1,28 @@
 # Nadom documentation and design references
 
-Future Codex tasks must read `docs/nadom/design-config.md` first. It defines the active design-source priority, stable file map, palette, product-design formula, and implementation constraints. Then read `docs/nadom/current-source-of-truth.md` for the active product, legal, privacy, terminology, and MVP-flow rules.
+## Current priority — 2026-06-05 Nadom source of truth
+
+For Nadom / Надом tasks, read first:
+
+```text
+docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
+```
+
+These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+
+After the 2026-06-05 current files above, use `docs/nadom/design-config.md` and `docs/nadom/current-source-of-truth.md` only for implementation details that do not conflict with the current source-of-truth folder. `docs/nadom/design-config.md` defines the earlier design-source priority, stable file map, palette, product-design formula, and implementation constraints; `docs/nadom/current-source-of-truth.md` contains the earlier product, legal, privacy, terminology, and MVP-flow rules.
 
 ## Active reference map
 

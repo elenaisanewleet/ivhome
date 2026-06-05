@@ -6,6 +6,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Internal name: **IVhome**. Public user-facing brand: **Nadom / Надом**. Use IVhome in package names, migrations, and technical contexts only. Nadom is an aggregator and matching service — not a clinic. It does not diagnose, prescribe, recommend IV composition, or promise medical results.
 
+## Current priority — 2026-06-05 Nadom source of truth
+
+For Nadom / Надом tasks, read first:
+
+```text
+docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
+```
+
+Then:
+
+```text
+docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
+```
+
+These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+
 ## Commands
 
 ```bash
