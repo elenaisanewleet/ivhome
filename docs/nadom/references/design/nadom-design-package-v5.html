@@ -1276,19 +1276,119 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
 <section class="sec" id="cards">
   <div class="sec-label">20 — Service cards</div>
   <h2 class="sec-h">Карточки медслужбы</h2>
-  <div class="g2">
-    <div class="dcard"><div class="dcard-h">Карточка в списке — обязательные поля</div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t"><strong>Название</strong> + статус лицензии</div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t"><strong>Два SLA-блока</strong>: время ответа · ETA после подтверждения (никогда не сливать)</div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">2–3 <strong>услуги с диапазоном цен</strong></div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">Действия: «Выбрать» · «Написать специалисту»</div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">Сноска: «Детали и стоимость подтверждает выбранная медслужба.»</div></div>
+  <p class="sec-sub">Полная раскрытая карточка медицинской организации — все блоки строго разделены. SLA-карточки никогда не объединяются.</p>
+  <div class="g2" style="align-items:start">
+
+    <!-- EXPANDED CARD MOCKUP -->
+    <div style="background:#0D1820;border:.5px solid #1E2E40;border-radius:20px;overflow:hidden;font-family:var(--f-body);color:#F0EDE6">
+
+      <!-- A. Identity block -->
+      <div style="padding:18px 18px 14px;border-bottom:.5px solid #1E2E40">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div style="font-family:var(--f-display);font-size:16px;font-weight:700;color:#E2EEF6">МедЭкспресс</div>
+          <span style="padding:3px 9px;border-radius:100px;font-size:9px;font-weight:700;background:#0D1820;color:#3ABED6;border:.5px solid rgba(58,190,214,.35)">24/7</span>
+        </div>
+        <div style="font-size:10px;font-weight:600;color:#3ABED6;margin-bottom:5px">✓ Лицензия проверена</div>
+        <div style="font-size:10px;color:#D4923C;margin-bottom:4px">★ 4.8 · <span style="color:#8AAABF">126 отзывов</span></div>
+        <div style="font-size:9.5px;color:#8AAABF">Москва · выезд по районам</div>
+        <div style="font-size:8.5px;color:#567890;margin-top:4px;font-style:italic">Стоимость и состав подтверждает выбранная медицинская организация.</div>
+      </div>
+
+      <!-- B. TWO SEPARATE SLA CARDS — never merged -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 18px;border-bottom:.5px solid #1E2E40">
+        <div style="background:#1A2030;border:.5px solid rgba(58,190,214,.2);border-radius:10px;padding:10px">
+          <div style="font-size:7.5px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:#567890;margin-bottom:4px">Ответ медслужбы</div>
+          <div style="font-size:15px;font-weight:700;color:#3ABED6;font-family:var(--f-display)">~10–20 мин</div>
+        </div>
+        <div style="background:#1A2030;border:.5px solid rgba(58,190,214,.2);border-radius:10px;padding:10px">
+          <div style="font-size:7.5px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:#567890;margin-bottom:4px">Прибытие после подтверждения</div>
+          <div style="font-size:15px;font-weight:700;color:#3ABED6;font-family:var(--f-display)">~30–60 мин</div>
+        </div>
+      </div>
+
+      <!-- C. 5 service rows -->
+      <div style="padding:12px 18px;border-bottom:.5px solid #1E2E40">
+        <div style="font-size:8px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:#567890;margin-bottom:8px">Услуги</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:.5px solid #1A2030"><div><div style="font-size:11px;font-weight:600;color:#E2EEF6">Вывод из запоя</div><div style="font-size:9px;color:#8AAABF">помощь при длительном употреблении алкоголя</div></div><div style="font-size:10px;font-weight:600;color:#3ABED6;white-space:nowrap;margin-left:8px">от 3 500 ₽</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:.5px solid #1A2030"><div><div style="font-size:11px;font-weight:600;color:#E2EEF6">Капельница после алкоголя</div><div style="font-size:9px;color:#8AAABF">если плохо или тяжёлое похмелье</div></div><div style="font-size:10px;font-weight:600;color:#3ABED6;white-space:nowrap;margin-left:8px">от 2 400 ₽</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:.5px solid #1A2030"><div><div style="font-size:11px;font-weight:600;color:#E2EEF6">Детокс / помощь при интоксикации</div><div style="font-size:9px;color:#8AAABF">восстановление, купирование</div></div><div style="font-size:10px;font-weight:500;color:#8AAABF;white-space:nowrap;margin-left:8px">по запросу</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:.5px solid #1A2030"><div><div style="font-size:11px;font-weight:600;color:#E2EEF6">Нарколог на дом</div><div style="font-size:9px;color:#8AAABF">консультация и выезд специалиста</div></div><div style="font-size:10px;font-weight:600;color:#3ABED6;white-space:nowrap;margin-left:8px">от 3 500 ₽</div></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:6px 0"><div><div style="font-size:11px;font-weight:600;color:#E2EEF6">Плановый визит специалиста</div><div style="font-size:9px;color:#8AAABF">консультация / процедура</div></div><div style="font-size:10px;font-weight:600;color:#3ABED6;white-space:nowrap;margin-left:8px">от 3 500 ₽</div></div>
+      </div>
+
+      <!-- D. Clinic packages -->
+      <div style="padding:12px 18px;border-bottom:.5px solid #1E2E40">
+        <div style="font-size:8px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.1em;color:#567890;margin-bottom:8px">Пакеты клиники</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px">
+          <span style="padding:3px 10px;border-radius:100px;font-size:10px;background:rgba(58,190,214,.1);color:#3ABED6;border:.5px solid rgba(58,190,214,.25)">Лайт</span>
+          <span style="padding:3px 10px;border-radius:100px;font-size:10px;background:rgba(58,190,214,.1);color:#3ABED6;border:.5px solid rgba(58,190,214,.25)">Стандарт</span>
+          <span style="padding:3px 10px;border-radius:100px;font-size:10px;background:rgba(58,190,214,.1);color:#3ABED6;border:.5px solid rgba(58,190,214,.25)">Расширенный</span>
+          <span style="padding:3px 10px;border-radius:100px;font-size:10px;background:rgba(58,190,214,.1);color:#3ABED6;border:.5px solid rgba(58,190,214,.25)">Интенсив</span>
+        </div>
+        <div style="font-size:9px;color:#567890;font-style:italic">Состав и назначения определяет специалист после осмотра.</div>
+      </div>
+
+      <!-- E. Custom panel (NOT a service row) -->
+      <div style="padding:12px 18px;border-bottom:.5px solid #1E2E40;background:#152030">
+        <div style="font-size:12px;font-weight:600;color:#E2EEF6;margin-bottom:3px">Не нашли нужное?</div>
+        <div style="font-size:9.5px;color:#8AAABF;margin-bottom:10px">Опишите ситуацию — клиника посмотрит и предложит формат.</div>
+        <button style="background:transparent;color:#3ABED6;border:.5px solid rgba(58,190,214,.4);border-radius:8px;padding:7px 14px;font-size:10px;font-family:var(--f-body);font-weight:600;cursor:pointer">Описать ситуацию</button>
+      </div>
+
+      <!-- F. Price block -->
+      <div style="padding:10px 18px;border-bottom:.5px solid #1E2E40;background:#0A1018">
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <span style="font-size:9px;color:#8AAABF;padding:3px 8px;background:#1A2030;border-radius:6px">Ориентир по стоимости</span>
+          <span style="font-size:9px;color:#8AAABF;padding:3px 8px;background:#1A2030;border-radius:6px">Что уточняет клиника</span>
+          <span style="font-size:9px;color:#3ABED6;padding:3px 8px;background:rgba(58,190,214,.08);border-radius:6px">Финальная стоимость после подтверждения</span>
+        </div>
+      </div>
+
+      <!-- G. Trust strip -->
+      <div style="padding:10px 18px;border-bottom:.5px solid #1E2E40">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="padding:3px 8px;border-radius:100px;font-size:9px;background:rgba(74,140,112,.15);color:#4A8C70;border:.5px solid rgba(74,140,112,.3)">Лицензия проверена</span>
+          <span style="padding:3px 8px;border-radius:100px;font-size:9px;background:rgba(74,140,112,.15);color:#4A8C70;border:.5px solid rgba(74,140,112,.3)">24/7</span>
+          <span style="padding:3px 8px;border-radius:100px;font-size:9px;background:rgba(192,144,154,.12);color:#C0909A;border:.5px solid rgba(192,144,154,.3)">Анонимно на старте</span>
+          <span style="padding:3px 8px;border-radius:100px;font-size:9px;background:rgba(192,144,154,.12);color:#C0909A;border:.5px solid rgba(192,144,154,.3)">Без документов на старте</span>
+          <span style="padding:3px 8px;border-radius:100px;font-size:9px;background:rgba(192,144,154,.12);color:#C0909A;border:.5px solid rgba(192,144,154,.3)">Без лишних данных</span>
+        </div>
+        <div style="font-size:8.5px;color:#567890">Данные передаются выбранной клинике только для связи и выезда.</div>
+      </div>
+
+      <!-- H. Chat CTA -->
+      <div style="padding:12px 18px;border-bottom:.5px solid #1E2E40;background:rgba(58,190,214,.05)">
+        <div style="font-size:12px;font-weight:700;color:#3ABED6;margin-bottom:3px">Написать в чат</div>
+        <div style="font-size:9.5px;color:#8AAABF">Можно уточнить формат помощи, время и условия.</div>
+      </div>
+
+      <!-- I. Button stack -->
+      <div style="padding:14px 18px;display:flex;flex-direction:column;gap:7px;border-bottom:.5px solid #1E2E40">
+        <button style="background:#E2EEF6;color:#0D1820;border:none;border-radius:10px;padding:11px;font-size:12px;font-family:var(--f-body);font-weight:700;cursor:pointer">Оставить заявку</button>
+        <button style="background:#3ABED6;color:#070C12;border:none;border-radius:10px;padding:10px;font-size:11px;font-family:var(--f-body);font-weight:700;cursor:pointer">Написать в чат</button>
+        <button style="background:transparent;color:#E2EEF6;border:.5px solid #1E2E40;border-radius:10px;padding:9px;font-size:11px;font-family:var(--f-body);font-weight:500;cursor:pointer">Описать ситуацию</button>
+        <button style="background:transparent;color:#8AAABF;border:.5px solid #1E2E40;border-radius:10px;padding:9px;font-size:11px;font-family:var(--f-body);font-weight:500;cursor:pointer">Назад к списку</button>
+        <button style="background:transparent;color:#D25A5A;border:.5px solid rgba(210,90,90,.3);border-radius:10px;padding:7px;font-size:10px;font-family:var(--f-body);font-weight:500;cursor:pointer">103 / 112</button>
+      </div>
+
+      <!-- J. Footnote -->
+      <div style="padding:10px 18px">
+        <div style="font-size:8.5px;color:#567890;line-height:1.5">Услугу, состав процедуры и финальную стоимость подтверждает выбранная клиника. Надом не оказывает медицинские услуги.</div>
+      </div>
     </div>
-    <div class="dcard"><div class="dcard-h">Полная карточка — дополнительно</div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">Полный список услуг + диапазоны цен</div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">Условия выезда</div></div>
-      <div class="drow"><div class="drow-n">▪</div><div class="drow-t">Чат + свой запрос + CTA подтверждения</div></div>
-      <div class="callout warn" style="margin-top:12px">Не продаём «феназепам», не обещаем седацию. Только: «Седативные препараты — по решению специалиста и в рамках лицензии».</div>
+
+    <!-- Right column: rules card -->
+    <div class="dcard"><div class="dcard-h">Правила карточки медслужбы</div>
+      <div class="drow"><div class="drow-n">A</div><div class="drow-t"><strong>Identity:</strong> название, «Лицензия проверена», рейтинг, зона, 24/7</div></div>
+      <div class="drow"><div class="drow-n">B</div><div class="drow-t"><strong>Два SLA-блока раздельно:</strong> «Ответ медслужбы» · «Прибытие после подтверждения» — никогда не сливать</div></div>
+      <div class="drow"><div class="drow-n">C</div><div class="drow-t"><strong>5 строк услуг</strong> — фиксированные ToV-названия + цены</div></div>
+      <div class="drow"><div class="drow-n">D</div><div class="drow-t"><strong>Пакеты:</strong> Лайт · Стандарт · Расширенный · Интенсив. Без VIP/Премиум/Элитный</div></div>
+      <div class="drow"><div class="drow-n">E</div><div class="drow-t"><strong>Отдельная панель</strong> «Не нашли нужное?» — не строка услуги</div></div>
+      <div class="drow"><div class="drow-n">F</div><div class="drow-t"><strong>Price block:</strong> ориентир · что уточняет клиника · финал после подтверждения</div></div>
+      <div class="drow"><div class="drow-n">G</div><div class="drow-t"><strong>Trust strip</strong> — sage + dusty rose. Данные — только выбранной клинике</div></div>
+      <div class="drow"><div class="drow-n">H</div><div class="drow-t"><strong>Chat CTA</strong> — тёмный teal блок. Уточнить формат, время, условия</div></div>
+      <div class="drow"><div class="drow-n">I</div><div class="drow-t"><strong>Button stack:</strong> primary dark · teal · ghost · ghost · small red 103/112</div></div>
+      <div class="drow"><div class="drow-n">J</div><div class="drow-t"><strong>Footnote:</strong> услугу подтверждает клиника. Надом не оказывает медуслуги</div></div>
     </div>
   </div>
 </section>
@@ -1323,18 +1423,49 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
   <h2 class="sec-h">Описать ситуацию</h2>
   <div class="g2">
     <div class="scr-w" style="align-items:stretch"><div class="phone" style="margin:0 auto"><div class="tg-bar lt"><span>‹ Назад</span><span class="dots">⋯</span></div><div class="ph-scr">
-      <div class="s-hd" style="padding-top:42px"><div class="s-eyebrow">МЕДЭКСПРЕСС · СВОЙ ЗАПРОС</div><div class="s-title">Расскажите, что нужно</div></div>
+      <!-- Clinic context card -->
+      <div style="padding:32px 14px 0">
+        <div style="background:var(--paper-2);border:.5px solid var(--paper-3);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:2px">
+          <div style="width:24px;height:24px;border-radius:6px;background:var(--teal-dim);display:flex;align-items:center;justify-content:center"><svg style="width:14px;height:14px;color:var(--teal)"><use href="#ic-license"/></svg></div>
+          <div><div style="font-size:10px;font-weight:600;color:var(--ink)">МедЭкспресс</div><div style="font-size:8.5px;color:var(--ink-3)">✓ лицензия проверена</div></div>
+        </div>
+      </div>
+      <div class="s-hd" style="padding-top:10px"><div class="s-eyebrow">ОПИСАТЬ СИТУАЦИЮ</div><div class="s-title">Опишите ситуацию</div><div class="s-desc">Напишите своими словами — клиника посмотрит и предложит подходящий формат.</div></div>
       <div class="s-body" style="gap:10px">
-        <div><div class="scr-lbl" style="text-align:left;margin-bottom:4px;color:var(--ink-4)">Что нужно?</div><input class="chat-inp" style="width:100%;background:var(--paper-2);color:var(--ink)" value="Помощь после длительного употребления"></div>
-        <div><div class="scr-lbl" style="text-align:left;margin-bottom:4px;color:var(--ink-4)">Что важно знать? (необязательно)</div><textarea class="chat-inp" style="width:100%;height:48px;resize:none;background:var(--paper-2);color:var(--ink)">Возраст 40, давление повышенное</textarea></div>
-        <div><div class="scr-lbl" style="text-align:left;margin-bottom:4px;color:var(--ink-4)">Ориентир по бюджету</div><input class="chat-inp" style="width:100%;background:var(--paper-2);color:var(--ink)" placeholder="до 12 000 ₽"></div>
-        <p class="note" style="font-size:9.5px">Телефон и точный адрес не нужны — их запросит медслужба.</p></div>
-      <div class="s-foot"><button class="btn btn-p btn-full">Отправить запрос и открыть чат</button></div></div></div></div>
+        <textarea class="chat-inp" style="width:100%;height:56px;resize:none;background:var(--paper-2);color:var(--ink)" placeholder="Что произошло, как давно, что беспокоит?"></textarea>
+        <div>
+          <div class="scr-lbl" style="text-align:left;margin-bottom:5px;color:var(--ink-4)">Быстрый выбор</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">помощь мне</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">помощь близкому</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">после алкоголя</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">интоксикация</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">срочно нужен специалист</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">другое</span>
+          </div>
+        </div>
+        <div>
+          <div class="scr-lbl" style="text-align:left;margin-bottom:5px;color:var(--ink-4)">Бюджет (ориентир)</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">до 8 000</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">8–12 000</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">12–18 000</span>
+            <span style="padding:3px 8px;border-radius:100px;font-size:9.5px;background:var(--paper-2);color:var(--ink-3);border:.5px solid var(--paper-3);cursor:pointer">не знаю</span>
+          </div>
+        </div>
+        <p class="note" style="font-size:9.5px;color:var(--ok)">Точный адрес, паспорт и контакты не нужны на старте.</p>
+      </div>
+      <div class="s-foot">
+        <button class="btn btn-p btn-full">Отправить описание</button>
+        <button class="btn btn-g btn-full" style="margin-top:7px">Написать специалисту напрямую</button>
+      </div></div></div></div>
     <div class="dcard"><div class="dcard-h">Поля и правила</div>
-      <div class="drow"><div class="drow-n">01</div><div class="drow-t"><strong>«Что нужно?»</strong> — краткое описание</div></div>
-      <div class="drow"><div class="drow-n">02</div><div class="drow-t"><strong>«Что важно знать?»</strong> — нейтрально, не диагноз</div></div>
-      <div class="drow"><div class="drow-n">03</div><div class="drow-t"><strong>«Бюджет, если есть»</strong> — опционально</div></div>
-      <div class="drow"><div class="drow-n">04</div><div class="drow-t">CTA создаёт заявку и сразу открывает чат с контекстом</div></div>
+      <div class="drow"><div class="drow-n">01</div><div class="drow-t"><strong>Контекст-карточка</strong> — выбранная клиника вверху</div></div>
+      <div class="drow"><div class="drow-n">02</div><div class="drow-t"><strong>Textarea</strong> — «Что произошло, как давно, что беспокоит?»</div></div>
+      <div class="drow"><div class="drow-n">03</div><div class="drow-t"><strong>Чипы ситуации:</strong> помощь мне · помощь близкому · после алкоголя · интоксикация · срочно · другое</div></div>
+      <div class="drow"><div class="drow-n">04</div><div class="drow-t"><strong>Чипы бюджета:</strong> до 8 000 · 8–12 000 · 12–18 000 · не знаю</div></div>
+      <div class="drow"><div class="drow-n">05</div><div class="drow-t"><strong>Privacy note</strong> (sage): точный адрес, паспорт и контакты не нужны на старте</div></div>
+      <div class="drow"><div class="drow-n">06</div><div class="drow-t"><strong>CTA:</strong> «Отправить описание» + secondary «Написать специалисту напрямую»</div></div>
       <div class="callout warn" style="margin-top:12px">Не собирать телефон/адрес на этом шаге. Не формулировать поля как медицинскую анкету.</div>
     </div>
   </div>
@@ -1444,7 +1575,8 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
     <div class="web-hero">
       <svg style="width:80px;height:80px;color:#3ABED6;flex-shrink:0;position:relative;z-index:1"><use href="#mark-bag"/></svg>
       <div style="position:relative;z-index:1">
-        <div class="web-h1">Кто приедет,<br>когда и за <span>сколько</span></div>
+        <div class="web-h1">Анонимная помощь<br>на <span>дому</span></div>
+        <div style="font-family:var(--f-display);font-size:14px;font-weight:600;color:var(--d-accent);margin-bottom:10px;letter-spacing:-.01em">Быстро. Удобно. Анонимно.</div>
         <div class="web-p">Надом — приватный сервис подбора медслужбы с выездом на дом в Москве. Без лишних звонков. Детали и стоимость подтверждает выбранная медслужба.</div>
         <div class="web-cta">
           <button class="btn" style="background:var(--d-accent);color:#070C12;font-weight:700">Открыть в Telegram →</button>
@@ -1489,7 +1621,7 @@ table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--accent-
         <span style="padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;background:var(--d-warn-l);color:#DCA03C;border:.5px solid rgba(220,160,60,.2)">интоксикация</span>
         <span style="padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;background:rgba(184,144,144,.15);color:#C8A0A0;border:.5px solid rgba(184,144,144,.2)">срочный визит</span>
         <span style="padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;background:var(--d-ok-l);color:#46BE8C;border:.5px solid rgba(70,190,140,.2)">плановый визит</span>
-        <span style="padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;background:var(--d-bg-3);color:var(--d-ink-2);border:.5px solid var(--d-line)">свой запрос</span>
+        <span style="padding:8px 14px;border-radius:100px;font-size:11px;font-weight:600;background:var(--d-bg-3);color:var(--d-ink-2);border:.5px solid var(--d-line)">описать ситуацию</span>
       </div>
     </div>
     <!-- Trust signals -->
