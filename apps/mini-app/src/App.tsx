@@ -190,7 +190,7 @@ export function App() {
       });
       setOfferView(offerViewForDbStatus(response.status));
       setStatusNotice(
-        response.status === "WAITING"
+        response.status === "SUBMITTED" || response.status === "WAITING"
           ? "Выбранная медслужба ещё проверяет возможность выезда. Можно обновить статус позже."
           : response.status === "DECLINED"
             ? "Выбранная медслужба не подтвердила выезд. Напишите в поддержку или выберите другой вариант."

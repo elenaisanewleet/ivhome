@@ -20,6 +20,12 @@ Then:
 docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
 ```
 
+Then, as the main implementation copy source:
+
+```text
+docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md
+```
+
 These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
 
 After the 2026-06-05 current files above, use `docs/nadom/design-config.md` and `docs/nadom/current-source-of-truth.md` only for implementation details that do not conflict with the current source-of-truth folder. `docs/nadom/design-config.md` defines the earlier design-source priority, stable file map, palette, product-design formula, and implementation constraints; `docs/nadom/current-source-of-truth.md` contains the earlier product, legal, privacy, terminology, and MVP-flow rules.

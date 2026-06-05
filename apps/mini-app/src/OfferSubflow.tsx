@@ -472,7 +472,7 @@ function WaitingView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Статус заявки"
-        title="Заявка передана выбранной организации"
+        title="Заявка передана выбранной медслужбе"
         body="Выбранная организация проверяет возможность выезда. Ответ и прибытие отслеживаются отдельно."
       />
       <div className="live-status">
