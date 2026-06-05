@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Nadom Mini App Splash v5 · 512×512 · Relay Mark + Wordmark -->
+  <!-- Light variant: change nadom-splash-bg fill to #F5F4F0, mark to #0C7A8C, text to #0A0A09 -->
+  <!-- Dark variant (default): #070C12 bg, #3ABED6 mark, #E2EEF6 text -->
+
+  <!-- Background: change id="nadom-splash-bg" fill for light/dark variant -->
+  <rect id="nadom-splash-bg" width="512" height="512" fill="#070C12"/>
+
+  <!-- Relay mark centered, safe zone padding ~72px = mark area ~368px centered at 256,220 -->
+  <!-- Scale relay 24→368: factor ~15.3x, centered -->
+  <g transform="translate(256, 210) scale(13)">
+    <!-- Relay mark: 3 nodes + 2 connectors, centered on 0,0 from original 12,10 center -->
+    <circle cx="-7" cy="-2" r="2.2" fill="#3ABED6"/>
+    <circle cx="1" cy="4" r="2.2" fill="#3ABED6"/>
+    <circle cx="7" cy="-4" r="2.2" fill="#3ABED6"/>
+    <path d="M-5.2 -0.8 L-0.8 2.8 M2.8 2.6 L5.4 -2.4" stroke="#3ABED6" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  </g>
+
+  <!-- Wordmark "Надом" below mark -->
+  <text
+    x="256"
+    y="360"
+    text-anchor="middle"
+    font-family="'Unbounded', 'Arial Black', system-ui, sans-serif"
+    font-size="62"
+    font-weight="700"
+    letter-spacing="-2"
+    fill="#E2EEF6">Надом</text>
+
+  <!-- Tagline (small, optional) -->
+  <text
+    x="256"
+    y="410"
+    text-anchor="middle"
+    font-family="'Onest', 'Arial', system-ui, sans-serif"
+    font-size="22"
+    font-weight="400"
+    letter-spacing="1"
+    fill="#567890">Медслужба с выездом на дом</text>
+</svg>

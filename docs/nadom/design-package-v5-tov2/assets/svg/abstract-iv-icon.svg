@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Nadom Symbol A: Abstract drop / node (secondary symbol) v5 -->
+  <!-- currentColor: use fill="..." on the <svg> element to tint -->
+  <!-- Dark: color="#3ABED6" Light: color="#0C7A8C" -->
+
+  <circle cx="286" cy="196" r="58" fill="none" stroke="currentColor" stroke-width="20"/>
+  <circle cx="196" cy="178" r="22" fill="none" stroke="currentColor" stroke-width="18"/>
+  <path d="M286 254 V330" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="286" cy="360" r="24" fill="currentColor"/>
+</svg>
