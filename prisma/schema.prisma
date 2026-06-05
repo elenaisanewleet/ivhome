@@ -615,6 +615,7 @@ model OutboxEvent {
 // ─── MVP lean models ────────────────────────────────────────────────────────
 
 enum MvpRequestStatus {
+  SUBMITTED
   WAITING
   PRICE_LOCK
   DISPATCHED
@@ -677,7 +678,10 @@ model MvpRequest {
   customImportant String?
   budget       String?
   comment      String?
-  status       MvpRequestStatus @default(WAITING)
+  anonymousSessionId String?
+  telegramUserId BigInt?
+  internalNote String?
+  status       MvpRequestStatus @default(SUBMITTED)
   priceMin     Int?
   priceMax     Int?
   priceCurrency String          @default("RUB")
@@ -690,6 +694,8 @@ model MvpRequest {
   messages MvpChatMessage[]
 
   @@index([clinicId, status])
+  @@index([anonymousSessionId])
+  @@index([telegramUserId])
   @@index([createdAt])
 }
 

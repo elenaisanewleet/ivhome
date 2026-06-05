@@ -69,7 +69,7 @@ export type MvpRequestCreateResponse = MvpRequestStatusResponse;
 
 // ─── Persistent MVP types (Postgres-backed) ─────────────────────────────────
 
-export type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
+export type MvpDbStatus = "SUBMITTED" | "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
 export type MvpChatActorType = "USER" | "CLINIC" | "ADMIN";
 export type MvpOnboardingStatus = "DRAFT" | "SUBMITTED" | "APPROVED";
 
@@ -88,6 +88,7 @@ export type MvpDbRequest = {
   budget: string | null;
   comment: string | null;
   status: MvpDbStatus;
+  userFacingStatusText?: string;
   priceMin: number | null;
   priceMax: number | null;
   priceCurrency: string;
@@ -110,6 +111,8 @@ export type MvpDbRequestCreateInput = {
   customImportant?: string;
   budget?: string;
   comment?: string;
+  anonymousSessionId?: string;
+  telegramUserId?: string;
 };
 
 export type MvpDbRequestStatusUpdateInput = {

@@ -28,6 +28,7 @@ export function offerViewForStatus(status: MvpRequestStatus): OfferView {
 
 export function offerViewForDbStatus(status: MvpDbStatus): OfferView {
   switch (status) {
+    case "SUBMITTED":
     case "WAITING":
       return "status";
     case "PRICE_LOCK":

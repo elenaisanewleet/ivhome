@@ -15,6 +15,37 @@ import type { Offer, OfferServiceSlug } from "./types";
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
 
+const anonymousSessionStorageKey = "nadom_anonymous_session_id";
+
+function createAnonymousSessionId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `anon-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function readAnonymousSessionId() {
+  if (typeof window === "undefined") {
+    return createAnonymousSessionId();
+  }
+
+  const existing = window.localStorage.getItem(anonymousSessionStorageKey);
+
+  if (existing) {
+    return existing;
+  }
+
+  const next = createAnonymousSessionId();
+  window.localStorage.setItem(anonymousSessionStorageKey, next);
+
+  return next;
+}
+
+function ownerQuery() {
+  return `anonymousSessionId=${encodeURIComponent(readAnonymousSessionId())}`;
+}
+
 async function requestJson<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${apiBaseUrl}${path}`, options);
 
@@ -130,22 +161,22 @@ export async function submitRequest(data: RequestContextInput): Promise<MvpDbReq
   return requestJson<MvpDbRequestWithContext>("/mvp/requests", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify(data),
+    body: JSON.stringify({ ...data, anonymousSessionId: readAnonymousSessionId() }),
   });
 }
 
 export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequestWithContext, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "district" | "desiredTime" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment" | "createdAt" | "updatedAt">> {
-  return requestJson(`/mvp/requests/${encodeURIComponent(id)}`);
+  return requestJson(`/mvp/requests/${encodeURIComponent(id)}?${ownerQuery()}`);
 }
 
 export async function getChatMessages(id: string): Promise<MvpChatMessage[]> {
-  const response = await requestJson<MvpChatMessagesResponse>(`/mvp/requests/${encodeURIComponent(id)}/chat`);
+  const response = await requestJson<MvpChatMessagesResponse>(`/mvp/requests/${encodeURIComponent(id)}/chat?${ownerQuery()}`);
 
   return response.messages;
 }
 
 export async function sendChatMessage(id: string, body: string): Promise<MvpChatMessage> {
-  return requestJson<MvpChatMessage>(`/mvp/requests/${encodeURIComponent(id)}/chat`, {
+  return requestJson<MvpChatMessage>(`/mvp/requests/${encodeURIComponent(id)}/chat?${ownerQuery()}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ body }),

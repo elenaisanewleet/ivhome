@@ -26,6 +26,12 @@ Then:
 docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
 ```
 
+Then, as the main implementation copy source:
+
+```text
+docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md
+```
+
 These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
 
 ## Commands

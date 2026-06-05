@@ -24,7 +24,7 @@ const MVP_SERVICE_CATALOG: Array<{ slug: MvpServiceCategorySlug; label: string; 
 ];
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
-type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
+type MvpDbStatus = "SUBMITTED" | "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
 
 type MvpRequestRecord = {
   requestId: string;
@@ -112,6 +112,7 @@ const statusLabels: Record<MvpRequestStatus, string> = {
 };
 
 const dbStatusLabels: Record<MvpDbStatus, string> = {
+  SUBMITTED: "Заявка создана",
   WAITING: "Ожидаем",
   PRICE_LOCK: "Стоимость подтверждена",
   DISPATCHED: "Специалист выехал",
@@ -120,7 +121,7 @@ const dbStatusLabels: Record<MvpDbStatus, string> = {
 };
 
 const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", "completed"];
-const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
+const dbStatusOrder: MvpDbStatus[] = ["SUBMITTED", "WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
 
 const offerNames: Record<string, string> = {
   "medservice-north": "Медорганизация «Север»",

@@ -19,7 +19,10 @@ type RequestRow = {
   customImportant: string | null;
   budget: string | null;
   comment: string | null;
-  status: "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
+  anonymousSessionId: string | null;
+  telegramUserId: bigint | null;
+  internalNote: string | null;
+  status: "SUBMITTED" | "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
   priceMin: number | null;
   priceMax: number | null;
   priceCurrency: string;
@@ -174,7 +177,7 @@ function makeFakePrisma() {
       findMany: async () => auditLogs,
     },
     mvpRequest: {
-      create: async ({ data }: { data: Pick<RequestRow, "offerId" | "clinicId" | "district" | "desiredTime" | "profile" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment"> }) => {
+      create: async ({ data }: { data: any }) => {
         const row: RequestRow = {
           id: `req-${++requestCount}`,
           offerId: data.offerId,
@@ -189,7 +192,10 @@ function makeFakePrisma() {
           customImportant: data.customImportant,
           budget: data.budget,
           comment: data.comment,
-          status: "WAITING",
+          anonymousSessionId: data.anonymousSessionId ?? null,
+          telegramUserId: data.telegramUserId ?? null,
+          internalNote: null,
+          status: data.status ?? "SUBMITTED",
           priceMin: null,
           priceMax: null,
           priceCurrency: "RUB",
@@ -282,11 +288,11 @@ async function createClinicToken(app: ReturnType<typeof buildApp>, clinicId = "m
   return response.json().rawToken as string;
 }
 
-async function createPersistentRequest(app: ReturnType<typeof buildApp>, clinicId = "medservice-north") {
+async function createPersistentRequest(app: ReturnType<typeof buildApp>, clinicId = "medservice-north", anonymousSessionId = "anon-test-owner") {
   const response = await app.inject({
     method: "POST",
     url: "/mvp/requests",
-    payload: { offerId: clinicId, clinicId, district: "САО", desiredTime: "Сегодня", profile: "Сравнить условия выезда" },
+    payload: { offerId: clinicId, clinicId, district: "САО", desiredTime: "Сегодня", profile: "Сравнить условия выезда", anonymousSessionId },
   });
 
   assert.equal(response.statusCode, 201);
@@ -359,7 +365,8 @@ test("creates a persistent request with server-derived service catalog fields an
   await withDbApi(async (app) => {
     const created = await createPersistentRequest(app);
 
-    assert.equal(created.status, "WAITING");
+    assert.equal(created.status, "SUBMITTED");
+    assert.equal(created.userFacingStatusText, "Заявка создана");
     assert.equal(created.clinicId, "medservice-north");
     assert.equal(created.serviceSlug, "custom");
     assert.equal(created.serviceLabel, "Свой запрос");
@@ -454,11 +461,49 @@ test("creates a persistent request with server-derived service catalog fields an
   });
 });
 
+test("public request detail requires the request owner and hides internal fields", async () => {
+  await withDbApi(async (app, prisma) => {
+    const created = await createPersistentRequest(app, "medservice-north", "anon-owner-a");
+    await prisma.mvpRequest.update({ where: { id: created.id }, data: { notes: "internal admin note", internalNote: "private owner detail" } });
+
+    const missingOwner = await app.inject({ method: "GET", url: `/mvp/requests/${created.id}` });
+    assert.equal(missingOwner.statusCode, 403);
+
+    const wrongOwner = await app.inject({ method: "GET", url: `/mvp/requests/${created.id}?anonymousSessionId=anon-owner-b` });
+    assert.equal(wrongOwner.statusCode, 404);
+
+    const detail = await app.inject({ method: "GET", url: `/mvp/requests/${created.id}?anonymousSessionId=anon-owner-a` });
+    assert.equal(detail.statusCode, 200);
+    assert.equal(detail.json().status, "SUBMITTED");
+    assert.equal(detail.json().userFacingStatusText, "Заявка создана");
+    assert.equal(Object.hasOwn(detail.json(), "anonymousSessionId"), false);
+    assert.equal(Object.hasOwn(detail.json(), "telegramUserId"), false);
+    assert.equal(Object.hasOwn(detail.json(), "internalNote"), false);
+    assert.equal(Object.hasOwn(detail.json(), "notes"), false);
+  });
+});
+
+test("public support message requires the request owner", async () => {
+  await withDbApi(async (app) => {
+    const created = await createPersistentRequest(app, "medservice-north", "anon-support-owner");
+
+    const missingOwner = await app.inject({ method: "POST", url: `/mvp/requests/${created.id}/support-message`, payload: { body: "Нужна помощь" } });
+    assert.equal(missingOwner.statusCode, 403);
+
+    const wrongOwner = await app.inject({ method: "POST", url: `/mvp/requests/${created.id}/support-message?anonymousSessionId=wrong-owner`, payload: { body: "Нужна помощь" } });
+    assert.equal(wrongOwner.statusCode, 404);
+
+    const sent = await app.inject({ method: "POST", url: `/mvp/requests/${created.id}/support-message?anonymousSessionId=anon-support-owner`, payload: { body: "Нужна помощь" } });
+    assert.equal(sent.statusCode, 201);
+    assert.equal(sent.json().actorType, "USER");
+  });
+});
+
 test("supports public user chat and admin read/reply", async () => {
   await withDbApi(async (app) => {
     const created = await createPersistentRequest(app);
 
-    const userMessage = await app.inject({ method: "POST", url: `/mvp/requests/${created.id}/chat`, payload: { body: "Здравствуйте, можно уточнить время?" } });
+    const userMessage = await app.inject({ method: "POST", url: `/mvp/requests/${created.id}/chat?anonymousSessionId=anon-test-owner`, payload: { body: "Здравствуйте, можно уточнить время?" } });
     assert.equal(userMessage.statusCode, 201);
     assert.equal(userMessage.json().actorType, "USER");
 
