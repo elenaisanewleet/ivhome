@@ -75,7 +75,9 @@ Do not add new hard Tone of Voice bans. Use only the current user-approved TOV r
 
 Do not expand older blacklists from historical docs. If an old blacklist conflicts with the current review-list approach, follow the current review-list approach.
 
-The current Tone of Voice is calm, private, concise, useful, and Telegram-native. Avoid medical claims, panic, shame, pressure, and sales aggression.
+Medical service wording is allowed when responsibility is framed correctly: Nadom helps the user choose a clinic / medservice, while the selected clinic / medservice confirms the service, procedure format, prescriptions, composition where applicable, final price, and visit possibility. Do not turn this responsibility-framing rule into a broader banned-word list.
+
+The current Tone of Voice is calm, private, concise, useful, Telegram-native, and action-oriented.
 
 ## First-screen categories
 
