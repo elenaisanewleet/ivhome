@@ -24,15 +24,20 @@ Use it as a product direction: fast selection, convenient flow, privacy-first ex
 
 ## TOV review list
 
-No new hard Tone of Voice bans should be added. Use this current user-approved TOV review list instead of expanding old blacklists.
+No new hard Tone of Voice bans should be added. Use only the current user-approved TOV review list instead of expanding old blacklists.
 
-Review public-facing copy for:
+Public-facing copy should be checked for responsibility framing, not treated as a broad ban on medical wording.
 
-- medical claims or implied treatment promises;
-- diagnosis, prescription, medication, IV-composition, or sedation promises;
+Medical service wording is allowed when it is clear that:
+
+- Nadom helps the user choose a clinic / medservice;
+- the selected clinic / medservice confirms the service, procedure format, prescriptions, composition where applicable, final price, and visit possibility;
+- Nadom itself is not presented as the clinic, doctor, prescriber, or medical provider.
+
+Also review public-facing copy for:
+
 - absolute anonymity promises;
 - panic, shame, fear, pressure, urgency, or FOMO;
-- wording that implies Nadom itself is a clinic or medical provider;
 - unclear responsibility for price, arrival, medical feasibility, and visit conditions;
 - collection of personal data before it is needed;
 - sensitive information in Telegram notifications.
