@@ -25,7 +25,7 @@ import {
 import { OfferCard, OfferCardSkeleton } from "./OfferCard";
 import { OfferSubflow, OffersState } from "./OfferSubflow";
 import { haptic, hapticNotice, initTelegram, isInsideTelegram } from "./telegram";
-import type { ChatMessage, Offer, OfferView, OffersMode, PreviewId } from "./types";
+import type { ChatMessage, Offer, OfferService, OfferView, OffersMode, PreviewId } from "./types";
 import { FaqAccordion, NodeIcon, ProgressDots } from "./ui";
 import { useTelegramButtons } from "./useTelegramButtons";
 import {
@@ -72,6 +72,10 @@ export function App() {
   const [offersLoading, setOffersLoading] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(initialOfferView ? FALLBACK_OFFERS[0]! : null);
   const [offerView, setOfferView] = useState<OfferView | null>(initialOfferView);
+  const [selectedService, setSelectedService] = useState<OfferService | null>(() =>
+    initialOfferView ? FALLBACK_OFFERS[0]?.services.find((service) => service.slug !== "custom") ?? null : null,
+  );
+  const [requestDraft, setRequestDraft] = useState({ customRequest: "", customImportant: "", budget: "", comment: "" });
   const [supportReturnView, setSupportReturnView] = useState<Exclude<OfferView, "support">>("completed");
   const [rating, setRating] = useState<number | null>(null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -317,6 +321,8 @@ export function App() {
     setRequestError(null);
     setStatusNotice(null);
     setStatusDetails(null);
+    setSelectedService(null);
+    setRequestDraft({ customRequest: "", customImportant: "", budget: "", comment: "" });
     setStepIndex(TIME_STEP_INDEX);
   }
 
@@ -336,6 +342,8 @@ export function App() {
     setRequestError(null);
     setStatusNotice(null);
     setStatusDetails(null);
+    setSelectedService(null);
+    setRequestDraft({ customRequest: "", customImportant: "", budget: "", comment: "" });
     setStepIndex(PROFILE_STEP_INDEX);
   }
 
@@ -348,9 +356,12 @@ export function App() {
       setRequestError(null);
       setStatusNotice(null);
       setStatusDetails(null);
+      setSelectedService(null);
+      setRequestDraft({ customRequest: "", customImportant: "", budget: "", comment: "" });
     }
 
     setSelectedOffer(offer);
+    setSelectedService((current) => current ?? offer.services.find((service) => service.slug !== "custom") ?? null);
     setOfferView(view);
   }
 
@@ -366,6 +377,8 @@ export function App() {
       setRequestError(null);
       setStatusNotice(null);
       setStatusDetails(null);
+      setSelectedService(null);
+      setRequestDraft({ customRequest: "", customImportant: "", budget: "", comment: "" });
     }
   }
 
@@ -410,6 +423,13 @@ export function App() {
         district,
         desiredTime: time,
         profile: selectedProfile ?? "Формат уточняется",
+        serviceSlug: selectedService?.slug,
+        serviceLabel: selectedService?.label,
+        servicePrice: selectedService?.priceRange,
+        customRequest: selectedService?.slug === "custom" ? requestDraft.customRequest : undefined,
+        customImportant: requestDraft.customImportant || undefined,
+        budget: requestDraft.budget || undefined,
+        comment: requestDraft.comment || undefined,
       });
 
       setRequestId(response.id);
@@ -420,7 +440,7 @@ export function App() {
         etaMinutes: response.etaMinutes,
       });
       setStatusNotice(null);
-      setOfferView(offerViewForDbStatus(response.status));
+      setOfferView("chat");
       hapticNotice("success");
     } catch {
       setRequestError("Не получилось отправить заявку. Попробуйте ещё раз.");
@@ -491,10 +511,13 @@ export function App() {
               chatMessages={chatMessages}
               chatPending={chatPending}
               district={district}
+              draft={requestDraft}
               offer={selectedOffer}
+              onChangeDraft={(patch) => setRequestDraft((current) => ({ ...current, ...patch }))}
               onChangeView={changeOfferView}
               onRate={setRating}
               onRestart={restartSelection}
+              onSelectService={setSelectedService}
               onSendChatMessage={sendChatMessage}
               onRefreshChat={() => void refreshChat()}
               onShowSupport={showSupport}
@@ -503,6 +526,7 @@ export function App() {
               rating={rating}
               requestError={requestError}
               requestId={requestId}
+              selectedService={selectedService}
               statusNotice={statusNotice}
               statusDetails={statusDetails}
               submitPending={submitPending}
