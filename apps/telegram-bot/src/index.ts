@@ -37,11 +37,16 @@ type TelegramMessagePayload = {
 export const TELEGRAM_ALLOWED_UPDATES = ["message", "callback_query"] as const;
 
 export type StatusNotificationKind =
-  | "updated"
-  | "quote_provided"
+  | "created"
+  | "reviewing"
+  | "answered"
+  | "price_confirmed"
   | "booked"
   | "en_route"
-  | "completed";
+  | "completed"
+  | "delayed"
+  | "updated"
+  | "quote_provided";
 
 export type NeutralNotificationKind = "status_updated" | "chat_message";
 
@@ -118,7 +123,7 @@ export function createStatusMessage() {
   return withOpenAppButton(
     [
       "статус заявки — в приложении",
-      "там видно ответ медицинской организации и следующие шаги",
+      "там видно ответ медслужбы и следующие шаги",
     ].join("\n\n"),
   );
 }
@@ -134,11 +139,16 @@ export function createSupportMessage() {
 
 export function createStatusUpdateMessage(kind: StatusNotificationKind = "updated") {
   const texts: Record<StatusNotificationKind, string> = {
-    updated: "статус заявки обновлён · детали в приложении",
-    quote_provided: "стоимость уточнена · откройте, чтобы подтвердить",
-    booked: "заявка подтверждена · медицинская организация взяла её в работу",
-    en_route: "специалист выехал · время приезда в приложении",
-    completed: "готово · можно оставить оценку в приложении",
+    created: "Заявка создана. Откройте Nadom, чтобы увидеть статус.",
+    reviewing: "Медслужба получила заявку. Ожидаем ответ.",
+    answered: "Медслужба ответила. Проверьте детали в Nadom.",
+    price_confirmed: "Стоимость подтверждена. Цена зафиксирована.",
+    booked: "Заявка подтверждена. Откройте Nadom, чтобы увидеть статус.",
+    en_route: "Специалист в пути. Откройте Nadom, чтобы увидеть статус.",
+    completed: "Заявка завершена. Можно оставить оценку.",
+    delayed: "Ответ занимает больше времени, чем обычно. Можно подождать, выбрать другой вариант или написать в поддержку.",
+    updated: "Статус заявки обновлён. Откройте Nadom.",
+    quote_provided: "Стоимость подтверждена. Цена зафиксирована.",
   };
 
   return {
@@ -149,8 +159,8 @@ export function createStatusUpdateMessage(kind: StatusNotificationKind = "update
 
 export function createNeutralRequestNotification(kind: NeutralNotificationKind) {
   const texts: Record<NeutralNotificationKind, string> = {
-    status_updated: "Статус заявки обновлён. Откройте Надом.",
-    chat_message: "Новое сообщение по заявке. Откройте Надом.",
+    status_updated: "Статус заявки обновлён. Откройте Nadom.",
+    chat_message: "Новое сообщение по заявке. Откройте Nadom.",
   };
 
   return {

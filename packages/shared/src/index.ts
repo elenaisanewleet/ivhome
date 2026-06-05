@@ -30,7 +30,7 @@ export const MVP_SERVICE_CATALOG = [
   { slug: "intoxication", label: "Похоже на интоксикацию", price: "от 9 500 ₽" },
   { slug: "urgent_visit", label: "Нужен выезд сегодня", price: "от 9 900 ₽" },
   { slug: "planned_visit", label: "Плановый выезд", price: "от 7 500 ₽" },
-  { slug: "custom", label: "Свой запрос", price: "по описанию запроса" },
+  { slug: "custom", label: "Описать ситуацию", price: "по описанию запроса" },
 ] as const satisfies readonly MvpServiceCatalogItem[];
 
 export type MvpServiceSlug = (typeof MVP_SERVICE_CATALOG)[number]["slug"];
@@ -69,12 +69,27 @@ export type MvpRequestCreateResponse = MvpRequestStatusResponse;
 
 // ─── Persistent MVP types (Postgres-backed) ─────────────────────────────────
 
-export type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
+export type MvpDbStatus =
+  | "DRAFT"
+  | "SUBMITTED"
+  | "MEDSERVICE_REVIEWING"
+  | "MEDSERVICE_ANSWERED"
+  | "PRICE_CONFIRMED"
+  | "CONFIRMED"
+  | "DISPATCHED"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "NO_ANSWER"
+  | "WAITING"
+  | "PRICE_LOCK"
+  | "DECLINED";
 export type MvpChatActorType = "USER" | "CLINIC" | "ADMIN";
 export type MvpOnboardingStatus = "DRAFT" | "SUBMITTED" | "APPROVED";
 
 export type MvpDbRequest = {
   id: string;
+  telegramUserId: string | null;
+  anonymousSessionId: string | null;
   offerId: string;
   clinicId: string | null;
   district: string;
@@ -88,11 +103,16 @@ export type MvpDbRequest = {
   budget: string | null;
   comment: string | null;
   status: MvpDbStatus;
+  userFacingStatusText: string;
   priceMin: number | null;
   priceMax: number | null;
+  confirmedPrice: number | null;
   priceCurrency: string;
+  responseTimeEstimate: string | null;
+  arrivalAfterConfirmationEstimate: string | null;
   etaMinutes: number | null;
   notes: string | null;
+  internalNote: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -100,6 +120,8 @@ export type MvpDbRequest = {
 export type MvpDbRequestCreateInput = {
   offerId: string;
   clinicId?: string;
+  telegramUserId?: string;
+  anonymousSessionId?: string;
   district: string;
   desiredTime: string;
   profile: string;
@@ -116,8 +138,32 @@ export type MvpDbRequestStatusUpdateInput = {
   status: MvpDbStatus;
   priceMin?: number;
   priceMax?: number;
+  confirmedPrice?: number;
+  responseTimeEstimate?: string;
+  arrivalAfterConfirmationEstimate?: string;
   etaMinutes?: number;
   notes?: string;
+  internalNote?: string;
+  clinicId?: string | null;
+};
+
+export type MvpDbRequestAssignmentInput = {
+  clinicId: string | null;
+};
+
+export type MvpDbRequestPriceInput = {
+  confirmedPrice?: number;
+  priceMin?: number;
+  priceMax?: number;
+  responseTimeEstimate?: string;
+  arrivalAfterConfirmationEstimate?: string;
+  etaMinutes?: number;
+  notes?: string;
+  internalNote?: string;
+};
+
+export type MvpSupportMessageCreateInput = {
+  body: string;
 };
 
 export type MvpChatMessage = {

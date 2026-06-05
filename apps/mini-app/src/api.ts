@@ -134,7 +134,7 @@ export async function submitRequest(data: RequestContextInput): Promise<MvpDbReq
   });
 }
 
-export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequestWithContext, "id" | "offerId" | "status" | "priceMin" | "priceMax" | "priceCurrency" | "etaMinutes" | "district" | "desiredTime" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment" | "createdAt" | "updatedAt">> {
+export async function getRequestStatus(id: string): Promise<Pick<MvpDbRequestWithContext, "id" | "offerId" | "status" | "userFacingStatusText" | "priceMin" | "priceMax" | "confirmedPrice" | "priceCurrency" | "responseTimeEstimate" | "arrivalAfterConfirmationEstimate" | "etaMinutes" | "district" | "desiredTime" | "serviceSlug" | "serviceLabel" | "servicePrice" | "customRequest" | "customImportant" | "budget" | "comment" | "createdAt" | "updatedAt">> {
   return requestJson(`/mvp/requests/${encodeURIComponent(id)}`);
 }
 
@@ -146,6 +146,24 @@ export async function getChatMessages(id: string): Promise<MvpChatMessage[]> {
 
 export async function sendChatMessage(id: string, body: string): Promise<MvpChatMessage> {
   return requestJson<MvpChatMessage>(`/mvp/requests/${encodeURIComponent(id)}/chat`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ body }),
+  });
+}
+
+export async function fetchRequestHistory(anonymousSessionId: string): Promise<MvpDbRequestWithContext[]> {
+  if (!isApiConfigured()) {
+    return [];
+  }
+
+  const response = await requestJson<{ requests: MvpDbRequestWithContext[] }>(`/mvp/requests?anonymousSessionId=${encodeURIComponent(anonymousSessionId)}`);
+
+  return response.requests;
+}
+
+export async function sendSupportMessage(id: string, body: string): Promise<void> {
+  await requestJson(`/mvp/requests/${encodeURIComponent(id)}/support-message`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ body }),

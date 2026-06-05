@@ -28,14 +28,22 @@ export function offerViewForStatus(status: MvpRequestStatus): OfferView {
 
 export function offerViewForDbStatus(status: MvpDbStatus): OfferView {
   switch (status) {
+    case "DRAFT":
+    case "SUBMITTED":
+    case "MEDSERVICE_REVIEWING":
     case "WAITING":
       return "status";
+    case "MEDSERVICE_ANSWERED":
+    case "PRICE_CONFIRMED":
+    case "CONFIRMED":
     case "PRICE_LOCK":
       return "price-lock";
     case "DISPATCHED":
       return "dispatched";
     case "COMPLETED":
       return "completed";
+    case "CANCELLED":
+    case "NO_ANSWER":
     case "DECLINED":
       return "support";
   }

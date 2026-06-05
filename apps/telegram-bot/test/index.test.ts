@@ -70,28 +70,28 @@ test("creates callback replies", () => {
   assert.match(createMessageForCallbackData("support")?.text, /поддержка Надом/u);
   assert.equal(createMessageForCallbackData("unknown"), undefined);
 
-  assert.match(createStatusMessage().text, /медицинской организации/u);
+  assert.match(createStatusMessage().text, /медслужбы/u);
   assert.match(createSupportMessage().text, /поддержка/u);
 });
 
 test("creates neutral protected status notifications without request details", () => {
   const message = createStatusUpdateMessage();
 
-  assert.equal(message.text, "статус заявки обновлён · детали в приложении");
+  assert.equal(message.text, "Статус заявки обновлён. Откройте Nadom.");
   assert.equal(message.protect_content, true);
   assert.ok(message.reply_markup);
   assert.equal(createStatusUpdateMessage("booked").protect_content, true);
-  assert.match(createStatusUpdateMessage("en_route").text, /специалист выехал/u);
+  assert.match(createStatusUpdateMessage("en_route").text, /Специалист в пути/u);
 });
 
 test("creates neutral request notifications without chat content", () => {
   const statusNotification = createNeutralRequestNotification("status_updated");
   const chatNotification = createNeutralRequestNotification("chat_message");
 
-  assert.equal(statusNotification.text, "Статус заявки обновлён. Откройте Надом.");
+  assert.equal(statusNotification.text, "Статус заявки обновлён. Откройте Nadom.");
   assert.equal(statusNotification.protect_content, true);
   assert.ok(statusNotification.reply_markup);
-  assert.equal(chatNotification.text, "Новое сообщение по заявке. Откройте Надом.");
+  assert.equal(chatNotification.text, "Новое сообщение по заявке. Откройте Nadom.");
   assert.equal(chatNotification.protect_content, true);
   assert.ok(chatNotification.reply_markup);
 });

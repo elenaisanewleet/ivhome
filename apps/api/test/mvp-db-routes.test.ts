@@ -362,7 +362,7 @@ test("creates a persistent request with server-derived service catalog fields an
     assert.equal(created.status, "WAITING");
     assert.equal(created.clinicId, "medservice-north");
     assert.equal(created.serviceSlug, "custom");
-    assert.equal(created.serviceLabel, "Свой запрос");
+    assert.equal(created.serviceLabel, "Описать ситуацию");
     assert.equal(created.servicePrice, "по описанию запроса");
     assert.equal(created.customRequest, null);
     assert.equal(created.customImportant, null);
@@ -418,7 +418,7 @@ test("creates a persistent request with server-derived service catalog fields an
 
     assert.equal(customService.statusCode, 201);
     assert.equal(customService.json().serviceSlug, "custom");
-    assert.equal(customService.json().serviceLabel, "Свой запрос");
+    assert.equal(customService.json().serviceLabel, "Описать ситуацию");
     assert.equal(customService.json().servicePrice, "по описанию запроса");
     assert.equal(customService.json().customRequest, "Нужно подобрать формат");
     assert.equal(customService.json().customImportant, "Есть ограничения по времени");

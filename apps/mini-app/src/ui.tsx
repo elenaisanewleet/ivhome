@@ -124,11 +124,11 @@ export function SlaGrid({ offer, label }: { offer: Offer; label?: string }) {
   return (
     <div className="sla-grid" aria-label={label ?? "Когда ответят и приедут"}>
       <div className="sla-box">
-        <span>ответят</span>
+        <span>Ответ медслужбы</span>
         <strong>{offer.responseTime}</strong>
       </div>
       <div className="sla-box sla-box--eta">
-        <span>приедут</span>
+        <span>Прибытие после подтверждения</span>
         <strong>{offer.arrivalTime}</strong>
       </div>
     </div>

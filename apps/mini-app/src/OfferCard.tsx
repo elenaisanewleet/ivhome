@@ -39,10 +39,10 @@ export function OfferCard({ offer, onOpen }: { offer: Offer; onOpen: (view: Offe
 
       <div className="offer-actions">
         <button className="button button--primary" onClick={() => onOpen("service")} type="button">
-          Выбрать услугу
+          Подробнее
         </button>
         <button className="button button--teal" onClick={() => onOpen("service")} type="button">
-          Написать специалисту
+          Написать в чат
         </button>
       </div>
     </article>

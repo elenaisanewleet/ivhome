@@ -16,15 +16,15 @@ type MvpServiceCategorySlug =
 
 const MVP_SERVICE_CATALOG: Array<{ slug: MvpServiceCategorySlug; label: string; priceRange: string }> = [
   { slug: "alcohol_hangover", label: "Плохо после алкоголя", priceRange: "8 500–12 000 ₽" },
-  { slug: "binge_or_near_binge", label: "Запойная или около-запойная ситуация", priceRange: "от 11 000 ₽" },
+  { slug: "binge_or_near_binge", label: "Вывод из запоя", priceRange: "от 11 000 ₽" },
   { slug: "intoxication", label: "Интоксикация / отравление веществами", priceRange: "от 10 000 ₽" },
   { slug: "urgent_visit", label: "Срочный неэкстренный выезд специалиста", priceRange: "от 6 000 ₽" },
   { slug: "planned_visit", label: "Плановый выезд специалиста", priceRange: "от 5 500 ₽" },
-  { slug: "custom", label: "Свой запрос", priceRange: "по согласованию" },
+  { slug: "custom", label: "Описать ситуацию", priceRange: "по согласованию" },
 ];
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
-type MvpDbStatus = "WAITING" | "PRICE_LOCK" | "DISPATCHED" | "COMPLETED" | "DECLINED";
+type MvpDbStatus = "DRAFT" | "SUBMITTED" | "MEDSERVICE_REVIEWING" | "MEDSERVICE_ANSWERED" | "PRICE_CONFIRMED" | "CONFIRMED" | "DISPATCHED" | "COMPLETED" | "CANCELLED" | "NO_ANSWER" | "WAITING" | "PRICE_LOCK" | "DECLINED";
 
 type MvpRequestRecord = {
   requestId: string;
@@ -49,7 +49,12 @@ type MvpDbRequestRecord = {
   priceMax: number | null;
   priceCurrency: string;
   etaMinutes: number | null;
+  confirmedPrice: number | null;
+  responseTimeEstimate: string | null;
+  arrivalAfterConfirmationEstimate: string | null;
+  userFacingStatusText: string;
   notes: string | null;
+  internalNote: string | null;
   serviceSlug: MvpServiceCategorySlug | null;
   serviceLabel: string | null;
   servicePrice: string | null;
@@ -112,20 +117,28 @@ const statusLabels: Record<MvpRequestStatus, string> = {
 };
 
 const dbStatusLabels: Record<MvpDbStatus, string> = {
-  WAITING: "Ожидаем",
-  PRICE_LOCK: "Стоимость подтверждена",
-  DISPATCHED: "Специалист выехал",
-  COMPLETED: "Завершено",
-  DECLINED: "Отклонено",
+  DRAFT: "Заявка создана",
+  SUBMITTED: "Новая заявка",
+  MEDSERVICE_REVIEWING: "Ждём ответ медслужбы",
+  MEDSERVICE_ANSWERED: "Медслужба ответила",
+  PRICE_CONFIRMED: "Стоимость подтверждена",
+  CONFIRMED: "Цена зафиксирована",
+  DISPATCHED: "Специалист в пути",
+  COMPLETED: "Заявка завершена",
+  CANCELLED: "Отменена",
+  NO_ANSWER: "Нет ответа",
+  WAITING: "Ждём ответ медслужбы",
+  PRICE_LOCK: "Цена зафиксирована",
+  DECLINED: "Нет ответа",
 };
 
 const statusOrder: MvpRequestStatus[] = ["waiting", "price-lock", "dispatched", "completed"];
-const dbStatusOrder: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
+const dbStatusOrder: MvpDbStatus[] = ["MEDSERVICE_REVIEWING", "MEDSERVICE_ANSWERED", "PRICE_CONFIRMED", "CONFIRMED", "DISPATCHED", "COMPLETED", "CANCELLED", "NO_ANSWER"];
 
 const offerNames: Record<string, string> = {
-  "medservice-north": "Медорганизация «Север»",
-  "medservice-center": "Медорганизация «Центр»",
-  "medservice-night": "Медорганизация «Ночь»",
+  "medservice-north": "Медслужба «Север»",
+  "medservice-center": "Медслужба «Центр»",
+  "medservice-night": "Медслужба «Ночь»",
 };
 
 function offerName(offerId: string) {
@@ -200,7 +213,11 @@ type DbStatusPatch = {
   priceMin?: number;
   priceMax?: number;
   etaMinutes?: number;
+  confirmedPrice?: number;
+  responseTimeEstimate?: string;
+  arrivalAfterConfirmationEstimate?: string;
   notes?: string;
+  internalNote?: string;
 };
 
 async function updateDbRequestStatus(id: string, patch: DbStatusPatch, adminToken: string) {
@@ -359,13 +376,13 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
 }
 
 function routeTitle(pathname: string) {
-  if (pathname.startsWith("/clinic")) return "Кабинет организации";
+  if (pathname.startsWith("/clinic")) return "Кабинет медслужбы";
   if (pathname.startsWith("/admin")) return "Надом Admin";
   return "Надом Dashboard";
 }
 
 function routeDescription(pathname: string) {
-  if (pathname.startsWith("/clinic")) return "Экран для уполномоченных сотрудников выбранной организации.";
+  if (pathname.startsWith("/clinic")) return "Экран для уполномоченных сотрудников выбранной медслужбы.";
   if (pathname.startsWith("/admin")) return "Внутренний экран для заявок, медицинских организаций и ссылок доступа.";
   return "Выберите маршрут /admin или /clinic.";
 }
@@ -382,7 +399,7 @@ function formatDate(value: string | null) {
 function chatActorLabel(actorType: MvpChatActorType) {
   switch (actorType) {
     case "USER": return "Пользователь";
-    case "CLINIC": return "Выбранная организация";
+    case "CLINIC": return "Выбранная медслужба";
     case "ADMIN": return "Admin";
   }
 }
@@ -402,7 +419,7 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
       <div className="request-chat__head">
         <div>
           <p className="meta-label">Чат заявки</p>
-          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.</p>
+          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.</p>
         </div>
         <button disabled={isLoading} onClick={onRefresh} type="button">{isLoading ? "Загружаем…" : "Обновить чат"}</button>
       </div>
@@ -416,7 +433,7 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
         ))}
       </div>
       <form className="request-chat__form" onSubmit={(event) => { event.preventDefault(); onSend(); }}>
-        <input autoComplete="off" onChange={(event) => onDraftChange(event.target.value)} placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной организации…"} type="text" value={draft} />
+        <input autoComplete="off" onChange={(event) => onDraftChange(event.target.value)} placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной медслужбы…"} type="text" value={draft} />
         <button disabled={!draft.trim() || isLoading} type="submit">Отправить</button>
       </form>
     </div>
@@ -440,7 +457,7 @@ function RequestContext({ req }: { req: MvpDbRequestRecord }) {
       <dl className="request-fields">
         <div><dt>Услуга</dt><dd>{context.service}</dd></div>
         <div><dt>Ориентир</dt><dd>{context.price}</dd></div>
-        {req.customRequest ? <div><dt>Свой запрос</dt><dd>{req.customRequest}</dd></div> : null}
+        {req.customRequest ? <div><dt>Описать ситуацию</dt><dd>{req.customRequest}</dd></div> : null}
         {req.customImportant ? <div><dt>Что важно</dt><dd>{req.customImportant}</dd></div> : null}
         {req.budget ? <div className="request-context-panel__budget"><dt>Бюджет</dt><dd>{req.budget}</dd></div> : null}
         {req.comment ? <div className="request-context-panel__comment"><dt>Комментарий</dt><dd>{req.comment}</dd></div> : null}
@@ -454,14 +471,22 @@ function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequ
   const [priceMin, setPriceMin] = useState(request.priceMin?.toString() ?? "");
   const [priceMax, setPriceMax] = useState(request.priceMax?.toString() ?? "");
   const [etaMinutes, setEtaMinutes] = useState(request.etaMinutes?.toString() ?? "");
+  const [confirmedPrice, setConfirmedPrice] = useState(request.confirmedPrice?.toString() ?? "");
+  const [responseTimeEstimate, setResponseTimeEstimate] = useState(request.responseTimeEstimate ?? "");
+  const [arrivalAfterConfirmationEstimate, setArrivalAfterConfirmationEstimate] = useState(request.arrivalAfterConfirmationEstimate ?? "");
   const [notes, setNotes] = useState(request.notes ?? "");
+  const [internalNote, setInternalNote] = useState(request.internalNote ?? "");
 
   useEffect(() => {
     setStatus(request.status);
     setPriceMin(request.priceMin?.toString() ?? "");
     setPriceMax(request.priceMax?.toString() ?? "");
     setEtaMinutes(request.etaMinutes?.toString() ?? "");
+    setConfirmedPrice(request.confirmedPrice?.toString() ?? "");
+    setResponseTimeEstimate(request.responseTimeEstimate ?? "");
+    setArrivalAfterConfirmationEstimate(request.arrivalAfterConfirmationEstimate ?? "");
     setNotes(request.notes ?? "");
+    setInternalNote(request.internalNote ?? "");
   }, [request]);
 
   function optionalNumber(value: string) {
@@ -470,12 +495,16 @@ function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequ
   }
 
   return (
-    <form className="quote-panel" onSubmit={(event) => { event.preventDefault(); onSave({ status, priceMin: optionalNumber(priceMin), priceMax: optionalNumber(priceMax), etaMinutes: optionalNumber(etaMinutes), notes: notes.trim() || undefined }); }}>
+    <form className="quote-panel" onSubmit={(event) => { event.preventDefault(); onSave({ status, priceMin: optionalNumber(priceMin), priceMax: optionalNumber(priceMax), confirmedPrice: optionalNumber(confirmedPrice), responseTimeEstimate: responseTimeEstimate.trim() || undefined, arrivalAfterConfirmationEstimate: arrivalAfterConfirmationEstimate.trim() || undefined, etaMinutes: optionalNumber(etaMinutes), notes: notes.trim() || undefined, internalNote: internalNote.trim() || undefined }); }}>
       <label><span>Статус</span><select onChange={(event) => setStatus(event.target.value as MvpDbStatus)} value={status}>{dbStatusOrder.map((item) => <option key={item} value={item}>{dbStatusLabels[item]}</option>)}</select></label>
       <label><span>Цена от</span><input inputMode="numeric" min={0} onChange={(event) => setPriceMin(event.target.value)} type="number" value={priceMin} /></label>
       <label><span>Цена до</span><input inputMode="numeric" min={0} onChange={(event) => setPriceMax(event.target.value)} type="number" value={priceMax} /></label>
+      <label><span>Подтверждённая цена</span><input inputMode="numeric" min={0} onChange={(event) => setConfirmedPrice(event.target.value)} type="number" value={confirmedPrice} /></label>
+      <label><span>Ответ медслужбы</span><input onChange={(event) => setResponseTimeEstimate(event.target.value)} placeholder="например, 10 минут" type="text" value={responseTimeEstimate} /></label>
+      <label><span>Прибытие после подтверждения</span><input onChange={(event) => setArrivalAfterConfirmationEstimate(event.target.value)} placeholder="например, 40 минут" type="text" value={arrivalAfterConfirmationEstimate} /></label>
       <label><span>Прибытие, мин</span><input inputMode="numeric" min={0} onChange={(event) => setEtaMinutes(event.target.value)} type="number" value={etaMinutes} /></label>
-      <label className="quote-panel__notes"><span>Операционная заметка</span><input onChange={(event) => setNotes(event.target.value)} placeholder="Без персональных и медицинских деталей" type="text" value={notes} /></label>
+      <label className="quote-panel__notes"><span>Внутренние заметки</span><input onChange={(event) => setInternalNote(event.target.value)} placeholder="Без персональных и медицинских деталей" type="text" value={internalNote} /></label>
+      <label className="quote-panel__notes"><span>Комментарий статуса</span><input onChange={(event) => setNotes(event.target.value)} placeholder="Коротко, без чувствительных деталей" type="text" value={notes} /></label>
       <button disabled={isUpdating} type="submit">{isUpdating ? "Сохраняем…" : "Сохранить статус и условия"}</button>
     </form>
   );
@@ -614,9 +643,9 @@ function AdminView() {
       await (exists ? updateClinic(token, clinicForm.id, { publicName: clinicForm.publicName, legalName: clinicForm.legalName, inn: clinicForm.inn, status: clinicForm.status }) : createClinic(token, clinicForm));
       setClinicForm(emptyClinicForm);
       setOneTimeLink(null);
-      await refreshRequests(token, exists ? "Карточка организации обновлена и перезагружена из Postgres." : "Организация создана и перезагружена из Postgres.");
+      await refreshRequests(token, exists ? "Карточка медслужбы обновлена и перезагружена из Postgres." : "Медслужба создана и перезагружена из Postgres.");
     } catch {
-      setMessage("Не удалось сохранить карточку организации. Проверьте ID, ИНН и статус.");
+      setMessage("Не удалось сохранить карточку медслужбы. Проверьте ID, ИНН и статус.");
       setLastAction("error");
     } finally {
       setIsLoading(false);
@@ -628,7 +657,7 @@ function AdminView() {
       const loaded = await loadClinicAccessTokens(clinicId, token);
       setClinicTokens((current) => ({ ...current, [clinicId]: loaded }));
     } catch {
-      setMessage("Не удалось загрузить токены доступа организации.");
+      setMessage("Не удалось загрузить токены доступа медслужбы.");
       setLastAction("error");
     }
   }
@@ -646,7 +675,7 @@ function AdminView() {
       await refreshClinicTokens(clinicId);
       await refreshRequests(token, "Ссылка доступа создана и скопирована. Токен не отображается в интерфейсе.");
     } catch {
-      setMessage("Не удалось создать ссылку доступа для организации.");
+      setMessage("Не удалось создать ссылку доступа для медслужбы.");
       setLastAction("error");
     }
   }
@@ -698,8 +727,8 @@ function AdminView() {
       <div className="dashboard-toolbar">
         <div>
           <p className="meta-label">Операционная панель</p>
-          <h2>DB-заявки и организации</h2>
-          <p>Все данные ниже перезагружаются из API/Postgres. После refresh созданные организации должны оставаться в списке.</p>
+          <h2>Очередь заявок</h2>
+          <p>Все данные ниже перезагружаются из API/Postgres. После refresh созданные медслужбы должны оставаться в списке.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <button disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
@@ -713,7 +742,7 @@ function AdminView() {
         <div className="dashboard-toolbar">
           <div>
             <p className="meta-label">Организации</p>
-            <h2>Кабинет организации и ссылки доступа</h2>
+            <h2>Кабинет медслужбы и ссылки доступа</h2>
             <p>Создайте организацию, затем сгенерируйте ссылку доступа. Токен не отображается и не хранится в списке.</p>
           </div>
           <label className="inline-field">
@@ -724,8 +753,8 @@ function AdminView() {
 
         <form className="clinic-form" onSubmit={(event) => void saveClinicForm(event)}>
           <input onChange={(event) => setClinicForm((current) => ({ ...current, id: event.target.value }))} placeholder="pilot-east" type="text" value={clinicForm.id} />
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, publicName: event.target.value }))} placeholder="Организация «Восток»" type="text" value={clinicForm.publicName} />
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, legalName: event.target.value }))} placeholder="ООО «Организация Восток»" type="text" value={clinicForm.legalName} />
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, publicName: event.target.value }))} placeholder="Медслужба «Восток»" type="text" value={clinicForm.publicName} />
+          <input onChange={(event) => setClinicForm((current) => ({ ...current, legalName: event.target.value }))} placeholder="ООО «Медслужба Восток»" type="text" value={clinicForm.legalName} />
           <input onChange={(event) => setClinicForm((current) => ({ ...current, inn: event.target.value }))} placeholder="ИНН" type="text" value={clinicForm.inn} />
           <select onChange={(event) => setClinicForm((current) => ({ ...current, status: event.target.value as MvpClinicRecord["status"] }))} value={clinicForm.status}>
             <option value="ACTIVE">ACTIVE</option>
@@ -855,7 +884,7 @@ function ClinicLogin({ onAuth }: { onAuth: (auth: MvpClinicAuthContext) => void 
 
   async function submit(nextClinicId = clinicId, nextToken = token) {
     const cleanToken = nextToken.trim();
-    if (!cleanToken) { setError("Укажите токен доступа организации."); return; }
+    if (!cleanToken) { setError("Укажите токен доступа медслужбы."); return; }
     setIsLoading(true);
     setError(null);
     try {
@@ -878,10 +907,10 @@ function ClinicLogin({ onAuth }: { onAuth: (auth: MvpClinicAuthContext) => void 
   return (
     <div className="auth-gate">
       <BrandMark />
-      <h2>Кабинет организации — вход</h2>
-      <p>Откройте ссылку доступа от Надом или введите ID организации и токен доступа вручную.</p>
+      <h2>Кабинет медслужбы — вход</h2>
+      <p>Откройте ссылку доступа от Надом или введите ID медслужбы и токен доступа вручную.</p>
       <form onSubmit={(event) => { event.preventDefault(); void submit(); }}>
-        <label><span>ID организации</span><input autoComplete="off" onChange={(event) => setClinicId(event.target.value)} placeholder="org-north" type="text" value={clinicId} /></label>
+        <label><span>ID медслужбы</span><input autoComplete="off" onChange={(event) => setClinicId(event.target.value)} placeholder="org-north" type="text" value={clinicId} /></label>
         <label><span>Токен доступа</span><input autoComplete="current-password" onChange={(event) => setToken(event.target.value)} placeholder="nadom_msvc_…" type="password" value={token} /></label>
         {error ? <p className="auth-error">{error}</p> : null}
         <button disabled={isLoading} type="submit">{isLoading ? "Проверяем…" : "Войти"}</button>
@@ -915,9 +944,9 @@ function ClinicView() {
         writeStoredClinicAuth(null);
         setAuth(null);
         setRequests([]);
-        setMessage("Доступ организации больше не активен. Войдите по новой ссылке доступа.");
+        setMessage("Доступ медслужбы больше не активен. Войдите по новой ссылке доступа.");
       } else {
-        setMessage("Не удалось загрузить заявки. Проверьте доступ организации и настройки API.");
+        setMessage("Не удалось загрузить заявки. Проверьте доступ медслужбы и настройки API.");
       }
     } finally {
       setIsLoading(false);
@@ -1002,9 +1031,9 @@ function ClinicView() {
 
   return (
     <section className="dashboard-card">
-      <div className="dashboard-toolbar"><div><p className="meta-label">Организация: {auth.publicName}</p><h2>Заявки вашей организации</h2><p>Доступ хранится в sessionStorage. После выхода ссылка с отозванным токеном доступа должна перестать открываться.</p></div><div style={{ display: "flex", gap: "8px" }}><button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button><button onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button></div></div>
+      <div className="dashboard-toolbar"><div><p className="meta-label">Медслужба: {auth.publicName}</p><h2>Входящие заявки</h2><p>Доступ хранится в sessionStorage. После выхода ссылка с отозванным токеном доступа должна перестать открываться.</p></div><div style={{ display: "flex", gap: "8px" }}><button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button><button onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button></div></div>
       {message ? <p className="dashboard-message">{message}</p> : null}
-      {requests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Заявок для этой организации пока нет</h3><p>Создайте заявку в Mini App с выбором этой организации.</p></div> : null}
+      {requests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Заявок для этой медслужбы пока нет</h3><p>Создайте заявку в Mini App с выбором этой медслужбы.</p></div> : null}
       <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
     </section>
   );

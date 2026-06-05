@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import type { MvpDbRequest } from "@ivhome/shared";
+
 import type { ChatMessage, Offer, OfferService, OfferView, OffersMode } from "./types";
 import { Dots, OfferBadge, Pulse, SlaGrid, StatusTrack, SubflowHeader } from "./ui";
 
@@ -15,6 +17,9 @@ type StatusDetails = {
   priceMax: number | null;
   priceCurrency: string;
   etaMinutes: number | null;
+  confirmedPrice?: number | null;
+  responseTimeEstimate?: string | null;
+  arrivalAfterConfirmationEstimate?: string | null;
 };
 
 type RequestContext = {
@@ -60,7 +65,7 @@ function buildRequestContext({
   time: string;
 }): RequestContext {
   const title = isCustomService(selectedService)
-    ? draft.customRequest.trim() || "Свой запрос"
+    ? draft.customRequest.trim() || "Описать ситуацию"
     : selectedService?.shortLabel ?? selectedService?.label ?? "Услуга не выбрана";
 
   return {
@@ -138,9 +143,9 @@ function OfferDetails({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Карточка организации"
+        eyebrow="Карточка медслужбы"
         title={offer.name}
-        body="Проверьте услуги, сроки и условия. Детали и стоимость подтверждает выбранная организация."
+        body="Проверьте услуги, сроки и условия. Детали и стоимость подтверждает выбранная медслужба."
       />
 
       <OfferBadge offer={offer} />
@@ -161,8 +166,8 @@ function OfferDetails({
       <div className="custom-request-panel">
         <div>
           <p className="meta-label">Не нашли подходящий вариант?</p>
-          <h3>Свой запрос</h3>
-          <p>Выбранная организация посмотрит запрос и подтвердит формат, возможность выезда и стоимость.</p>
+          <h3>Описать ситуацию</h3>
+          <p>Выбранная медслужба посмотрит запрос и подтвердит формат, возможность выезда и стоимость.</p>
         </div>
         <div className="custom-request-actions">
           <button className="button button--secondary" onClick={onCustom} type="button">
@@ -183,7 +188,7 @@ function OfferDetails({
         </ul>
       </div>
 
-      <p className="privacy-note">Детали и стоимость подтверждает выбранная организация.</p>
+      <p className="privacy-note">Детали и стоимость подтверждает выбранная медслужба.</p>
 
       <div className="subflow-actions subflow-actions--grid">
         <button className="button button--primary" onClick={onChoose} type="button">
@@ -250,7 +255,7 @@ function RequestTextFields({
       </label>
 
       <label className="text-field">
-        <span>Комментарий для выбранной организации</span>
+        <span>Комментарий для выбранной медслужбы</span>
         <input
           autoComplete="off"
           maxLength={500}
@@ -291,16 +296,16 @@ function RequestFormView({
   onSelectService: (service: OfferService) => void;
   onSubmit: () => void;
 }) {
-  const selectedTitle = isCustom ? "Свой запрос" : displayServiceTitle(selectedService);
+  const selectedTitle = isCustom ? "Описать ситуацию" : displayServiceTitle(selectedService);
   const selectedPrice = isCustom ? "по согласованию" : displayServicePrice(selectedService);
   const canSubmit = isCustom ? draft.customRequest.trim().length > 0 : Boolean(selectedService);
 
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow={isCustom ? "Свой запрос" : "Выбор услуги"}
-        title={isCustom ? "Опишите запрос для выбранной организации" : "Выберите услугу до заявки"}
-        body="Не указывайте телефон и точный адрес. Организация подтвердит детали и стоимость до выезда."
+        eyebrow={isCustom ? "Описать ситуацию" : "Выбор услуги"}
+        title={isCustom ? "Опишите запрос для выбранной медслужбы" : "Выберите услугу до заявки"}
+        body="Не указывайте телефон и точный адрес. Медслужба подтвердит детали и стоимость до выезда."
       />
 
       <OfferBadge offer={offer} />
@@ -317,7 +322,7 @@ function RequestFormView({
 
       <dl className="summary-list">
         <div>
-          <dt>Организация</dt>
+          <dt>Медслужба</dt>
           <dd>{offer.name}</dd>
         </div>
         <div>
@@ -385,22 +390,22 @@ function ChatView({
   return (
     <section className="offer-subflow">
       <SubflowHeader
-        eyebrow="Чат со специалистом выбранной организации"
+        eyebrow="Чат со специалистом выбранной медслужбы"
         title={offer.name}
-        body="Чат открыт по созданной заявке. Детали выезда уточняет специалист выбранной организации."
+        body="Чат открыт по созданной заявке. Детали выезда уточняет специалист выбранной медслужбы."
       />
 
       <RequestContextCard context={context} />
 
       <p className="chat-privacy-banner">
-        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.
+        Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная медслужба.
       </p>
 
       <div className="chat-window" aria-label={`Чат с ${offer.name}`}>
         <p className="chat-window__date">Сегодня</p>
         {requestId && messages.length === 0 ? (
           <div className="chat-bubble chat-bubble--service">
-            Заявка создана. Можно задать короткий вопрос по выезду выбранной организации.
+            Заявка создана. Можно задать короткий вопрос по выезду выбранной медслужбы.
           </div>
         ) : null}
         {messages.map((message) => (
@@ -472,12 +477,12 @@ function WaitingView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Статус заявки"
-        title="Заявка передана выбранной организации"
-        body="Выбранная организация проверяет возможность выезда. Ответ и прибытие отслеживаются отдельно."
+        title="Заявка передана выбранной медслужбы"
+        body="Выбранная медслужба проверяет возможность выезда. Ответ и прибытие отслеживаются отдельно."
       />
       <div className="live-status">
         <Pulse />
-        <span>организация смотрит заявку</span>
+        <span>медслужба смотрит заявку</span>
       </div>
       <OfferBadge offer={offer} />
       <RequestContextCard context={context} />
@@ -487,7 +492,7 @@ function WaitingView({
       {statusNotice ? <p className="privacy-note">{statusNotice}</p> : null}
       <div className="subflow-actions">
         <button className="button button--primary" onClick={onNext} type="button">
-          {usesApi ? "Обновить статус" : "Показать подтверждение организации"}
+          {usesApi ? "Обновить статус" : "Показать подтверждение медслужбы"}
         </button>
         <button className="button button--teal" onClick={onOpenChat} type="button">
           Открыть чат
@@ -504,11 +509,15 @@ function WaitingView({
 }
 
 function formatConfirmedPrice(details: StatusDetails | null, fallback: string) {
-  if (!details?.priceMin) {
+  if (!details?.priceMin && !details?.confirmedPrice) {
     return fallback;
   }
 
   const currency = details.priceCurrency === "RUB" ? "₽" : details.priceCurrency;
+
+  if (details.confirmedPrice) {
+    return `${details.confirmedPrice} ${currency}`;
+  }
 
   if (details.priceMax && details.priceMax !== details.priceMin) {
     return `${details.priceMin} – ${details.priceMax} ${currency}`;
@@ -534,8 +543,8 @@ function PriceLockView({
     <section className="offer-subflow">
       <SubflowHeader
         eyebrow="Стоимость подтверждена"
-        title="Стоимость подтверждена организацией"
-        body="Цена до выезда зафиксирована выбранной организацией."
+        title="Стоимость подтверждена медслужбой"
+        body="Цена зафиксирована. Цена не изменится, если условия заявки остаются прежними."
       />
       <StatusTrack stage="price-lock" />
       <SlaGrid offer={offer} label="Подтверждённые сроки" />
@@ -544,7 +553,7 @@ function PriceLockView({
         <strong>{formatConfirmedPrice(statusDetails, offer.finalPrice)}</strong>
       </div>
       <p className="privacy-note">
-        Стоимость подтверждена организацией.
+        Стоимость подтверждена. Цена зафиксирована. Цена не изменится, если условия заявки остаются прежними.
         {statusDetails?.etaMinutes ? ` Ожидаемое прибытие после подтверждения: ${formatEta(statusDetails, offer.arrivalTime)}.` : ""}
       </p>
       <div className="subflow-actions">
@@ -572,11 +581,11 @@ function DispatchedView({
       <SubflowHeader
         eyebrow="Специалист выехал"
         title="Ожидайте специалиста"
-        body="Статус обновлён выбранной организацией. Ожидаемое время приезда указано отдельно."
+        body="Статус обновлён выбранной медслужбой. Ожидаемое время приезда указано отдельно."
       />
       <div className="live-status">
         <Pulse />
-        <span>специалист выбранной организации в пути</span>
+        <span>специалист выбранной медслужбы в пути</span>
       </div>
       <StatusTrack stage="dispatched" />
       <div className="status-callout status-callout--teal">
@@ -659,7 +668,7 @@ function FeedbackView({
         ))}
       </div>
       <p className="privacy-note">
-        Не добавляйте медицинские детали в обратную связь. Для личного вопроса используйте поддержку.
+        Не добавляйте детали в обратную связь. Для личного вопроса используйте поддержку.
       </p>
       <div className="subflow-actions">
         <button className="button button--secondary" onClick={onSupport} type="button">
@@ -689,7 +698,7 @@ function SupportView({
       <SubflowHeader
         eyebrow="Поддержка"
         title="Поможем с работой сервиса"
-        body="Медицинские вопросы решает специалист выбранной организации. Не отправляйте медицинские детали в поддержку."
+        body="Медицинские вопросы решает специалист выбранной медслужбы. Не отправляйте детали в поддержку."
       />
       <div className="support-panel">
         <p className="meta-label">Чат поддержки</p>
@@ -757,11 +766,40 @@ export function OffersState({
   );
 }
 
+
+function HistoryView({ history, onRestart, onBack }: { history: MvpDbRequest[]; onRestart: () => void; onBack: () => void }) {
+  return (
+    <section className="offer-subflow">
+      <SubflowHeader eyebrow="История" title="История заявок" body="Здесь видны предыдущие заявки этого устройства. Можно начать новый подбор." />
+      {history.length === 0 ? (
+        <div className="conditions-panel"><p>История пока пустая.</p></div>
+      ) : (
+        <div className="service-list" aria-label="Предыдущие заявки">
+          {history.map((request) => (
+            <article className="service-row" key={request.id}>
+              <span>
+                <strong>{request.serviceLabel}</strong>
+                <small>{request.district} · {request.desiredTime} · {request.userFacingStatusText}</small>
+              </span>
+              <em>{new Date(request.createdAt).toLocaleDateString("ru-RU")}</em>
+            </article>
+          ))}
+        </div>
+      )}
+      <div className="subflow-actions">
+        <button className="button button--primary" onClick={onRestart} type="button">Новый подбор</button>
+        <button className="button button--secondary" onClick={onBack} type="button">Назад</button>
+      </div>
+    </section>
+  );
+}
+
 export function OfferSubflow({
   chatMessages,
   chatError,
   chatPending,
   district,
+  history,
   draft,
   offer,
   rating,
@@ -791,6 +829,7 @@ export function OfferSubflow({
   chatError: string | null;
   chatPending: boolean;
   district: string;
+  history: MvpDbRequest[];
   draft: RequestDraft;
   offer: Offer;
   rating: number | null;
@@ -951,6 +990,10 @@ export function OfferSubflow({
 
   if (view === "feedback") {
     return <FeedbackView onRate={onRate} onRestart={onRestart} onSupport={() => onShowSupport("feedback")} rating={rating} />;
+  }
+
+  if (view === "history") {
+    return <HistoryView history={history} onBack={() => onChangeView(null)} onRestart={onRestart} />;
   }
 
   return (

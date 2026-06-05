@@ -4,12 +4,14 @@ import "./App.css";
 import "./App.mobile.css";
 import "./App.chat.css";
 import {
+  fetchRequestHistory,
   getChatMessages,
   getRequestStatus,
   isApiConfigured,
   loadOffers,
   readSupportUrl,
   sendChatMessage as postChatMessage,
+  sendSupportMessage,
   submitRequest,
 } from "./api";
 import {
@@ -26,6 +28,7 @@ import { OfferCard, OfferCardSkeleton } from "./OfferCard";
 import { OfferSubflow, OffersState } from "./OfferSubflow";
 import { haptic, hapticNotice, initTelegram, isInsideTelegram } from "./telegram";
 import type { ChatMessage, Offer, OfferService, OfferView, OffersMode, PreviewId } from "./types";
+import type { MvpDbRequest } from "@ivhome/shared";
 import { FaqAccordion, NodeIcon, ProgressDots } from "./ui";
 import { useTelegramButtons } from "./useTelegramButtons";
 import {
@@ -43,6 +46,21 @@ function toChatMessage(message: { id: string; actorType: ChatMessage["actorType"
     text: message.body,
     createdAt: message.createdAt,
   };
+}
+
+
+function readAnonymousSessionId() {
+  const key = "nadom_anonymous_session_id";
+  const existing = window.localStorage.getItem(key);
+
+  if (existing) {
+    return existing;
+  }
+
+  const next = `anon-${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+  window.localStorage.setItem(key, next);
+
+  return next;
 }
 
 function mergeChatMessages(current: ChatMessage[], incoming: ChatMessage[]) {
@@ -81,7 +99,9 @@ export function App() {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatError, setChatError] = useState<string | null>(null);
   const [chatPending, setChatPending] = useState(false);
+  const [anonymousSessionId] = useState(() => readAnonymousSessionId());
   const [requestId, setRequestId] = useState<string | null>(null);
+  const [requestHistory, setRequestHistory] = useState<MvpDbRequest[]>([]);
   const [requestError, setRequestError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
   const [statusNotice, setStatusNotice] = useState<string | null>(null);
@@ -90,6 +110,9 @@ export function App() {
     priceMax: number | null;
     priceCurrency: string;
     etaMinutes: number | null;
+    confirmedPrice?: number | null;
+    responseTimeEstimate?: string | null;
+    arrivalAfterConfirmationEstimate?: string | null;
   } | null>(null);
   const [inTelegram] = useState(() => isInsideTelegram());
 
@@ -187,14 +210,17 @@ export function App() {
         priceMax: response.priceMax,
         priceCurrency: response.priceCurrency,
         etaMinutes: response.etaMinutes,
+        confirmedPrice: response.confirmedPrice,
+        responseTimeEstimate: response.responseTimeEstimate,
+        arrivalAfterConfirmationEstimate: response.arrivalAfterConfirmationEstimate,
       });
       setOfferView(offerViewForDbStatus(response.status));
       setStatusNotice(
-        response.status === "WAITING"
+        ["SUBMITTED", "MEDSERVICE_REVIEWING", "WAITING"].includes(response.status)
           ? "Выбранная медслужба ещё проверяет возможность выезда. Можно обновить статус позже."
-          : response.status === "DECLINED"
+          : ["DECLINED", "NO_ANSWER", "CANCELLED"].includes(response.status)
             ? "Выбранная медслужба не подтвердила выезд. Напишите в поддержку или выберите другой вариант."
-          : null,
+          : response.userFacingStatusText ?? null,
       );
     } catch {
       if (!quiet) {
@@ -276,11 +302,11 @@ export function App() {
       default:
         return "Изменить параметры";
     }
-  }, [hasLocation, selectedProfile, selectedTime, step.id]);
+  }, [hasLocation, requestDraft.customRequest, selectedProfile, selectedTime, step.id]);
 
   function canContinue() {
     if (isProfileStep) {
-      return Boolean(selectedProfile);
+      return selectedProfile === "Описать ситуацию" ? Boolean(requestDraft.customRequest.trim()) : Boolean(selectedProfile);
     }
 
     if (isLocationStep) {
@@ -361,7 +387,7 @@ export function App() {
     }
 
     setSelectedOffer(offer);
-    setSelectedService((current) => current ?? offer.services.find((service) => service.slug !== "custom") ?? null);
+    setSelectedService((current) => current ?? (selectedProfile === "Описать ситуацию" ? offer.services.find((service) => service.slug === "custom") : offer.services.find((service) => service.slug !== "custom")) ?? null);
     setOfferView(view);
   }
 
@@ -420,6 +446,7 @@ export function App() {
       const response = await submitRequest({
         offerId: selectedOffer.id,
         clinicId: selectedOffer.id,
+        anonymousSessionId,
         district,
         desiredTime: time,
         profile: selectedProfile ?? "Формат уточняется",
@@ -438,6 +465,9 @@ export function App() {
         priceMax: response.priceMax,
         priceCurrency: response.priceCurrency,
         etaMinutes: response.etaMinutes,
+        confirmedPrice: response.confirmedPrice,
+        responseTimeEstimate: response.responseTimeEstimate,
+        arrivalAfterConfirmationEstimate: response.arrivalAfterConfirmationEstimate,
       });
       setStatusNotice(null);
       setOfferView("chat");
@@ -457,6 +487,30 @@ export function App() {
     }
 
     await refreshRequestStatus();
+  }
+
+
+  async function showHistory() {
+    setRequestError(null);
+    try {
+      setRequestHistory(await fetchRequestHistory(anonymousSessionId));
+      setSelectedOffer((current) => current ?? FALLBACK_OFFERS[0] ?? null);
+      setStepIndex(OFFERS_STEP_INDEX);
+      setOfferView("history");
+    } catch {
+      setRequestError("Не получилось загрузить историю. Попробуйте позже.");
+    }
+  }
+
+  async function contactSupport() {
+    if (requestId) {
+      try {
+        await sendSupportMessage(requestId, "Пользователь запросил поддержку из Mini App.");
+      } catch {
+        // Support link fallback remains visible; do not block the user on API errors.
+      }
+    }
+    showSupport(offerView && offerView !== "support" && offerView !== "history" ? offerView : "status");
   }
 
   async function handleEmergencyCall(phoneNumber: "103" | "112") {
@@ -520,7 +574,8 @@ export function App() {
               onSelectService={setSelectedService}
               onSendChatMessage={sendChatMessage}
               onRefreshChat={() => void refreshChat()}
-              onShowSupport={showSupport}
+              onShowSupport={(view) => { setSupportReturnView(view); void contactSupport(); }}
+              history={requestHistory}
               onSubmit={() => void submitSelectedRequest()}
               onUpdateStatus={() => void updateSelectedRequestStatus()}
               rating={rating}
@@ -562,6 +617,7 @@ export function App() {
                     <li>Прибытие после подтверждения</li>
                     <li>Стоимость до выезда</li>
                   </ul>
+                  <button className="button button--secondary" onClick={() => void showHistory()} type="button">История заявок</button>
                   <FaqAccordion />
                 </>
               ) : null}
@@ -581,6 +637,7 @@ export function App() {
               ) : null}
 
               {isProfileStep ? (
+                <>
                 <div className="choice-list" aria-label="Формат подбора">
                   {PROFILE_OPTIONS.map((option) => (
                     <button
@@ -596,6 +653,18 @@ export function App() {
                     </button>
                   ))}
                 </div>
+                  {selectedProfile === "Описать ситуацию" ? (
+                    <label className="text-field">
+                      <span>Опишите ситуацию коротко</span>
+                      <textarea
+                        maxLength={500}
+                        onChange={(event) => setRequestDraft((current) => ({ ...current, customRequest: event.target.value }))}
+                        placeholder="Без телефона, точного адреса и лишних персональных данных"
+                        value={requestDraft.customRequest}
+                      />
+                    </label>
+                  ) : null}
+                </>
               ) : null}
 
               {isLocationStep ? (

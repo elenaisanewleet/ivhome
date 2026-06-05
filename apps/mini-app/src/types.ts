@@ -13,6 +13,7 @@ export type OfferView =
   | "dispatched"
   | "completed"
   | "feedback"
+  | "history"
   | "support";
 
 export type OffersMode = "ready" | "empty" | "error";

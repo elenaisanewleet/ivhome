@@ -615,10 +615,18 @@ model OutboxEvent {
 // ─── MVP lean models ────────────────────────────────────────────────────────
 
 enum MvpRequestStatus {
-  WAITING
-  PRICE_LOCK
+  DRAFT
+  SUBMITTED
+  MEDSERVICE_REVIEWING
+  MEDSERVICE_ANSWERED
+  PRICE_CONFIRMED
+  CONFIRMED
   DISPATCHED
   COMPLETED
+  CANCELLED
+  NO_ANSWER
+  WAITING
+  PRICE_LOCK
   DECLINED
 }
 
@@ -665,24 +673,32 @@ model MvpClinicAccessToken {
 model MvpRequest {
   id           String           @id @default(cuid())
   userId       String?
+  telegramUserId String?
+  anonymousSessionId String?
   offerId      String
   clinicId     String?
   district     String
   desiredTime  String
   profile      String
   serviceSlug  String           @default("custom")
-  serviceLabel String           @default("Свой запрос")
+  serviceLabel String           @default("Описать ситуацию")
   servicePrice String           @default("по описанию запроса")
   customRequest String?
   customImportant String?
   budget       String?
   comment      String?
-  status       MvpRequestStatus @default(WAITING)
+  status       MvpRequestStatus @default(SUBMITTED)
+  userFacingStatusText String   @default("Заявка создана")
   priceMin     Int?
   priceMax     Int?
+  confirmedPrice Int?
   priceCurrency String          @default("RUB")
+  responseTimeEstimate String?
+  arrivalAfterConfirmationEstimate String?
   etaMinutes   Int?
   notes        String?
+  internalNote String?
+  supportMessages Json?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -690,6 +706,8 @@ model MvpRequest {
   messages MvpChatMessage[]
 
   @@index([clinicId, status])
+  @@index([telegramUserId, createdAt])
+  @@index([anonymousSessionId, createdAt])
   @@index([createdAt])
 }
 

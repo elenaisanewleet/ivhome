@@ -140,10 +140,12 @@ function toStatusResponse(record: MvpRequestRecord): MvpRequestStatusResponse {
 
 // ─── DB-backed MVP helpers ───────────────────────────────────────────────────
 
-const dbStatuses: MvpDbStatus[] = ["WAITING", "PRICE_LOCK", "DISPATCHED", "COMPLETED", "DECLINED"];
+const dbStatuses: MvpDbStatus[] = ["DRAFT", "SUBMITTED", "MEDSERVICE_REVIEWING", "MEDSERVICE_ANSWERED", "PRICE_CONFIRMED", "CONFIRMED", "DISPATCHED", "COMPLETED", "CANCELLED", "NO_ANSWER", "WAITING", "PRICE_LOCK", "DECLINED"];
 const dbRequestCreateFields = new Set([
   "offerId",
   "clinicId",
+  "telegramUserId",
+  "anonymousSessionId",
   "district",
   "desiredTime",
   "profile",
@@ -155,7 +157,7 @@ const dbRequestCreateFields = new Set([
   "budget",
   "comment",
 ]);
-const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "etaMinutes", "notes"]);
+const dbStatusUpdateAllowedFields = new Set(["status", "priceMin", "priceMax", "confirmedPrice", "responseTimeEstimate", "arrivalAfterConfirmationEstimate", "etaMinutes", "notes", "internalNote", "clinicId"]);
 const clinicCreateAllowedFields = new Set(["id", "publicName", "legalName", "inn", "status"]);
 const clinicUpdateAllowedFields = new Set(["publicName", "legalName", "inn", "status"]);
 const clinicStatuses = new Set(["DRAFT", "PENDING_REVIEW", "ACTIVE", "SUSPENDED", "REJECTED"]);
@@ -181,6 +183,8 @@ function isMvpDbRequestCreateInput(value: unknown): value is MvpDbRequestCreateI
     isShortText(value.desiredTime, 80) &&
     isShortText(value.profile, 120) &&
     (value.clinicId === undefined || isShortText(value.clinicId, 80)) &&
+    (value.telegramUserId === undefined || isShortText(value.telegramUserId, 80)) &&
+    (value.anonymousSessionId === undefined || isShortText(value.anonymousSessionId, 120)) &&
     (value.serviceSlug === undefined || isShortText(value.serviceSlug, 80)) &&
     (value.serviceLabel === undefined || isShortText(value.serviceLabel, 120)) &&
     (value.servicePrice === undefined || isShortText(value.servicePrice, 120)) &&
@@ -233,7 +237,27 @@ function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUp
     return false;
   }
 
+  if (value.confirmedPrice !== undefined && (typeof value.confirmedPrice !== "number" || !Number.isFinite(value.confirmedPrice) || value.confirmedPrice < 0)) {
+    return false;
+  }
+
   if (value.etaMinutes !== undefined && (typeof value.etaMinutes !== "number" || !Number.isFinite(value.etaMinutes) || value.etaMinutes < 0)) {
+    return false;
+  }
+
+  if (value.responseTimeEstimate !== undefined && !isShortText(value.responseTimeEstimate, 120)) {
+    return false;
+  }
+
+  if (value.arrivalAfterConfirmationEstimate !== undefined && !isShortText(value.arrivalAfterConfirmationEstimate, 120)) {
+    return false;
+  }
+
+  if (value.internalNote !== undefined && !isShortText(value.internalNote, 1000)) {
+    return false;
+  }
+
+  if (value.clinicId !== undefined && value.clinicId !== null && !isShortText(value.clinicId, 80)) {
     return false;
   }
 
@@ -242,6 +266,43 @@ function isMvpDbStatusUpdateInput(value: unknown): value is MvpDbRequestStatusUp
   }
 
   return true;
+}
+
+
+function userStatusText(status: MvpDbStatus): string {
+  const labels: Record<MvpDbStatus, string> = {
+    DRAFT: "Заявка создана",
+    SUBMITTED: "Заявка создана",
+    MEDSERVICE_REVIEWING: "Ждём ответ медслужбы",
+    MEDSERVICE_ANSWERED: "Медслужба ответила",
+    PRICE_CONFIRMED: "Стоимость подтверждена",
+    CONFIRMED: "Цена зафиксирована",
+    DISPATCHED: "Специалист в пути",
+    COMPLETED: "Заявка завершена",
+    CANCELLED: "Заявка отменена",
+    NO_ANSWER: "Нет ответа",
+    WAITING: "Ждём ответ медслужбы",
+    PRICE_LOCK: "Цена зафиксирована",
+    DECLINED: "Нет ответа",
+  };
+
+  return labels[status];
+}
+
+function statusPatchData(input: MvpDbRequestStatusUpdateInput): Prisma.MvpRequestUpdateInput {
+  return {
+    status: input.status,
+    userFacingStatusText: userStatusText(input.status),
+    ...(input.priceMin !== undefined ? { priceMin: input.priceMin } : {}),
+    ...(input.priceMax !== undefined ? { priceMax: input.priceMax } : {}),
+    ...(input.confirmedPrice !== undefined ? { confirmedPrice: input.confirmedPrice } : {}),
+    ...(input.responseTimeEstimate !== undefined ? { responseTimeEstimate: input.responseTimeEstimate } : {}),
+    ...(input.arrivalAfterConfirmationEstimate !== undefined ? { arrivalAfterConfirmationEstimate: input.arrivalAfterConfirmationEstimate } : {}),
+    ...(input.etaMinutes !== undefined ? { etaMinutes: input.etaMinutes } : {}),
+    ...(input.notes !== undefined ? { notes: input.notes } : {}),
+    ...(input.internalNote !== undefined ? { internalNote: input.internalNote } : {}),
+    ...(input.clinicId !== undefined ? { clinicId: input.clinicId } : {}),
+  };
 }
 
 function isMvpChatMessagePublicCreateInput(value: unknown): value is MvpChatMessagePublicCreateInput {
@@ -517,6 +578,8 @@ function isPrismaKnownRequestError(error: unknown, code: string) {
 
 function toMvpDbRequest(row: {
   id: string;
+  telegramUserId: string | null;
+  anonymousSessionId: string | null;
   offerId: string;
   clinicId: string | null;
   district: string;
@@ -530,16 +593,23 @@ function toMvpDbRequest(row: {
   budget: string | null;
   comment: string | null;
   status: MvpDbStatus;
+  userFacingStatusText: string;
   priceMin: number | null;
   priceMax: number | null;
+  confirmedPrice: number | null;
   priceCurrency: string;
+  responseTimeEstimate: string | null;
+  arrivalAfterConfirmationEstimate: string | null;
   etaMinutes: number | null;
   notes: string | null;
+  internalNote: string | null;
   createdAt: Date;
   updatedAt: Date;
 }): MvpDbRequest {
   return {
     id: row.id,
+    telegramUserId: row.telegramUserId,
+    anonymousSessionId: row.anonymousSessionId,
     offerId: row.offerId,
     clinicId: row.clinicId,
     district: row.district,
@@ -553,11 +623,16 @@ function toMvpDbRequest(row: {
     budget: row.budget,
     comment: row.comment,
     status: row.status,
+    userFacingStatusText: row.userFacingStatusText,
     priceMin: row.priceMin,
     priceMax: row.priceMax,
+    confirmedPrice: row.confirmedPrice,
     priceCurrency: row.priceCurrency,
+    responseTimeEstimate: row.responseTimeEstimate,
+    arrivalAfterConfirmationEstimate: row.arrivalAfterConfirmationEstimate,
     etaMinutes: row.etaMinutes,
     notes: row.notes,
+    internalNote: row.internalNote,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -595,6 +670,7 @@ export function buildApp() {
   });
 
   app.options("/*", async (_request, reply) => reply.code(204).send());
+
 
   app.get("/health/live", async () => ({ status: "ok", service }));
   app.get("/health/ready", async () => ({ status: "ok", service, checks: { process: "ok" } }));
@@ -703,6 +779,36 @@ export function buildApp() {
   // ─── Public MVP routes ─────────────────────────────────────────────────────
 
   app.get("/mvp/offers", async () => ({ offers: mvpOffers } satisfies MvpOffersResponse));
+  app.get("/api/medservices", async () => ({ offers: mvpOffers, medservices: mvpOffers } satisfies MvpOffersResponse & { medservices: MvpOffer[] }));
+  app.get<{ Params: { id: string } }>("/api/medservices/:id", async (request, reply) => {
+    const offer = mvpOffers.find((item) => item.id === request.params.id);
+    return offer ? offer : reply.code(404).send(errorBody("medservice_not_found", "Medservice was not found."));
+  });
+
+
+  app.get<{ Querystring: { telegramUserId?: string; anonymousSessionId?: string } }>("/mvp/requests", async (request, reply) => {
+    const { telegramUserId, anonymousSessionId } = request.query;
+
+    if (!telegramUserId && !anonymousSessionId) {
+      return reply.code(400).send(errorBody("missing_request_owner", "Request owner is required."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const rows = await db.mvpRequest.findMany({
+        where: {
+          ...(telegramUserId ? { telegramUserId } : {}),
+          ...(anonymousSessionId ? { anonymousSessionId } : {}),
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      });
+
+      return { requests: rows.map((row) => toMvpDbRequest({ ...row, status: row.status as MvpDbStatus })) };
+    } catch {
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
 
   app.post<{ Body: unknown }>("/mvp/requests", async (request, reply) => {
     if (!isMvpDbRequestCreateInput(request.body)) {
@@ -740,6 +846,8 @@ export function buildApp() {
         data: {
           offerId: input.offerId,
           clinicId: input.clinicId ?? null,
+          telegramUserId: input.telegramUserId ?? null,
+          anonymousSessionId: input.anonymousSessionId ?? null,
           district: input.district,
           desiredTime: input.desiredTime,
           profile: input.profile,
@@ -750,6 +858,10 @@ export function buildApp() {
           customImportant: serviceContext.customImportant,
           budget: serviceContext.budget,
           comment: serviceContext.comment,
+          status: "SUBMITTED",
+          userFacingStatusText: userStatusText("SUBMITTED"),
+          responseTimeEstimate: offer.responseTime,
+          arrivalAfterConfirmationEstimate: offer.arrivalTime,
         },
       });
 
@@ -768,24 +880,7 @@ export function buildApp() {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
-      return {
-        id: row.id,
-        offerId: row.offerId,
-        status: row.status as MvpDbStatus,
-        priceMin: row.priceMin,
-        priceMax: row.priceMax,
-        priceCurrency: row.priceCurrency,
-        etaMinutes: row.etaMinutes,
-        serviceSlug: row.serviceSlug,
-        serviceLabel: row.serviceLabel,
-        servicePrice: row.servicePrice,
-        customRequest: row.customRequest,
-        customImportant: row.customImportant,
-        budget: row.budget,
-        comment: row.comment,
-        createdAt: row.createdAt.toISOString(),
-        updatedAt: row.updatedAt.toISOString(),
-      };
+      return toMvpDbRequest({ ...row, status: row.status as MvpDbStatus });
     } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
@@ -1089,13 +1184,7 @@ export function buildApp() {
       const db = await getPrisma();
       const row = await db.mvpRequest.update({
         where: { id: request.params.id },
-        data: {
-          status: input.status,
-          ...(input.priceMin !== undefined ? { priceMin: input.priceMin } : {}),
-          ...(input.priceMax !== undefined ? { priceMax: input.priceMax } : {}),
-          ...(input.etaMinutes !== undefined ? { etaMinutes: input.etaMinutes } : {}),
-          ...(input.notes !== undefined ? { notes: input.notes } : {}),
-        },
+        data: statusPatchData(input),
       });
 
       await writeAuditLog(db, {
@@ -1114,6 +1203,76 @@ export function buildApp() {
         return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
       }
 
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+
+  app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/assignment", async (request, reply) => {
+    if (!checkAdminToken(request.headers.authorization)) {
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
+    }
+
+    if (!isRecord(request.body) || Object.keys(request.body).some((key) => key !== "clinicId") || (request.body.clinicId !== null && !isShortText(request.body.clinicId, 80))) {
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const row = await db.mvpRequest.update({ where: { id: request.params.id }, data: { clinicId: request.body.clinicId } });
+      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_REQUEST_STATUS_UPDATE", entityType: "MvpRequest", entityId: row.id, clinicId: row.clinicId, requestId: row.id, metadata: { assignmentChanged: true } });
+      return toMvpDbRequest({ ...row, status: row.status as MvpDbStatus });
+    } catch (error) {
+      if (isPrismaKnownRequestError(error, "P2025")) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+  app.patch<{ Body: unknown; Params: { id: string } }>("/mvp/admin/requests/:id/price", async (request, reply) => {
+    if (!checkAdminToken(request.headers.authorization)) {
+      return reply.code(401).send(errorBody("unauthorized", "Admin authorization is required."));
+    }
+
+    const body = isRecord(request.body) ? { status: "PRICE_CONFIRMED", ...request.body } : request.body;
+
+    if (!isMvpDbStatusUpdateInput(body)) {
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const row = await db.mvpRequest.update({ where: { id: request.params.id }, data: statusPatchData(body) });
+      await writeAuditLog(db, { actorType: "PLATFORM_STAFF", action: "MVP_REQUEST_STATUS_UPDATE", entityType: "MvpRequest", entityId: row.id, clinicId: row.clinicId, requestId: row.id, metadata: { priceUpdated: true } });
+      return toMvpDbRequest({ ...row, status: row.status as MvpDbStatus });
+    } catch (error) {
+      if (isPrismaKnownRequestError(error, "P2025")) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+      return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
+    }
+  });
+
+  app.post<{ Body: unknown; Params: { id: string } }>("/mvp/requests/:id/support-message", async (request, reply) => {
+    if (!isRecord(request.body) || Object.keys(request.body).some((key) => key !== "body") || !isShortText(request.body.body, 1000)) {
+      return reply.code(400).send(errorBody("invalid_request", "Request body is invalid."));
+    }
+
+    try {
+      const db = await getPrisma();
+      const existing = await db.mvpRequest.findUnique({ where: { id: request.params.id }, select: { supportMessages: true } });
+
+      if (!existing) {
+        return reply.code(404).send(errorBody("request_not_found", "Request was not found."));
+      }
+
+      const current = Array.isArray(existing.supportMessages) ? existing.supportMessages : [];
+      const message = { id: randomUUID(), body: request.body.body, createdAt: new Date().toISOString() };
+      const row = await db.mvpRequest.update({ where: { id: request.params.id }, data: { supportMessages: [...current, message] as Prisma.InputJsonValue } });
+
+      return reply.code(201).send({ request: toMvpDbRequest({ ...row, status: row.status as MvpDbStatus }), message });
+    } catch {
       return reply.code(503).send(errorBody("db_unavailable", "Database is unavailable."));
     }
   });
@@ -1209,13 +1368,7 @@ export function buildApp() {
 
       const row = await db.mvpRequest.update({
         where: { id: request.params.id },
-        data: {
-          status: input.status,
-          ...(input.priceMin !== undefined ? { priceMin: input.priceMin } : {}),
-          ...(input.priceMax !== undefined ? { priceMax: input.priceMax } : {}),
-          ...(input.etaMinutes !== undefined ? { etaMinutes: input.etaMinutes } : {}),
-          ...(input.notes !== undefined ? { notes: input.notes } : {}),
-        },
+        data: statusPatchData(input),
       });
 
       await writeAuditLog(db, {
