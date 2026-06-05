@@ -206,3 +206,162 @@ h1 {
     font-size: 14px;
   }
 }
+
+/* v6.1-aligned refinement fallback (external v6.1 file was not available in the container):
+   preserve v2/v4 structure, add richer v1/v4 color rhythm and softer private-service TOV. */
+.phone-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(212, 232, 245, 0.34), transparent 9rem),
+    radial-gradient(circle at 92% 22%, rgba(200, 232, 228, 0.22), transparent 10rem),
+    radial-gradient(circle at 18% 88%, rgba(184, 144, 144, 0.13), transparent 9rem);
+  z-index: 0;
+}
+
+.phone-frame > * {
+  position: relative;
+  z-index: 1;
+}
+
+.screen-header {
+  backdrop-filter: blur(18px);
+  background: color-mix(in srgb, var(--surface-base) 88%, transparent);
+}
+
+.screen-header__brand::before {
+  content: "private matching · ";
+  color: var(--accent-mid);
+}
+
+.welcome-tags span:nth-child(1),
+.detail-pill--zone {
+  border-color: rgba(74, 127, 165, 0.24);
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.88), rgba(250, 250, 248, 0.64));
+}
+
+.welcome-tags span:nth-child(2),
+.rating-pill,
+.detail-pill--dust {
+  border-color: rgba(184, 144, 144, 0.24);
+  background: linear-gradient(135deg, rgba(237, 224, 220, 0.92), rgba(250, 250, 248, 0.62));
+}
+
+.welcome-tags span:nth-child(3),
+.status-pill,
+.detail-pill--ok {
+  border-color: rgba(58, 138, 130, 0.22);
+  background: linear-gradient(135deg, rgba(200, 232, 228, 0.88), rgba(250, 250, 248, 0.62));
+}
+
+.trust-chips,
+.service-list,
+.summary-list,
+.status-track {
+  background:
+    linear-gradient(180deg, rgba(250, 250, 248, 0.72), transparent),
+    var(--surface-card);
+}
+
+.trust-chips li::before {
+  background: var(--accent-mid);
+  box-shadow: 0 0 0 4px rgba(126, 184, 212, 0.12);
+}
+
+.offer-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(250, 250, 248, 0.92), rgba(238, 237, 232, 0.66)),
+    var(--surface-card);
+}
+
+.offer-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 14px 0;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(90deg, var(--accent), var(--teal), var(--dust));
+  opacity: 0.34;
+}
+
+.offer-card:nth-of-type(2n)::after {
+  background: linear-gradient(90deg, var(--dust), var(--accent-mid), var(--teal));
+}
+
+.offer-card:nth-of-type(3n)::after {
+  background: linear-gradient(90deg, var(--teal), var(--accent), var(--dust));
+}
+
+.offer-card__header {
+  background:
+    radial-gradient(circle at 0 0, rgba(126, 184, 212, 0.18), transparent 8rem),
+    linear-gradient(180deg, rgba(250, 250, 248, 0.76), transparent),
+    var(--surface-card);
+}
+
+.sla-box:nth-child(1) {
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.72), rgba(250, 250, 248, 0.56)), var(--surface-muted);
+}
+
+.sla-box:nth-child(2) {
+  background: linear-gradient(135deg, rgba(200, 232, 228, 0.7), rgba(250, 250, 248, 0.54)), var(--surface-muted);
+}
+
+.price-row,
+.status-callout--teal,
+.live-status {
+  background: linear-gradient(135deg, rgba(200, 232, 228, 0.72), rgba(212, 232, 245, 0.42)), var(--surface-muted);
+}
+
+.privacy-note,
+.chat-privacy-banner {
+  border-color: rgba(74, 127, 165, 0.16);
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.42), rgba(250, 250, 248, 0.48)), var(--surface-muted);
+}
+
+.service-row--alcohol_hangover,
+.service-row--planned_visit {
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.72), rgba(250, 250, 248, 0.54)), var(--surface-muted);
+}
+
+.service-row--binge_or_near_binge,
+.service-row--custom {
+  background: linear-gradient(135deg, rgba(237, 224, 220, 0.78), rgba(212, 232, 245, 0.38)), var(--surface-muted);
+}
+
+.service-row--urgent_visit {
+  background: linear-gradient(135deg, rgba(240, 228, 196, 0.72), rgba(250, 250, 248, 0.54)), var(--surface-muted);
+}
+
+.service-row--intoxication {
+  background: linear-gradient(135deg, rgba(212, 232, 245, 0.72), rgba(200, 232, 228, 0.44)), var(--surface-muted);
+}
+
+[data-preview-theme="dark"] .phone-frame::before,
+[data-tg-scheme="dark"] .phone-frame::before {
+  background:
+    radial-gradient(circle at 14% 12%, rgba(74, 127, 165, 0.18), transparent 9rem),
+    radial-gradient(circle at 92% 22%, rgba(58, 138, 130, 0.12), transparent 10rem),
+    radial-gradient(circle at 18% 88%, rgba(184, 144, 144, 0.09), transparent 9rem);
+}
+
+[data-preview-theme="dark"] .welcome-tags span,
+[data-preview-theme="dark"] .detail-pill,
+[data-preview-theme="dark"] .service-row,
+[data-preview-theme="dark"] .sla-box,
+[data-preview-theme="dark"] .price-row,
+[data-preview-theme="dark"] .privacy-note,
+[data-preview-theme="dark"] .chat-privacy-banner,
+[data-tg-scheme="dark"] .welcome-tags span,
+[data-tg-scheme="dark"] .detail-pill,
+[data-tg-scheme="dark"] .service-row,
+[data-tg-scheme="dark"] .sla-box,
+[data-tg-scheme="dark"] .price-row,
+[data-tg-scheme="dark"] .privacy-note,
+[data-tg-scheme="dark"] .chat-privacy-banner {
+  background: color-mix(in srgb, var(--surface-elevated) 82%, var(--accent-light));
+}

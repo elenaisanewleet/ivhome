@@ -70,7 +70,7 @@ test("creates callback replies", () => {
   assert.match(createMessageForCallbackData("support")?.text, /поддержка Надом/u);
   assert.equal(createMessageForCallbackData("unknown"), undefined);
 
-  assert.match(createStatusMessage().text, /медицинской организации/u);
+  assert.match(createStatusMessage().text, /медслужбы/u);
   assert.match(createSupportMessage().text, /поддержка/u);
 });
 
