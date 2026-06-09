@@ -57,3 +57,10 @@ export type ChatMessage = {
 export type StatusStage = "waiting" | "price-lock" | "dispatched" | "completed";
 
 export type SymbolTone = "default" | "emergency" | "offers" | "welcome";
+
+export type ProfileOption = {
+  id: string;
+  label: string;
+  sub: string;
+  style?: "custom";
+};

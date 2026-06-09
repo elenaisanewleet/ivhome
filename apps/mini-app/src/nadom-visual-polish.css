@@ -109,8 +109,8 @@ h1 {
 }
 
 .rating-pill {
-  color: var(--text-secondary);
-  background: rgba(184, 144, 144, 0.18);
+  color: var(--amber);
+  background: var(--amber-light);
 }
 
 .offer-zone {

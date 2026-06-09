@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  
+  
+  
+
+  
+
+  
+  <circle cx="256" cy="92" r="14" fill="none" stroke="currentColor" stroke-width="16"></circle>
+
+  
+  <rect x="188" y="118" width="136" height="150" rx="34" fill="none" stroke="currentColor" stroke-width="22"></rect>
+
+  
+  <path d="M198 210 Q256 188 314 210 L314 244 Q314 258 300 258 L212 258 Q198 258 198 244 Z" fill="currentColor" opacity=".55"></path>
+
+  
+  <path d="M256 268 V310" stroke="currentColor" stroke-width="20" stroke-linecap="round"></path>
+
+  
+  <path d="M256 330 C284 360 284 392 256 410 C228 392 228 360 256 330 Z" fill="currentColor"></path>
+</svg>
