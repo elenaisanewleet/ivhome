@@ -1,3 +1,9 @@
+> Supporting / archived reference.
+> This file is not the primary Tone of Voice source.
+> Primary source: `docs/tone-of-voice/final_tone_of_voice.md`.
+> Use this file only for the support area described in `docs/tone-of-voice/README.md`.
+> If this file conflicts with the final TOV, the final TOV wins.
+
 # Nadom Final Tone of Voice & Product Copy System
 
 Версия: 2026-06-05  
