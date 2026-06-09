@@ -1,18 +1,18 @@
+> Supporting / archived reference.
+> This report is a supporting UX features / motion / interface behavior reference for Nadom / Надом. Use it only in the support area described in `docs/tone-of-voice/README.md` and only where it does not conflict with the final TOV.
+
 # Nadom deep research report
 
 Updated: 2026-06-05.
 
-This report captures the current strategic source-of-truth direction for Nadom / Надом. It supports the project instruction and UX/TOV microcopy files in this folder. It overrides older Nadom / IVhome research notes and design references when they conflict.
-
 ## Current priority
 
-For Nadom / Надом tasks, read first:
+For Nadom / Надом Tone of Voice and copy tasks, read first:
 
-1. `docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md`
-2. `docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md`
-3. `docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md`
+1. `docs/tone-of-voice/final_tone_of_voice.md`
+2. `docs/tone-of-voice/README.md`
 
-Older docs are archive/reference only unless explicitly requested.
+Then use this file only as a supporting reference in the hierarchy area assigned to it. Older docs are archive/reference only unless explicitly requested.
 
 ## Strategic summary
 
