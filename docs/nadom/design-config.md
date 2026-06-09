@@ -8,121 +8,90 @@ Internal codename: `IVhome` only for repository, package, and internal technical
 
 ## Active source priority
 
-Read the available sources in this order before any Nadom UI, Mini App, Telegram Bot, dashboard, icon, visual, or copy implementation work:
+Read the available sources in this order before any Nadom UI, Mini App, Telegram Bot, dashboard, icon, visual, Claude Design prompt, Codex prompt, or copy-related implementation work.
 
-1. `docs/nadom/design-config.md` — this implementation priority map.
-2. `docs/nadom/current-source-of-truth.md` — product, legal, privacy, terminology, and MVP flow.
-3. `docs/nadom/references/design/nadom-design-package-v2.html` — MAIN visual/design source of truth.
-4. `docs/nadom/references/design/nadom-design-package.html` — v1 visual benchmark for palette, color combinations, badges/buttons/status colors, and medservice-card feeling.
-5. `docs/nadom/references/design/nadom-design-package-v3.html` — final synthesis/reference only when it does not conflict with the rule that v2 owns typography, icons, UI structure, and component logic.
-6. `docs/nadom/references/design/Nadom Design Guide.pdf` — compact supporting design instruction.
-7. `docs/nadom/references/design/nadom-workflow-board.png` — workflow completeness checklist: screens, states, BotFather/welcome assets, bot messages, icons, components, price lock, empty/error/repeat states.
-8. Older supporting docs only as historical context.
+1. `docs/tone-of-voice/final_tone_of_voice.md` — primary source for wording, tone, UI copy, CTA, bot text, status text, medservice/clinic card copy, Claude Design prompts, and Codex prompts. Do not duplicate the canonical TOV text inside design instructions.
+2. `docs/nadom/references/design/nadom-design-package-v6.2.html` — current active visual/design source of truth.
+3. `docs/nadom/references/design/nadom-design-package-v6.1.html` — nearest previous baseline; use to understand what v6.2 revised.
+4. `docs/nadom/references/design/nadom-design-package-v6.html` — previous stable package; use for continuity and reusable product UI decisions.
+5. `docs/nadom/references/design/nadom-design-package-v5.html` — supporting design reference; use for strong visual/product ideas that still fit v6.2.
+6. `docs/nadom/references/design/nadom-design-package-v4.html` — supporting design reference; use for strong earlier foundation and decisions that were not intentionally replaced.
+7. `docs/nadom/current-source-of-truth.md` — product, privacy, legal, MVP-flow, and implementation context only where it does not conflict with the canonical TOV or current design lineage.
+8. Older design packages v1/v2/v3, if present — legacy/supporting references only. Do not let them override v4–v6.2.
+9. `docs/nadom/references/design/nadom-workflow-board.png` — workflow completeness checklist only.
 
-If sources conflict, follow the priority above. Do not invent a new visual style.
+If sources conflict, follow the priority above: the canonical TOV owns wording and tone, and v6.2 wins visual/design conflicts. If a referenced visual file is missing, state that it is unavailable and use the next available source. Do not invent placeholder files or a new visual style outside this lineage.
+
+## Current availability note
+
+As of this docs update, the repository contains `nadom-design-package-v5.html`, `nadom-design-package-v4.html`, and `nadom-workflow-board.png`. The v6.2, v6.1, and v6 HTML packages are referenced as the intended current lineage; if they are unavailable in the working tree, use the next available source and note the limitation.
 
 ## Final design formula
 
-* v2 = strict base for interface structure, typography, iconography, screen rhythm, mobile frames, component logic, status track, SLA blocks, chat UI, price lock, BotFather/welcome package, and overall visual maturity.
-* v1 = palette, color combinations, badges/buttons/status colors, graphite + milk mood, and medservice-card visual feeling only.
-* v3 = supporting synthesis if useful, but it must not override v2 for typography, icons, component structure, or UI logic.
-* PNG workflow board = flow logic and completeness checklist.
-* Current source of truth = product, legal, privacy, terminology, and MVP flow.
-* Chat with the selected medservice specialist = mandatory MVP function after the medservice card and before final request confirmation.
+* v6.2 = active current design package.
+* v6.1 = nearest baseline / comparison point.
+* v6 = continuity source for stable product UI.
+* v5 = supporting visual/product ideas.
+* v4 = supporting strong foundation.
+* v6.2 owns the current screens, palette application, UI components, Telegram assets, bot assets, banners, clinic/medservice cards, admin cabinet, partner cabinet, motion examples, and export-ready visuals.
+* The canonical TOV owns all wording and tone.
+* Older v1/v2/v3 packages are historical support only.
+* Do not invent a new visual style outside this lineage.
 
-## What to take from v2
+## Current design lineage guidance
 
-Use v2 as the production UI base:
+Use v6.2 as the active visual/design source when available:
 
-* typography: `Unbounded` for display and `Onest` for body;
-* all icon logic and icon style;
-* screen structure, rhythm, spacing, mobile frame proportions, and component hierarchy;
-* strict technological private-service feeling;
-* small mono labels;
-* thin lines and strict cards;
-* status track;
-* SLA / ETA blocks;
-* chat UI;
-* price lock UI;
-* BotFather / welcome package logic;
-* overall mature, minimal, private digital-service feel.
+* current screen set and screen order;
+* palette application and color rhythm;
+* UI component structure and component states;
+* Telegram Mini App assets and Telegram Bot assets;
+* banners and export-ready visuals;
+* clinic/medservice cards;
+* admin cabinet and partner cabinet;
+* motion examples and interaction details.
 
-## What to take from v1
+Use v6.1 only as the nearest comparison point to understand what v6.2 changed or intentionally kept.
 
-Use v1 only as a visual benchmark for:
+Use v6 as the continuity source for stable product UI decisions when v6.2/v6.1 are unavailable or silent.
 
-* palette and color combinations;
-* graphite + milk / cream mood;
-* accent / accent-mid / accent-light distribution;
-* teal for chat, specialist, and confirmation;
-* dust as a soft private / human accent;
-* muted ok / warn / err;
-* badge, pill, button, and status color feeling;
-* medservice card visual feeling.
+Use v5 for supporting visual/product ideas only when they still fit v6.2 and do not override the active package.
 
-Do not take from v1:
+Use v4 for strong earlier foundation and decisions that were not intentionally replaced by v5–v6.2.
 
-* screen order;
-* MVP priority order;
-* product flow;
-* typography if it conflicts with v2;
-* icon style if it conflicts with v2;
-* any decision that chat is phase 2;
-* outdated labels.
-
-## Canonical palette
-
-Use the v1 palette as the canonical implementation palette unless a component is explicitly copied from v2 and needs a mapped equivalent:
-
-```css
---ink: #0F0F0E;
---ink-2: #2A2A28;
---ink-3: #5A5A56;
---ink-4: #8A8A84;
---ink-5: #C4C4BC;
---paper: #F5F4F0;
---paper-2: #EEEDE8;
---paper-3: #E4E3DC;
---white: #FAFAF8;
---accent: #4A7FA5;
---accent-mid: #7EB8D4;
---accent-light: #D4E8F5;
---teal: #3A8A82;
---dust: #B89090;
---ok: #3A7A5A;
---warn: #8A6020;
---err: #8A3030;
-```
+Use v1/v2/v3 only as historical references. They must not override v4, v5, v6, v6.1, or v6.2.
 
 ## Core visual rules
 
-* Graphite outer shell / board.
-* Milk / warm-paper Mini App surfaces.
-* Typography and iconography strictly from v2 direction.
-* Compact cards, thin borders, and soft but strict radius.
-* Small uppercase metadata labels.
-* Calm blue / teal accents.
-* No hospital visuals, red crosses, sirens, doctor photos, generic SaaS gradients, bright green checkmarks, aggressive warning visuals, wellness-sugar style, or cute medical illustrations.
-* Do not use the wrong icon if v2 provides the correct symbol direction. The Nadom symbol should follow v2: private routing user → medservice → visit, with a subtle network/destination/infusion-line hint only on second look.
+* Preserve the best working parts across v4 → v6.2, but v6.2 wins when there is a direct conflict.
+* Keep Nadom in the same design lineage; do not introduce unrelated SaaS, hospital, wellness, emergency, or generic marketplace styling.
+* Keep Telegram Mini App screens safe for Telegram controls and viewport behavior.
+* Keep bottom CTAs from covering content.
+* Keep chips, buttons, and filters wrapping or scrolling without overlap.
+* Keep light and dark Telegram themes readable.
+* Use calm, private, technology-service visuals.
+* Avoid hospital visuals, red crosses, sirens, doctor photos, generic SaaS gradients, bright green checkmarks, aggressive warning visuals, wellness-sugar style, and cute medical illustrations.
 
 ## Medservice card
 
-Follow the v1/v3 card feeling while keeping v2 typography, icon style, spacing discipline, and component maturity:
+Follow the current v6.2 medservice-card direction when available. Use v6.1/v6/v5/v4 only for continuity and supporting ideas that still fit v6.2.
 
-* light card;
-* calm rating badge;
-* two separate SLA blocks;
-* short labels;
-* private premium feeling;
-* `Ответ` and `Прибытие` separated;
-* button: `Написать специалисту`;
-* button: `Подтвердить заявку`;
-* note: `Детали и возможность выезда подтверждает медслужба`.
+Medservice cards must keep:
+
+* clear selected-medservice responsibility;
+* license/trust markers where appropriate;
+* separate response and arrival timing;
+* transparent price orientation and confirmation flow;
+* chat with the specialist of the selected medservice;
+* privacy proof points only when true for the selected medservice;
+* calm status/confirmation states.
 
 Always separate:
 
 1. response / confirmation time;
 2. arrival ETA after confirmation.
+
+Use `docs/tone-of-voice/final_tone_of_voice.md` for the exact wording, labels, CTA, and tone.
 
 ## Required MVP flow
 
@@ -130,9 +99,11 @@ Always separate:
 
 ## Terminology
 
+Use the canonical TOV for exact wording and tone. Product/legal implementation constraints still apply:
+
 * Use `медслужба` as the main user-facing compact term.
 * Use `медицинская организация` only where legal/consent/licensing clarity is needed.
-* Do not use `партнёр` in UI.
+* Do not use `партнёр` in client-facing UI.
 * Do not use `IVhome` in public UI.
 * Do not use `Домой`.
 * Do not use `клиника Надом`, `врач Надом`, `наш врач`, `лечим`, `назначаем`, `диагностируем`, or medical promises.

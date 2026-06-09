@@ -52,8 +52,8 @@ If a referenced file is missing, use the closest current file under `docs/nadom/
 
 Use this priority order when sources conflict:
 
-1. Current repo docs under `docs/nadom/`, especially `project-rules.md`, `public-wording.md`, `visual-system.md`, `privacy-security.md`, and `OPERATIONS_CHECKLIST.md`.
-2. Current design package, if present: `docs/nadom/references/design/nadom-design-package-v4.html`.
+1. Current repo docs under `docs/nadom/`, especially `project-rules.md`, `public-wording.md`, `visual-system.md`, `privacy-security.md`, `design-config.md`, and `OPERATIONS_CHECKLIST.md`.
+2. Current design lineage, with `docs/nadom/references/design/nadom-design-package-v6.2.html` as the active visual/design source when available, followed by v6.1, v6, v5, and v4.
 3. Newer design packages or explicitly attached design files in the current task.
 4. Historical references in `docs/nadom/references/` only as supporting material.
 
@@ -140,13 +140,19 @@ The service does not diagnose severity. If there are acute symptoms, recommend 1
 
 ## 7. Visual / frontend rules
 
-For UI/frontend/visual tasks, inspect the current design package first:
+For UI/frontend/visual tasks, inspect the current design lineage first:
 
-- `docs/nadom/references/design/nadom-design-package-v4.html`
+1. `docs/nadom/references/design/nadom-design-package-v6.2.html`
+2. `docs/nadom/references/design/nadom-design-package-v6.1.html`
+3. `docs/nadom/references/design/nadom-design-package-v6.html`
+4. `docs/nadom/references/design/nadom-design-package-v5.html`
+5. `docs/nadom/references/design/nadom-design-package-v4.html`
+6. `docs/nadom/design-config.md`
+7. `docs/tone-of-voice/final_tone_of_voice.md` for wording/tone only
 
-Keep the v2/v4 structure and icon-system logic, but preserve richer v1-style color rhythm where the design package specifies it: colorful pills, badges, buttons, service cards, and status states.
+If a referenced visual file is missing, state that it is unavailable and use the next available source. v6.2 wins visual/design conflicts when available; the canonical TOV owns all wording and tone.
 
-Do not introduce a new unrelated visual style.
+Do not introduce a new unrelated visual style outside the v4 → v6.2 lineage.
 
 Mini App UI must respect Telegram safe area / viewport:
 
