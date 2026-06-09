@@ -52,8 +52,8 @@ If a referenced file is missing, use the closest current file under `docs/nadom/
 
 Use this priority order when sources conflict:
 
-1. Current repo docs under `docs/nadom/`, especially `project-rules.md`, `public-wording.md`, `visual-system.md`, `privacy-security.md`, and `OPERATIONS_CHECKLIST.md`.
-2. Current design package, if present: `docs/nadom/references/design/nadom-design-package-v4.html`.
+1. Current repo docs under `docs/nadom/`, especially `project-rules.md`, `public-wording.md`, `visual-system.md`, `privacy-security.md`, `design-config.md`, and `OPERATIONS_CHECKLIST.md`.
+2. Current design lineage, with `docs/nadom/references/design/nadom-design-package-v6.2.html` as the current active confirmed visual/design baseline when it exists in the repo or is explicitly attached, followed by v6.1, v6, v5, and v4. `nadom-design-package-v6.3.html` is the current target / next package to be created, not an existing input unless the file exists in the repository or is explicitly attached to the task.
 3. Newer design packages or explicitly attached design files in the current task.
 4. Historical references in `docs/nadom/references/` only as supporting material.
 
@@ -106,10 +106,29 @@ Do not use client-facing wording such as:
 - `лечим`
 - `назначаем`
 - `диагностируем`
-- `подберём капельницу`
-- `гарантируем результат`
 - `феназепам` as a service/package
 - guaranteed sedation
+
+Do not hard-ban `подберём капельницу` or `гарантируем результат`. These phrases are allowed only in the service/process sense defined by `docs/tone-of-voice/final_tone_of_voice.md`.
+
+Nadom may communicate process guarantees:
+
+- visible options;
+- clear route;
+- anonymous flow;
+- price visibility;
+- status tracking;
+- chat;
+- no documents before clinic selection.
+
+Nadom must not promise:
+
+- medical result;
+- cure;
+- guaranteed sedation;
+- guaranteed sleep;
+- specific medication effect;
+- that a specific IV composition will work.
 
 ## 5. Privacy / anonymity wording
 
@@ -140,13 +159,21 @@ The service does not diagnose severity. If there are acute symptoms, recommend 1
 
 ## 7. Visual / frontend rules
 
-For UI/frontend/visual tasks, inspect the current design package first:
+For UI/frontend/visual/Claude Design tasks, inspect the current design lineage first:
 
-- `docs/nadom/references/design/nadom-design-package-v4.html`
+1. `docs/nadom/references/design/nadom-design-package-v6.2.html`
+2. `docs/nadom/references/design/nadom-design-package-v6.1.html`
+3. `docs/nadom/references/design/nadom-design-package-v6.html`
+4. `docs/nadom/references/design/nadom-design-package-v5.html`
+5. `docs/nadom/references/design/nadom-design-package-v4.html`
+6. `docs/nadom/design-config.md`
+7. `docs/tone-of-voice/final_tone_of_voice.md` for wording/tone only
 
-Keep the v2/v4 structure and icon-system logic, but preserve richer v1-style color rhythm where the design package specifies it: colorful pills, badges, buttons, service cards, and status states.
+If v6.2 / v6.1 / v6 or any referenced visual file is missing from the repo and not explicitly attached to the task, state that it is unavailable and use the next available attached or repo source. Do not invent missing design files. v6.2 is the current active confirmed visual/design baseline only when available or attached; the canonical TOV owns all wording and tone.
 
-Do not introduce a new unrelated visual style.
+When the task is to create `nadom-design-package-v6.3.html`, treat v6.3 as the output target, not as an existing input file. Once v6.3 exists in the repo, it can become the active current design package.
+
+Do not introduce a new unrelated visual style outside the v4 → v6.2 lineage.
 
 Mini App UI must respect Telegram safe area / viewport:
 
