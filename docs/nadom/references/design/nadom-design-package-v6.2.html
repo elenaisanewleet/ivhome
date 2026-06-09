@@ -1,0 +1,1562 @@
+<!-- @dsCard group="Brand" name="Design Package v6.2" subtitle="Full system — IV-bag mark, warm graphite + cream, all screens & assets" viewport="1580x900" -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Надом — Design Package v6.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Onest:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<template id="__bundler_thumbnail" data-bg-color="#17150F">
+  <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+    <rect width="512" height="512" fill="#17150F"/>
+    <g transform="translate(106,30) scale(0.59)" fill="none" stroke="#7EB8D4" stroke-width="22">
+      <circle cx="256" cy="92" r="14"/>
+      <rect x="188" y="118" width="136" height="150" rx="34"/>
+      <path d="M256 268 V310" stroke-linecap="round" stroke-width="20"/>
+      <path d="M256 330 C284 360 284 392 256 410 C228 392 228 360 256 330 Z" fill="#7EB8D4" stroke="none"/>
+    </g>
+    <text x="256" y="430" text-anchor="middle" font-family="Unbounded,sans-serif" font-size="64" font-weight="700" letter-spacing="-3" fill="#F1ECDE">Над<tspan fill="#7EB8D4">о</tspan>м</text>
+  </svg>
+</template>
+<style>
+:root{
+  /* light — milk / cream (mobile screens, v1 benchmark) */
+  --ink:#211F17;--ink-2:#46443A;--ink-3:#6C695B;--ink-4:#9A9583;--ink-5:#C2BCA9;
+  --paper:#F5F2EA;--paper-2:#ECE6D9;--paper-3:#DCD5C6;--white:#FFFEFA;
+  /* dark — warm premium graphite (package shell) */
+  --d-bg:#17150F;--d-bg-2:#211E16;--d-bg-3:#2C2920;--d-bg-cream:#EFEADD;
+  --d-line:#38342A;--d-line-2:#494433;--d-ink:#F1ECDE;--d-ink-2:#B2AB95;--d-ink-3:#7E7864;
+  /* signal — soft blue (MAIN Nadom accent) */
+  --blue:#4A7FA5;--blue-d:#3A6488;--blue-m:#7EB8D4;--blue-l:#DCEAF3;--blue-dim:rgba(74,127,165,.13);
+  --d-blue:#7EB8D4;--d-blue-dim:rgba(126,184,212,.16);
+  /* teal — secondary, sparing (arrival) */
+  --teal:#3A8A82;--teal-d:#2C6E68;--teal-m:#5FB8AE;--teal-l:#CDE9E4;--teal-dim:rgba(58,138,130,.13);
+  --d-teal:#5FB8AE;--d-teal-dim:rgba(95,184,174,.16);
+  /* sage — trust */
+  --sage:#5E9A66;--sage-l:#D0E5D1;--sage-dim:rgba(94,154,102,.15);--d-sage:#86C08C;
+  /* amber — rating (warm gold) */
+  --amber:#C8902E;--amber-l:#F4E0AC;--amber-dim:rgba(200,144,46,.16);--d-amber:#E7B95C;--d-amber-dim:rgba(231,185,92,.18);
+  /* dusty rose — private / human */
+  --rose:#BE8585;--rose-l:#EEDCDC;--rose-dim:rgba(190,133,133,.15);--d-rose:#D6ABAB;--d-rose-dim:rgba(214,171,171,.16);
+  /* clay — warm extra accent (energy / restorative) */
+  --clay:#C2794E;--clay-l:#F1DAC8;--clay-dim:rgba(194,121,78,.15);--d-clay:#D89B72;--d-clay-dim:rgba(216,155,114,.16);
+  /* muted ember — only safety / errors */
+  --err:#B0584A;--err-l:#EFCDC5;--err-dim:rgba(176,88,74,.14);--d-err:#DF9A8C;--d-err-dim:rgba(223,154,140,.18);
+  --f-display:'Unbounded',system-ui,sans-serif;
+  --f-body:'Onest','Manrope',system-ui,sans-serif;
+  --f-mono:'SF Mono','JetBrains Mono','Fira Mono',ui-monospace,monospace;
+  --r-xs:4px;--r-sm:8px;--r-md:14px;--r-lg:20px;--r-xl:28px;--r-ph:40px;
+  --pw:300px;--ph:606px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:13px;scroll-behavior:smooth}
+body{font-family:var(--f-body);background:var(--d-bg);color:var(--d-ink-2);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 82% 0%,rgba(126,184,212,.07),transparent 32rem),radial-gradient(circle at 4% 88%,rgba(216,155,114,.05),transparent 28rem),radial-gradient(circle at 50% 120%,rgba(190,133,133,.045),transparent 30rem);}
+/* ── mobile screens run a warm cream/milk light theme; remap dark tokens used inline ── */
+.ph-scr{--d-bg:var(--paper);--d-bg-2:var(--white);--d-bg-3:var(--paper-2);--d-bg-cream:var(--white);--d-line:var(--paper-3);--d-line-2:#CFC8B8;--d-ink:var(--ink);--d-ink-2:var(--ink-3);--d-ink-3:var(--ink-4);--d-blue:var(--blue);--d-blue-dim:var(--blue-dim);--d-teal:var(--teal);--d-teal-dim:var(--teal-dim);--d-sage:var(--sage);--d-amber:var(--amber);--d-amber-dim:var(--amber-dim);--d-rose:var(--rose);--d-rose-dim:var(--rose-dim);--d-err:var(--err);--d-err-dim:var(--err-dim);--d-clay:var(--clay);--d-clay-dim:var(--clay-dim);}
+a{color:var(--d-blue)}
+.page{max-width:1580px;margin:0 auto;padding:52px 40px}
+.sec{margin-bottom:92px;scroll-margin-top:28px}
+.sec-label{font-family:var(--f-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--d-ink-3);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.sec-label::after{content:'';flex:1;height:.5px;background:var(--d-line)}
+.sec-h{font-family:var(--f-display);font-size:26px;font-weight:700;color:var(--d-ink);letter-spacing:-.04em;line-height:1.14;margin-bottom:8px}
+.sec-sub{font-size:12.5px;color:var(--d-ink-2);margin-bottom:26px;max-width:720px;line-height:1.75}
+.div{height:.5px;background:var(--d-line);margin:60px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:1200px){.g6{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.g4,.g3{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.g2,.g3,.g4,.g5,.g6{grid-template-columns:1fr}.page{padding:30px 14px}}
+.nav{position:sticky;top:0;z-index:50;background:rgba(13,14,10,.9);backdrop-filter:blur(14px);border-bottom:.5px solid var(--d-line);padding:9px 30px;display:flex;gap:4px;flex-wrap:wrap;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.06em}
+.nav a{color:var(--d-ink-3);text-decoration:none;padding:3px 7px;border-radius:5px;text-transform:uppercase}
+.nav a:hover{color:var(--d-ink);background:var(--d-bg-3)}
+/* cards / panels */
+.dcard{background:var(--d-bg-2);border:.5px solid var(--d-line);border-radius:var(--r-lg);padding:24px 28px}
+.dcard-h{font-family:var(--f-display);font-size:14px;font-weight:600;color:var(--d-teal);margin-bottom:14px;letter-spacing:-.01em}
+.note{font-size:11.5px;color:var(--d-ink-2);line-height:1.7}
+.note strong{color:var(--d-ink)}
+.lede{font-size:14px;color:var(--d-ink-2);line-height:1.8;max-width:780px}
+.callout{border-left:2px solid var(--d-teal);background:var(--teal-dim);padding:12px 16px;border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:12px;color:var(--d-ink-2);line-height:1.7;margin:14px 0}
+.callout.warn{border-color:var(--d-err);background:var(--err-dim)}
+.callout.ok{border-color:var(--d-sage);background:var(--sage-dim)}
+.callout.rose{border-color:var(--d-rose);background:var(--rose-dim)}
+.callout b{color:var(--d-ink)}
+.kbd{font-family:var(--f-mono);font-size:10px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:4px;padding:1px 6px;color:var(--d-teal)}
+/* hero */
+.hero{background:linear-gradient(135deg,var(--d-bg-2) 0%,#10130C 100%);border-radius:var(--r-xl);border:.5px solid var(--d-line);padding:58px 60px;display:flex;align-items:center;justify-content:space-between;gap:48px;flex-wrap:wrap;position:relative;overflow:hidden;margin-bottom:26px}
+.hero::before{content:'';position:absolute;top:-90px;right:-50px;width:440px;height:440px;background:radial-gradient(circle,rgba(70,199,188,.09) 0%,transparent 70%);border-radius:50%}
+.hero::after{content:'';position:absolute;bottom:-70px;left:-50px;width:300px;height:300px;background:radial-gradient(circle,rgba(116,178,226,.07) 0%,transparent 70%);border-radius:50%}
+.hero-l{position:relative;z-index:1}
+.hero-mark{width:74px;height:74px;color:var(--d-blue);margin-bottom:22px}
+.hero-wm{font-family:var(--f-display);font-size:76px;font-weight:900;color:var(--d-ink);letter-spacing:-.05em;line-height:1}
+.hero-wm .o{color:var(--d-blue)}
+.hero-tag{font-size:11px;color:var(--d-ink-3);margin-top:14px;font-family:var(--f-mono);letter-spacing:.1em}
+.hero-concept{max-width:440px;font-size:12.5px;color:var(--d-ink-2);line-height:1.85;position:relative;z-index:1}
+.hero-concept strong{color:var(--d-teal)}
+/* swatches */
+.pal{display:flex;gap:8px;flex-wrap:wrap}
+.sw{display:flex;flex-direction:column;align-items:center;gap:5px}
+.sw-c{width:54px;height:54px;border-radius:var(--r-sm);border:.5px solid rgba(255,255,255,.08)}
+.sw-l{font-family:var(--f-mono);font-size:7.5px;color:var(--d-ink-3);text-align:center;line-height:1.4}
+.tok-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:.5px solid var(--d-line);font-family:var(--f-mono);font-size:10px}
+.tok-sw{width:18px;height:18px;border-radius:4px;flex-shrink:0;border:.5px solid var(--d-line)}
+.tok-n{color:var(--d-ink-3);min-width:150px}
+.tok-v{color:var(--d-teal)}
+/* phone */
+.scr-scroll{display:flex;gap:22px;overflow-x:auto;padding:6px 2px 18px;scrollbar-width:thin;scrollbar-color:var(--d-line) transparent}
+.scr-w{display:flex;flex-direction:column;align-items:center;gap:9px;flex-shrink:0}
+.scr-lbl{font-family:var(--f-mono);font-size:8px;color:var(--d-ink-3);text-transform:uppercase;letter-spacing:.12em;text-align:center;max-width:300px}
+.phone{width:var(--pw);height:var(--ph);background:var(--d-bg-2);border-radius:var(--r-ph);border:1.5px solid var(--d-line-2);overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 .5px rgba(70,199,188,.05)}
+.phone.tall{height:760px}
+.phone.xtall{height:980px}
+.tg-bar{position:absolute;top:0;left:0;right:0;height:30px;z-index:12;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:8.5px;font-weight:600;color:rgba(255,255,255,.55);font-family:var(--f-mono);pointer-events:none}
+.tg-bar.lt{color:rgba(0,0,0,.5)}
+.tg-bar .dots{letter-spacing:1.5px}
+.ph-scr{width:100%;height:100%;background:var(--paper);display:flex;flex-direction:column;color:var(--ink);overflow:hidden}
+.ph-scr.dark{background:var(--d-bg);color:var(--d-ink)}
+.s-hd{padding:36px 18px 12px;border-bottom:.5px solid var(--paper-3);flex-shrink:0}
+.dark .s-hd{border-bottom-color:var(--d-line)}
+.s-top{display:flex;align-items:center;gap:7px;margin-bottom:11px}
+.s-logo{width:15px;height:15px;color:var(--blue)}
+.dark .s-logo{color:var(--d-blue)}
+.s-wm{font-family:var(--f-display);font-size:11px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.dark .s-wm{color:var(--d-ink)}
+.s-wm .o{color:var(--blue)} .dark .s-wm .o{color:var(--d-blue)}
+.s-prog{display:flex;gap:4px;margin-left:auto;align-items:center}
+.s-prog i{width:5px;height:5px;border-radius:50%;background:var(--paper-3);display:block}
+.s-prog i.on{width:15px;border-radius:3px;background:var(--blue)}
+.dark .s-prog i{background:var(--d-line)} .dark .s-prog i.on{background:var(--d-blue)}
+.s-eyebrow{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.dark .s-eyebrow{color:var(--d-blue)}
+.s-title{font-family:var(--f-display);font-size:18px;font-weight:600;letter-spacing:-.035em;color:var(--ink);line-height:1.16}
+.dark .s-title{color:var(--d-ink)}
+.s-desc{font-size:11.5px;color:var(--ink-3);margin-top:7px;line-height:1.55}
+.dark .s-desc{color:var(--d-ink-2)}
+.s-body{flex:1;overflow-y:auto;padding:13px 17px;display:flex;flex-direction:column;gap:9px;scrollbar-width:thin}
+.s-foot{padding:9px 17px 17px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;background:linear-gradient(transparent,var(--paper) 32%)}
+.dark .s-foot{background:linear-gradient(transparent,var(--d-bg) 32%)}
+.s-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 0 4px}
+.s-mark{width:62px;height:78px;color:var(--blue)}
+.dark .s-mark{color:var(--d-blue)}
+.s-mark svg{width:100%;height:100%}
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 16px;border-radius:var(--r-md);font-family:var(--f-body);font-size:13px;font-weight:600;border:none;cursor:pointer;letter-spacing:-.01em;text-align:center}
+.btn-p{background:var(--blue);color:#fff;box-shadow:0 12px 26px rgba(62,132,196,.22)}
+.btn-t{background:var(--teal);color:#fff;box-shadow:0 12px 26px rgba(30,158,150,.18)}
+.btn-s{background:transparent;color:var(--ink-3);border:.5px solid var(--paper-3);font-weight:500;font-size:12px}
+.dark .btn-s{color:var(--d-ink-2);border-color:var(--d-line-2)}
+.btn-g{background:transparent;color:var(--blue);font-weight:500;font-size:11px;padding:6px 0}
+.dark .btn-g{color:var(--d-blue)}
+.btn-err{background:var(--err-dim);color:var(--err);font-weight:600;font-size:12px;border:.5px solid var(--err-l)}
+.dark .btn-err{color:var(--d-err);border-color:rgba(223,140,140,.3)}
+.btn-full{width:100%}
+.btn-sm{padding:7px 11px;font-size:11px;border-radius:var(--r-sm)}
+.btn-row{display:flex;gap:7px}
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600;white-space:nowrap}
+.pill svg{width:11px;height:11px}
+.pill-b{background:var(--blue-dim);color:var(--blue)} .dark .pill-b{background:var(--d-blue-dim);color:var(--d-blue)}
+.pill-t{background:var(--teal-dim);color:var(--teal)} .dark .pill-t{background:var(--d-teal-dim);color:var(--d-teal)}
+.pill-sage{background:var(--sage-dim);color:var(--sage)} .dark .pill-sage{background:rgba(130,188,140,.16);color:var(--d-sage)}
+.pill-amber{background:var(--amber-dim);color:var(--amber)} .dark .pill-amber{background:var(--d-amber-dim);color:var(--d-amber)}
+.pill-rose{background:var(--rose-dim);color:var(--rose)} .dark .pill-rose{background:var(--d-rose-dim);color:var(--d-rose)}
+.pill-err{background:var(--err-dim);color:var(--err)} .dark .pill-err{background:var(--d-err-dim);color:var(--d-err)}
+.pill-n{background:var(--paper-2);color:var(--ink-3)} .dark .pill-n{background:var(--d-bg-3);color:var(--d-ink-2)}
+.pills{display:flex;gap:5px;flex-wrap:wrap}
+/* rating badge */
+.rate{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:100px;background:linear-gradient(180deg,rgba(230,182,90,.22),rgba(200,144,46,.14));border:.5px solid rgba(230,182,90,.4);color:var(--amber);font-weight:700;font-size:11.5px}
+.dark .rate{color:var(--d-amber)}
+.rate svg{width:13px;height:13px;fill:currentColor}
+.rate small{font-weight:500;font-size:9.5px;opacity:.85}
+/* choice chips */
+.ch{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:var(--r-md);background:var(--white);border:.5px solid var(--paper-3);cursor:pointer}
+.dark .ch{background:var(--d-bg-2);border-color:var(--d-line)}
+.ch.sel{border-color:var(--blue);background:var(--blue-dim)}
+.dark .ch.sel{border-color:var(--d-blue);background:var(--d-blue-dim)}
+.ch-dot{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--paper-3);flex-shrink:0}
+.dark .ch-dot{border-color:var(--d-line-2)}
+.ch-dot.on{background:var(--blue);border-color:var(--blue);box-shadow:inset 0 0 0 2.5px #fff}
+.dark .ch-dot.on{background:var(--d-blue);border-color:var(--d-blue)}
+.ch-ico{width:22px;height:22px;color:var(--blue);flex-shrink:0}
+.dark .ch-ico{color:var(--d-blue)}
+.ch-main{font-size:12px;font-weight:600;color:var(--ink);flex:1}
+.dark .ch-main{color:var(--d-ink)}
+.ch-sub{font-size:9.5px;color:var(--ink-3);margin-top:1px;font-weight:400}
+.dark .ch-sub{color:var(--d-ink-3)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:7px 12px;border-radius:100px;font-size:11px;font-weight:600;background:var(--white);border:.5px solid var(--paper-3);color:var(--ink-3);cursor:pointer;white-space:nowrap}
+.dark .chip{background:var(--d-bg-3);border-color:var(--d-line);color:var(--d-ink-2)}
+.chip.sel{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
+.dark .chip.sel{background:var(--d-blue-dim);border-color:var(--d-blue);color:var(--d-blue)}
+/* fields */
+.field{background:var(--white);border:.5px solid var(--paper-3);border-radius:var(--r-md);padding:11px 13px}
+.dark .field{background:var(--d-bg-2);border-color:var(--d-line)}
+.field-k{font-size:12px;font-weight:600;color:var(--ink)} .dark .field-k{color:var(--d-ink)}
+.field-ph{font-size:10px;color:var(--ink-4);margin-top:3px} .dark .field-ph{color:var(--d-ink-3)}
+.ta{min-height:74px}
+/* SLA */
+.sla{display:flex;gap:7px}
+.sla-c{flex:1;background:var(--paper);border-radius:var(--r-sm);padding:9px 10px;border:.5px solid var(--paper-3)}
+.dark .sla-c{background:var(--d-bg-3);border-color:var(--d-line)}
+.sla-k{font-size:7.5px;color:var(--ink-4);margin-bottom:3px;font-family:var(--f-mono);letter-spacing:.07em;text-transform:uppercase;display:flex;align-items:center;gap:4px}
+.dark .sla-k{color:var(--d-ink-3)}
+.sla-k svg{width:11px;height:11px}
+.sla-c.resp .sla-v{color:var(--blue)} .dark .sla-c.resp .sla-v{color:var(--d-blue)}
+.sla-c.arr .sla-v{color:var(--teal)} .dark .sla-c.arr .sla-v{color:var(--d-teal)}
+.sla-v{font-size:14px;font-weight:700;font-family:var(--f-display);letter-spacing:-.03em}
+.sla-s{font-size:7.5px;color:var(--ink-3)} .dark .sla-s{color:var(--d-ink-3)}
+/* offer/service card */
+.svc{background:var(--white);border-radius:var(--r-lg);border:.5px solid var(--paper-3);overflow:hidden}
+.dark .svc{background:var(--d-bg-2);border-color:var(--d-line)}
+.svc-hd{padding:12px 13px 11px;border-bottom:.5px solid var(--paper-3);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;background:linear-gradient(180deg,rgba(116,178,226,.05),transparent)}
+.dark .svc-hd{border-bottom-color:var(--d-line)}
+.svc-name{font-size:13px;font-weight:700;color:var(--ink);font-family:var(--f-display);letter-spacing:-.02em}
+.dark .svc-name{color:var(--d-ink)}
+.svc-lic{font-size:9px;color:var(--sage);font-weight:600;margin-top:4px;display:flex;align-items:center;gap:3px}
+.dark .svc-lic{color:var(--d-sage)}
+.svc-lic svg{width:11px;height:11px}
+.svc-body{padding:11px 13px;display:flex;flex-direction:column;gap:9px}
+.svc-zone{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-4);display:flex;align-items:center;gap:5px}
+.dark .svc-zone{color:var(--d-ink-3)}
+.svc-price-row{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-top:.5px solid var(--paper-3);border-bottom:.5px solid var(--paper-3)}
+.dark .svc-price-row{border-color:var(--d-line)}
+.svc-price-k{font-size:9.5px;color:var(--ink-4)} .dark .svc-price-k{color:var(--d-ink-3)}
+.svc-price-v{font-family:var(--f-display);font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-.03em} .dark .svc-price-v{color:var(--d-ink)}
+.svc-note{font-size:8.5px;color:var(--ink-4);line-height:1.5}
+.dark .svc-note{color:var(--d-ink-3)}
+/* service catalog rows */
+.cat{display:flex;flex-direction:column;gap:6px}
+.cat-row{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:var(--r-md);background:var(--white);border:.5px solid var(--paper-3);cursor:pointer}
+.dark .cat-row{background:var(--d-bg-2);border-color:var(--d-line)}
+.cat-row.sel{border-color:var(--blue);background:var(--blue-dim)}
+.dark .cat-row.sel{border-color:var(--d-blue);background:var(--d-blue-dim)}
+.cat-ic{width:30px;height:30px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cat-ic svg{width:17px;height:17px}
+.cat-main{flex:1;min-width:0}
+.cat-name{font-size:11.5px;font-weight:600;color:var(--ink);line-height:1.2} .dark .cat-name{color:var(--d-ink)}
+.cat-desc{font-size:9px;color:var(--ink-4);margin-top:2px;line-height:1.4} .dark .cat-desc{color:var(--d-ink-3)}
+.cat-price{font-family:var(--f-display);font-size:11px;font-weight:700;color:var(--ink-2);white-space:nowrap;text-align:right;letter-spacing:-.02em}
+.dark .cat-price{color:var(--d-ink)}
+/* custom request panel (NOT a service row) */
+.custom-panel{border-radius:var(--r-lg);border:.5px dashed var(--rose);background:var(--rose-dim);padding:13px 14px;margin-top:4px}
+.dark .custom-panel{border-color:var(--d-rose)}
+.custom-h{font-family:var(--f-display);font-size:12.5px;font-weight:600;color:var(--ink);letter-spacing:-.02em} .dark .custom-h{color:var(--d-ink)}
+.custom-t{font-size:10px;color:var(--ink-3);margin:6px 0 10px;line-height:1.55} .dark .custom-t{color:var(--d-ink-2)}
+/* trust chips */
+.trust{display:flex;flex-wrap:wrap;gap:5px}
+.trust span{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;color:var(--sage);background:var(--sage-dim);padding:4px 8px;border-radius:100px}
+.dark .trust span{color:var(--d-sage);background:rgba(130,188,140,.13)}
+.trust span svg{width:10px;height:10px}
+/* info blocks */
+.iblk{background:var(--paper);border:.5px solid var(--paper-3);border-radius:var(--r-md);padding:10px 12px}
+.dark .iblk{background:var(--d-bg-3);border-color:var(--d-line)}
+.iblk-k{font-family:var(--f-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-4);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.dark .iblk-k{color:var(--d-ink-3)}
+.iblk-k svg{width:11px;height:11px;color:var(--teal)} .dark .iblk-k svg{color:var(--d-teal)}
+.iblk-t{font-size:10px;color:var(--ink-2);line-height:1.55} .dark .iblk-t{color:var(--d-ink-2)}
+.iblk-t b{color:var(--ink)} .dark .iblk-t b{color:var(--d-ink)}
+/* chat */
+.chat-ctx{background:var(--blue-dim);border:.5px solid var(--blue-l);border-radius:var(--r-md);padding:9px 11px;font-size:9.5px;color:var(--blue);line-height:1.5;display:flex;gap:7px;align-items:center}
+.dark .chat-ctx{background:var(--d-blue-dim);border-color:var(--d-line);color:var(--d-blue)}
+.chat-ctx svg{width:15px;height:15px;flex-shrink:0}
+.chat-in,.chat-out{max-width:84%;padding:8px 11px;border-radius:14px;font-size:10.5px;line-height:1.5}
+.chat-in{background:var(--paper-2);color:var(--ink);border-bottom-left-radius:3px;align-self:flex-start}
+.dark .chat-in{background:var(--d-bg-3);color:var(--d-ink)}
+.chat-out{background:var(--blue);color:#fff;border-bottom-right-radius:3px;align-self:flex-end}
+.chat-meta{font-size:8px;opacity:.6;margin-top:3px}
+.chat-bar{display:flex;align-items:center;gap:6px;padding:7px 0 0;margin-top:auto}
+.chat-inp{flex:1;background:var(--paper-2);border:none;border-radius:20px;padding:9px 13px;font-size:10px;color:var(--ink-4);font-family:var(--f-body)}
+.dark .chat-inp{background:var(--d-bg-3);color:var(--d-ink-3)}
+.chat-send{width:32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;border:none;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.chat-send svg{width:15px;height:15px}
+/* status track */
+.track{display:flex;flex-direction:column}
+.tr{display:flex;gap:10px;align-items:flex-start}
+.tr-l{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.tr-d{width:10px;height:10px;border-radius:50%;background:var(--paper-3);margin-top:3px}
+.tr-d.done{background:var(--sage)}
+.tr-d.active{background:var(--blue);box-shadow:0 0 0 4px var(--blue-dim)}
+.dark .tr-d{background:var(--d-line-2)}
+.dark .tr-d.done{background:var(--d-sage)}
+.dark .tr-d.active{background:var(--d-blue);box-shadow:0 0 0 4px var(--d-blue-dim)}
+.tr-c{width:1.5px;height:24px;background:var(--paper-3);margin:2px 0}
+.tr-c.done{background:var(--sage)}
+.dark .tr-c{background:var(--d-line-2)} .dark .tr-c.done{background:var(--d-sage)}
+.tr-t{padding-bottom:13px}
+.tr-n{font-size:11px;font-weight:600;color:var(--ink)} .dark .tr-n{color:var(--d-ink)}
+.tr-n.off{color:var(--ink-4)} .dark .tr-n.off{color:var(--d-ink-3)}
+.tr-s{font-size:8.5px;color:var(--ink-4);margin-top:1px} .dark .tr-s{color:var(--d-ink-3)}
+/* price lock */
+.plock{background:linear-gradient(180deg,var(--sage-dim),transparent);border:.5px solid var(--sage-l);border-radius:var(--r-lg);padding:15px;text-align:center}
+.dark .plock{border-color:var(--d-line);background:linear-gradient(180deg,rgba(130,188,140,.13),transparent)}
+.plock-k{font-size:9px;color:var(--sage);font-family:var(--f-mono);letter-spacing:.1em;text-transform:uppercase} .dark .plock-k{color:var(--d-sage)}
+.plock-v{font-family:var(--f-display);font-size:27px;font-weight:700;color:var(--ink);letter-spacing:-.03em;margin:4px 0} .dark .plock-v{color:var(--d-ink)}
+.plock-s{font-size:9px;color:var(--ink-4)} .dark .plock-s{color:var(--d-ink-3)}
+/* live pulse */
+.pulse{position:relative;width:9px;height:9px;border-radius:50%;background:var(--teal);flex-shrink:0}
+.pulse::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--teal);animation:pring 2s ease-out infinite}
+@keyframes pring{from{transform:scale(1);opacity:.7}to{transform:scale(3.2);opacity:0}}
+.live{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--r-md);background:var(--teal-dim);color:var(--teal);font-size:11px;font-weight:600}
+.dark .live{background:var(--d-teal-dim);color:var(--d-teal)}
+/* loading dots + skeleton */
+.dots{display:inline-flex;gap:5px;align-items:center}
+.dots i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.3;animation:dot 1.2s ease-in-out infinite}
+.dots i:nth-child(2){animation-delay:.18s} .dots i:nth-child(3){animation-delay:.36s}
+@keyframes dot{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
+.skel{display:block;border-radius:8px;background:linear-gradient(100deg,var(--paper-2) 30%,var(--paper-3) 50%,var(--paper-2) 70%);background-size:200% 100%;animation:shim 1.4s ease-in-out infinite}
+.dark .skel{background:linear-gradient(100deg,var(--d-bg-3) 30%,var(--d-line) 50%,var(--d-bg-3) 70%);background-size:200% 100%}
+@keyframes shim{from{background-position:200% 0}to{background-position:-200% 0}}
+/* telegram bot mock */
+.tg-bg{background:#17212B;border-radius:var(--r-lg);padding:16px;display:flex;flex-direction:column;gap:9px;border:.5px solid #243240}
+.tg-banner{border-radius:var(--r-md);overflow:hidden;min-height:96px;background:linear-gradient(135deg,#1B1810 0%,#2A251A 60%,#17140D 100%);display:flex;align-items:center;gap:15px;padding:14px 18px;border:.5px solid #2C2E20;position:relative}
+.tg-banner .bm{width:50px;height:50px;color:var(--d-blue);flex-shrink:0}
+.tg-banner .bn-t{font-family:var(--f-display);font-size:15px;font-weight:700;color:#ECEADD;letter-spacing:-.02em}
+.tg-banner .bn-t .o{color:var(--d-blue)}
+.tg-banner .bn-s{font-size:9px;color:#A9A998;margin-top:3px;line-height:1.45}
+.tg-msg{background:#fff;border-radius:13px;border-bottom-left-radius:3px;padding:11px 13px;max-width:96%;border:.5px solid #E0DFD8}
+.tg-h{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:7px;border-bottom:.5px solid #ECEAE0}
+.tg-av{width:28px;height:28px;border-radius:50%;background:#10130C;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tg-av svg{width:17px;height:17px;color:var(--blue-m)}
+.tg-bn{font-size:10.5px;font-weight:700;color:var(--ink)}
+.tg-bn .o{color:var(--blue)}
+.tg-vf{font-size:8px;color:var(--sage);margin-left:auto;font-weight:600;display:flex;align-items:center;gap:3px}
+.tg-vf svg{width:10px;height:10px}
+.tg-tx{font-size:10.5px;line-height:1.65;color:#1A1B15}
+.tg-tx b{color:#1A1B15;font-weight:700}
+.tg-tm{font-size:8px;color:#9A9A8A;margin-top:6px;text-align:right}
+.tg-kb{display:flex;flex-direction:column;gap:4px;margin-top:9px}
+.tg-pb{background:var(--blue-dim);color:var(--blue);border-radius:var(--r-sm);padding:9px 11px;font-size:9.5px;font-weight:600;text-align:center;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.tg-pb svg{width:12px;height:12px}
+.tg-pb.primary{background:var(--blue);color:#fff}
+.tg-pb-row{display:flex;gap:4px}.tg-pb-row .tg-pb{flex:1;background:#EAE7DB;color:#565748}
+.tg-umsg{align-self:flex-end;background:#3A7BC2;color:#fff;border-radius:13px;border-bottom-right-radius:3px;padding:8px 12px;font-size:10.5px;max-width:80%;margin-left:auto}
+.tg-umsg .tg-tm{color:rgba(255,255,255,.65)}
+/* artboards */
+.art{background:var(--d-bg-2);border:.5px solid var(--d-line);border-radius:var(--r-md);overflow:hidden}
+.art-cv{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.art-cv.sq{aspect-ratio:1}
+.art-cv.wide{aspect-ratio:3/1}
+.art-meta{padding:8px 11px;display:flex;justify-content:space-between;align-items:center;border-top:.5px solid var(--d-line)}
+.art-fn{font-family:var(--f-mono);font-size:8.5px;color:var(--d-teal)}
+.art-dim{font-family:var(--f-mono);font-size:8px;color:var(--d-ink-3)}
+/* dashboard */
+.dash{background:var(--d-bg);border-radius:var(--r-lg);border:.5px solid var(--d-line);overflow:hidden;display:flex;min-height:340px}
+.dash.lt{background:var(--paper);border-color:var(--paper-3)}
+.dash-side{width:158px;background:var(--d-bg-2);border-right:.5px solid var(--d-line);padding:15px 11px;flex-shrink:0}
+.dash.lt .dash-side{background:var(--white);border-right-color:var(--paper-3)}
+.dash-logo{display:flex;align-items:center;gap:7px;margin-bottom:18px}
+.dash-logo svg{width:19px;height:19px;color:var(--d-blue)}
+.dash.lt .dash-logo svg{color:var(--blue)}
+.dash-logo b{font-family:var(--f-display);font-size:12px;color:var(--d-ink)} .dash.lt .dash-logo b{color:var(--ink)}
+.dash-logo b .o{color:var(--d-blue)} .dash.lt .dash-logo b .o{color:var(--blue)}
+.dash-nav{display:flex;flex-direction:column;gap:2px}
+.dash-nav a{font-size:10px;color:var(--d-ink-2);padding:7px 9px;border-radius:7px;text-decoration:none;display:flex;align-items:center;gap:7px}
+.dash.lt .dash-nav a{color:var(--ink-3)}
+.dash-nav a svg{width:13px;height:13px;opacity:.7}
+.dash-nav a.on{background:var(--d-blue-dim);color:var(--d-blue);font-weight:600}
+.dash.lt .dash-nav a.on{background:var(--blue-dim);color:var(--blue)}
+.dash-main{flex:1;padding:17px 19px;overflow:hidden}
+.dash-h{font-family:var(--f-display);font-size:15px;font-weight:600;color:var(--d-ink);margin-bottom:3px;letter-spacing:-.02em} .dash.lt .dash-h{color:var(--ink)}
+.dash-sub{font-size:10px;color:var(--d-ink-3);margin-bottom:15px} .dash.lt .dash-sub{color:var(--ink-4)}
+.drq{background:var(--d-bg-2);border:.5px solid var(--d-line);border-radius:var(--r-md);padding:11px 13px;margin-bottom:8px}
+.dash.lt .drq{background:var(--white);border-color:var(--paper-3)}
+.drq-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
+.drq-id{font-family:var(--f-mono);font-size:8px;color:var(--d-ink-3)} .dash.lt .drq-id{color:var(--ink-4)}
+.drq-name{font-size:11.5px;font-weight:700;color:var(--d-ink);font-family:var(--f-display)} .dash.lt .drq-name{color:var(--ink)}
+.drq-meta{display:flex;gap:14px;font-size:9.5px;color:var(--d-ink-2);flex-wrap:wrap} .dash.lt .drq-meta{color:var(--ink-3)}
+.drq-meta b{color:var(--d-ink);font-weight:600} .dash.lt .drq-meta b{color:var(--ink)}
+.diag{border-radius:var(--r-md);border:.5px solid var(--d-line);padding:11px 13px;background:var(--d-bg-2);display:flex;flex-direction:column;gap:6px}
+.diag-top{display:flex;align-items:center;gap:8px}
+.diag-code{font-family:var(--f-mono);font-size:9px;padding:2px 7px;border-radius:5px;font-weight:600}
+.diag-route{font-family:var(--f-mono);font-size:9.5px;color:var(--d-ink)}
+.diag-msg{font-size:9.5px;color:var(--d-ink-2);line-height:1.5}
+/* website */
+.web{border-radius:var(--r-lg);overflow:hidden;border:.5px solid var(--d-line);background:var(--d-bg-2)}
+.web-hero{padding:48px 46px;background:linear-gradient(150deg,#0D0E0A 0%,#1A1C12 55%,#10130C 100%);display:flex;align-items:center;gap:38px;flex-wrap:wrap;position:relative;overflow:hidden}
+.web-hero::before{content:'';position:absolute;top:-70px;right:-50px;width:380px;height:380px;background:radial-gradient(circle,rgba(70,199,188,.1) 0%,transparent 70%)}
+.web-hl{position:relative;z-index:1;flex:1;min-width:300px}
+.web-h1{font-family:var(--f-display);font-size:38px;font-weight:700;color:var(--d-ink);letter-spacing:-.045em;line-height:1.06}
+.web-h1 .o{color:var(--d-blue)}
+.web-p{font-size:13px;color:var(--d-ink-2);margin-top:13px;max-width:440px;line-height:1.7}
+.web-cta{display:flex;gap:10px;margin-top:20px}
+.web-hr{position:relative;z-index:1}
+.web-mark{width:150px;height:150px;color:var(--d-blue)}
+.web-sec{padding:28px 46px;border-top:.5px solid var(--d-line)}
+.web-k{font-family:var(--f-mono);font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--d-teal);margin-bottom:8px}
+.web-h2{font-family:var(--f-display);font-size:20px;font-weight:600;color:var(--d-ink);letter-spacing:-.03em;margin-bottom:16px}
+/* dofdont + spec table */
+.dofdont{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.dofdont{grid-template-columns:1fr}}
+.dd{border-radius:var(--r-md);padding:16px 18px;font-size:11.5px;line-height:1.8}
+.dd.do{background:var(--sage-dim);border:.5px solid rgba(92,149,104,.3)}
+.dd.dont{background:var(--err-dim);border:.5px solid rgba(176,73,74,.3)}
+.dd h4{font-family:var(--f-display);font-size:12px;margin-bottom:8px;color:var(--d-ink)}
+.dd ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.dd.do li::before{content:'✓ ';color:var(--d-sage);font-weight:700}
+.dd.dont li::before{content:'✕ ';color:var(--d-err);font-weight:700}
+table.spec{width:100%;border-collapse:collapse;font-size:11px}
+table.spec th{text-align:left;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--d-ink-3);padding:8px 10px;border-bottom:.5px solid var(--d-line)}
+table.spec td{padding:9px 10px;border-bottom:.5px solid var(--d-line);color:var(--d-ink-2);vertical-align:top}
+table.spec td.mono{font-family:var(--f-mono);font-size:9.5px;color:var(--d-teal)}
+table.spec td b{color:var(--d-ink)}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step::before{counter-increment:s;content:counter(s);font-family:var(--f-display);font-size:13px;font-weight:700;color:var(--d-blue);background:var(--d-blue-dim);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-t{font-size:12px;color:var(--d-ink-2);line-height:1.6;padding-top:4px}
+.step-t b{color:var(--d-ink)}
+/* icon swatches */
+.ico-box{display:flex;flex-direction:column;align-items:center;gap:8px;padding:15px 6px;border-radius:var(--r-md);border:.5px solid var(--d-line);background:var(--d-bg-2)}
+.ico-box .ico-w{width:40px;height:40px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
+.ico-box .ico-w svg{width:22px;height:22px}
+.ico-lbl{font-family:var(--f-mono);font-size:7.5px;color:var(--d-ink-3);text-align:center;text-transform:uppercase;letter-spacing:.06em}
+/* logo lockups & app icons */
+.lock{display:flex;align-items:center;gap:12px;padding:18px 20px;border-radius:var(--r-md);background:var(--d-bg-2);border:.5px solid var(--d-line)}
+.lock.cream{background:var(--d-bg-cream)}
+.lock .lm{width:40px;height:40px;flex-shrink:0;color:var(--d-blue)}
+.lock.cream .lm{color:var(--blue)}
+.lock .lw{font-family:var(--f-display);font-size:24px;font-weight:700;color:var(--d-ink);letter-spacing:-.04em}
+.lock.cream .lw{color:var(--ink)}
+.lock .lw .o{color:var(--d-blue)} .lock.cream .lw .o{color:var(--blue)}
+.appicon{aspect-ratio:1;border-radius:24%;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.appicon svg{width:52%;height:52%}
+.bf-tile{border-radius:22%;overflow:hidden;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center;position:relative;border:.5px solid var(--d-line)}
+.mark-card{display:flex;flex-direction:column;align-items:center;gap:12px;padding:26px;border-radius:var(--r-lg);background:var(--d-bg-2);border:.5px solid var(--d-line)}
+.mark-card .mk{width:80px;height:80px;color:var(--d-blue)}
+.mark-card.cream{background:var(--d-bg-cream)} .mark-card.cream .mk{color:var(--blue)}
+.mark-card .mklbl{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--d-ink-3)}
+.tag{display:inline-block;font-family:var(--f-mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;font-weight:600}
+.tag.pri{background:var(--d-sage);color:#0D0E0A}
+.tag.sec{background:var(--d-bg-3);color:var(--d-ink-3);border:.5px solid var(--d-line)}
+.tag.no{background:var(--d-err-dim);color:var(--d-err)}
+/* ════════ v6.1 ART-DIRECTION LAYER · warmth · color · depth · motion ════════ */
+/* warm cream screen frame, layered */
+.ph-scr{background:linear-gradient(180deg,#FBF8F1 0%,var(--paper) 26%)}
+.ph-scr .s-hd{background:linear-gradient(180deg,#FCFAF3,rgba(252,250,243,0));border-bottom:none;padding-top:38px}
+.ph-scr .s-body{padding-top:4px}
+.tg-bar{color:rgba(33,31,23,.55)}
+.tg-bar .dots{color:rgba(33,31,23,.42)}
+/* logo chip in screen header */
+.ph-scr .s-top{gap:8px}
+.ph-scr .s-logo{width:22px;height:22px;padding:3px;border-radius:7px;background:linear-gradient(150deg,#28241B,#17150F);color:var(--blue-m);box-shadow:0 3px 8px rgba(40,34,20,.18)}
+/* buttons — gradient + press feedback + states */
+.btn{transition:transform .12s cubic-bezier(.3,.7,.3,1),box-shadow .16s ease,filter .16s ease}
+.btn:active{transform:translateY(1px) scale(.99)}
+.btn-p{background:linear-gradient(180deg,#5C91B6,#4A7FA5);box-shadow:0 10px 24px rgba(74,127,165,.3),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn-t{background:linear-gradient(180deg,#469A90,#3A8A82);box-shadow:0 10px 22px rgba(58,138,130,.22),inset 0 1px 0 rgba(255,255,255,.18)}
+.btn-loading{pointer-events:none;color:transparent!important}
+.btn-loading::after{content:"";position:absolute;inset:0;margin:auto;width:16px;height:16px;border:2px solid rgba(255,255,255,.45);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.is-disabled{opacity:.42;pointer-events:none;box-shadow:none;filter:grayscale(.35)}
+/* choice chips — lift on select */
+.ch{transition:transform .14s ease,border-color .16s,background .16s,box-shadow .16s}
+.ch:active{transform:scale(.99)}
+.ch.sel{box-shadow:0 12px 26px rgba(74,127,165,.16);transform:translateY(-1px)}
+.ch.sel .ch-ico{transform:scale(1.08)}
+.ch-ico{transition:transform .16s}
+.chip{transition:transform .12s,background .16s,border-color .16s,box-shadow .16s;box-shadow:0 2px 6px rgba(40,34,20,.05)}
+.chip:active{transform:scale(.96)}
+.chip.sel{box-shadow:0 6px 16px rgba(74,127,165,.18)}
+/* cards — white, warm shadow, optional accent strip via --ac/--acbg */
+.svc{background:var(--white);border-color:#E8E2D3;box-shadow:0 16px 38px rgba(40,34,20,.1),0 0 0 1px rgba(255,255,255,.55) inset;position:relative;overflow:hidden}
+.svc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac,transparent)}
+.ph-scr .svc-hd,.g4 .svc-hd{background:linear-gradient(180deg,var(--acbg,rgba(74,127,165,.06)),transparent);border-bottom-color:#EEE8DA}
+.svc:hover{box-shadow:0 22px 50px rgba(40,34,20,.14)}
+/* service catalog rows — accent tile + selected gradient + hover */
+.cat-row{transition:transform .14s,border-color .16s,background .16s,box-shadow .16s;box-shadow:0 4px 12px rgba(40,34,20,.05);position:relative;overflow:hidden}
+.cat-row:hover{box-shadow:0 10px 24px rgba(40,34,20,.1)}
+.cat-row:active{transform:scale(.995)}
+.cat-row.sel{background:linear-gradient(180deg,rgba(74,127,165,.1),rgba(74,127,165,.04));box-shadow:0 10px 24px rgba(74,127,165,.14)}
+/* rating badge — warm gold, bigger presence */
+.rate{background:linear-gradient(180deg,#F7E4A8,#ECC974);border:.5px solid #E0B45A;color:#7C5718;box-shadow:0 5px 14px rgba(200,144,46,.22)}
+.rate svg{fill:#C8902E}
+.rate small{color:#9A7434}
+/* SLA — distinct colored blocks (response=blue, arrival=teal) */
+.ph-scr .sla-c.resp{background:linear-gradient(180deg,rgba(74,127,165,.1),rgba(74,127,165,.03));border-color:rgba(74,127,165,.28)}
+.ph-scr .sla-c.arr{background:linear-gradient(180deg,rgba(58,138,130,.1),rgba(58,138,130,.03));border-color:rgba(58,138,130,.28)}
+/* trust strip — elegant pills */
+.ph-scr .trust span{background:#fff;border:.5px solid var(--paper-3);box-shadow:0 2px 7px rgba(40,34,20,.05);color:var(--sage)}
+/* info blocks — soft cream */
+.ph-scr .iblk{background:linear-gradient(180deg,#FFFEFB,#F8F4EC);border-color:#EAE3D3;box-shadow:0 3px 10px rgba(40,34,20,.04)}
+/* chat — warm bubbles + appear */
+.chat-in,.chat-out{box-shadow:0 5px 14px rgba(40,34,20,.07);animation:bubble .32s cubic-bezier(.22,.61,.36,1) both}
+.ph-scr .chat-in{background:#fff;border:.5px solid #EDE7D8}
+.chat-out{background:linear-gradient(180deg,#5C91B6,#4A7FA5)}
+@keyframes bubble{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:none}}
+.chat-bar.focus .chat-inp{background:#fff;box-shadow:0 0 0 2px var(--blue);color:var(--ink)}
+.chat-send{box-shadow:0 6px 16px rgba(74,127,165,.3)}
+/* price-lock — memorable pulse highlight */
+.plock{position:relative}
+.plock.live::after{content:"";position:absolute;inset:-1px;border-radius:inherit;animation:plockpulse 2.4s ease-out infinite;pointer-events:none}
+@keyframes plockpulse{0%{box-shadow:0 0 0 0 rgba(94,154,102,.45)}70%{box-shadow:0 0 0 16px rgba(94,154,102,0)}100%{box-shadow:0 0 0 0 rgba(94,154,102,0)}}
+/* status step — active pulse */
+.tr-d.active{animation:stepulse 2s ease-out infinite}
+@keyframes stepulse{0%{box-shadow:0 0 0 0 rgba(74,127,165,.4)}70%{box-shadow:0 0 0 9px rgba(74,127,165,0)}100%{box-shadow:0 0 0 0 rgba(74,127,165,0)}}
+/* reveal / lift helpers for demos */
+@keyframes reveal{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:none}}
+.reveal{animation:reveal .42s cubic-bezier(.22,.61,.36,1) both}
+/* status pill chips already colored; add soft shadow */
+.pill{box-shadow:0 2px 6px rgba(40,34,20,.04)}
+/* eyebrow uppercase warmth */
+.ph-scr .s-eyebrow{color:var(--blue)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<!-- ░░ INLINE SVG SPRITE ░░ -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <!-- ★ PRIMARY BRAND MARK — пакет-капельница / IV bag drop (Symbol B) -->
+  <symbol id="mark-iv" viewBox="0 0 512 512">
+    <circle cx="256" cy="92" r="14" fill="none" stroke="currentColor" stroke-width="16"/>
+    <rect x="188" y="118" width="136" height="150" rx="34" fill="none" stroke="currentColor" stroke-width="22"/>
+    <path d="M198 210 Q256 188 314 210 L314 244 Q314 258 300 258 L212 258 Q198 258 198 244 Z" fill="currentColor" opacity=".5"/>
+    <path d="M256 268 V310" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+    <path d="M256 330 C284 360 284 392 256 410 C228 392 228 360 256 330 Z" fill="currentColor"/>
+  </symbol>
+  <!-- compact 24-grid version of the IV mark for small UI -->
+  <symbol id="mark-iv-sm" viewBox="0 0 24 24">
+    <circle cx="12" cy="4.2" r="0.9" fill="none" stroke="currentColor" stroke-width="1.1"/>
+    <rect x="8.4" y="5.6" width="7.2" height="8" rx="1.9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M9.2 10 Q12 8.9 14.8 10 L14.8 11.8 Q14.8 12.5 14 12.5 L10 12.5 Q9.2 12.5 9.2 11.8 Z" fill="currentColor" opacity=".5"/>
+    <path d="M12 13.6 V15.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M12 16.6 C13.5 18.2 13.5 19.9 12 20.9 C10.5 19.9 10.5 18.2 12 16.6 Z" fill="currentColor"/>
+  </symbol>
+  <!-- ◦ SECONDARY DECORATIVE — abstract drop / dosing motif. Never the main logo. -->
+  <symbol id="mark-drop" viewBox="0 0 512 512">
+    <circle cx="286" cy="196" r="58" fill="none" stroke="currentColor" stroke-width="20"/>
+    <circle cx="196" cy="178" r="22" fill="none" stroke="currentColor" stroke-width="18"/>
+    <path d="M286 254 V330" stroke="currentColor" stroke-width="20" stroke-linecap="round"/>
+    <circle cx="286" cy="360" r="24" fill="currentColor"/>
+  </symbol>
+  <!-- functional UI icons (semantic) -->
+  <symbol id="ic-start" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5 L16 12 L10 15.5 Z"/></symbol>
+  <symbol id="ic-privacy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L19 6 V11 c0 5-3 7.5-7 9.5 C8 18.5 5 16 5 11 V6 Z"/><path d="M9.5 12 l1.8 1.8 L15 9.8"/></symbol>
+  <symbol id="ic-emergency" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8 V12.5"/><circle cx="12" cy="15.8" r=".7" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.8.4-1 .9-1 1.7"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-district" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c4.5-4.5 7-7.6 7-11a7 7 0 1 0-14 0c0 3.4 2.5 6.5 7 11Z"/><circle cx="12" cy="10" r="2.4"/></symbol>
+  <symbol id="ic-time" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7.5 V12 l3 2"/></symbol>
+  <symbol id="ic-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="16" height="4" rx="2"/><rect x="4" y="14" width="16" height="4" rx="2"/></symbol>
+  <symbol id="ic-license" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="3"/><path d="M9 9.5 l1.6 1.6 L14 7.8"/><path d="M9 15 H15"/></symbol>
+  <symbol id="ic-star" viewBox="0 0 24 24"><path d="M12 4 l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 16.7 7.4 19l.9-5.2L4.5 9.5l5.2-.8Z" fill="currentColor"/></symbol>
+  <symbol id="ic-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H10l-4 3.5V16H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></symbol>
+  <symbol id="ic-confirm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12 l2.3 2.3 L15.5 9.5"/></symbol>
+  <symbol id="ic-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12 L19 5 L14 19 L11.5 13.5 Z"/></symbol>
+  <symbol id="ic-pricelock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="11" width="13" height="9" rx="2.5"/><path d="M8 11 V8.5 a4 4 0 0 1 8 0 V11"/><circle cx="12" cy="15.5" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-cost" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19 V10 M12 19 V6 M19 19 V13"/></symbol>
+  <symbol id="ic-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12a7 7 0 0 1 12-5l2 2"/><path d="M19 5v4h-4"/><path d="M19 12a7 7 0 0 1-12 5l-2-2"/><path d="M5 19v-4h4"/></symbol>
+  <symbol id="ic-error" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 L21 19 H3 Z"/><path d="M12 10 V14"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 3"><circle cx="12" cy="12" r="8"/></symbol>
+  <symbol id="ic-specialist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19 a6.5 6.5 0 0 1 13 0"/></symbol>
+  <symbol id="ic-alc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3 h10 l-1 5 a4 4 0 0 1-8 0 Z"/><path d="M12 13 V19 M9 19 h6"/></symbol>
+  <symbol id="ic-binge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4 h12 v4 l-4 4 v6 h-4 v-6 l-4-4 Z"/></symbol>
+  <symbol id="ic-tox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9.5 14 h5 M12 11.5 v5" /><path d="M10 5 h4 v3 h-4 Z"/></symbol>
+  <symbol id="ic-urgent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3 L5 13 h6 l-1 8 L19 11 h-6 Z"/></symbol>
+  <symbol id="ic-planned" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="16" rx="2.5"/><path d="M4 9 H20 M8 3 V6 M16 3 V6"/><path d="M9 14 l2 2 4-4"/></symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 1.5 6 2 7H4c.5-1 2-2 2-7Z"/><path d="M10 20 a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="ic-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="7" height="7" rx="1.5"/><rect x="13.5" y="4" width="7" height="7" rx="1.5"/><rect x="3.5" y="14" width="7" height="6" rx="1.5"/><rect x="13.5" y="14" width="7" height="6" rx="1.5"/></symbol>
+  <symbol id="ic-org" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8 V5 a2 2 0 0 1 2-2 h2 a2 2 0 0 1 2 2 V8"/><path d="M9 13 h6 M9 16 h4"/></symbol>
+  <symbol id="ic-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4"/><path d="M11 11 l8 8 M16 16 l2-2 M14 14 l2 2"/></symbol>
+  <symbol id="ic-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15 l6-6 M10 6 l1-1a4 4 0 0 1 6 6 l-1 1 M14 18 l-1 1a4 4 0 0 1-6-6 l1-1"/></symbol>
+  <symbol id="ic-no-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4 c0 8 7 15 15 15 l-2-4 -3 1 c-2-1-4-3-5-5 l1-3 Z"/><path d="M4 4 L20 20"/></symbol>
+</svg>
+
+<nav class="nav">
+  <a href="#cover">01 Обзор</a><a href="#brand">02 Бренд</a><a href="#symbol">03 Знак</a><a href="#tokens">04 Токены</a>
+  <a href="#colors">05 Палитра</a><a href="#semantic">06 Семантика</a><a href="#type">07 Типографика</a><a href="#icons">08 Иконки</a>
+  <a href="#components">09 Компоненты</a><a href="#screens">10 Экраны</a><a href="#shortcards">11 Карточки</a><a href="#expanded">12 Карточка ★</a>
+  <a href="#select">13 Выбор</a><a href="#chat">14 Чат</a><a href="#status">15 Статус</a><a href="#feedback">16 Отзыв</a>
+  <a href="#states">17 States</a><a href="#dash">18 Dashboard</a><a href="#cabinet">19 Кабинет</a><a href="#diag">20 Диагностика</a>
+  <a href="#bot">21 Бот</a><a href="#assets">22 Ассеты</a><a href="#web">23 Сайт</a><a href="#codex">24 CodeX</a><a href="#copy">25 Словарь</a>
+</nav>
+<div class="page">
+<!-- ═══ 01 COVER ═══ -->
+<section class="sec" id="cover">
+  <div class="hero">
+    <div class="hero-l">
+      <svg class="hero-mark"><use href="#mark-iv"/></svg>
+      <div class="hero-wm">Над<span class="o">о</span>м</div>
+      <div class="hero-tag">design package · v6.2 · telegram mini app · bot · dashboard · web</div>
+    </div>
+    <div class="hero-concept">
+      <p><strong>Анонимный сервис подбора</strong> клиники, медслужбы или выездной бригады на дом в Москве. Для подбора не нужны паспорт и точный адрес — адрес понадобится только после выбора клиники и увидит его лишь она.</p>
+      <p style="margin-top:14px">Надом — не клиника и не скорая помощь. Возможность выезда, формат помощи, состав услуги и финальную стоимость подтверждает выбранная клиника или медслужба.</p>
+    </div>
+  </div>
+  <p class="lede">Единый источник правды для дизайна Mini App, бота, дашборда и сайта. Главное в v6: первичный знак — <strong style="color:var(--d-blue)">пакет-капельница</strong>; тёплый графит с кремовыми экранами; мягкий синий как основной акцент; флагман — раскрытая карточка клиники. Слоган: <strong style="color:var(--d-ink)">Быстро. Удобно. Анонимно.</strong></p>
+  <div class="callout">Этот файл — спецификация, а не приложение. Реализация — строго по разделу 24 (CodeX) и словарю формулировок (раздел 25).</div>
+</section>
+
+<!-- ═══ 02 BRAND IDEA ═══ -->
+<section class="sec" id="brand">
+  <div class="sec-label">02 — Brand concept</div>
+  <h2 class="sec-h">Брендовая идея</h2>
+  <p class="sec-sub">Надом звучит как приватный технологичный помощник — не клиника, не доктор-бот, не наркологический лендинг. Спокойно, по-человечески, по-телеграмному.</p>
+  <div class="g3">
+    <div class="dcard"><div class="dcard-h">Что это</div><p class="note">Агрегатор / matching-сервис. Пользователь выбирает медслужбу, пишет специалисту, уточняет условия и подтверждает заявку. <strong>Надом не оказывает медицинских услуг.</strong></p></div>
+    <div class="dcard"><div class="dcard-h">Характер</div><p class="note">Приватный · технологичный · дорогой · спокойный · Telegram-native. Тёмный-first. Минимум данных на старте. Без давления, стыда и паники.</p></div>
+    <div class="dcard"><div class="dcard-h">Знак v6</div><p class="note"><strong>Пакет-капельница</strong> — первичный символ везде. Абстрактная капля — только декоративный мотив. Маршруты, узлы и сигналы из бренд-контекста убраны.</p></div>
+  </div>
+  <div class="dofdont" style="margin-top:20px">
+    <div class="dd do"><h4>Звучит так</h4><ul>
+      <li>подбор медслужбы с выездом на дом</li><li>анонимно на этапе подбора</li><li>без лишних звонков</li>
+      <li>детали подтверждает выбранная клиника</li><li>спокойно, коротко, по-человечески</li></ul></div>
+    <div class="dd dont"><h4>Никогда</h4><ul>
+      <li>клиника Надом · врач Надом · наш врач</li><li>лечим · диагностируем · назначаем</li>
+      <li>гарантируем результат · подберём капельницу</li><li>полная анонимность как абсолют</li><li>агрессивные баннеры, стыд, паника, сирены</li></ul></div>
+  </div>
+</section>
+
+<!-- ═══ 03 SYMBOL / LOGO SYSTEM ═══ -->
+<section class="sec" id="symbol">
+  <div class="sec-label">03 — Symbol & logo system</div>
+  <h2 class="sec-h">Знак и логосистема</h2>
+  <p class="sec-sub">Первичный знак — пакет-капельница (Symbol B). Абстрактная капля — вторичный декоративный мотив. Никаких маршрутов / узлов / реле как идентичности.</p>
+  <div class="g3" style="margin-bottom:22px">
+    <div class="mark-card"><svg class="mk"><use href="#mark-iv"/></svg><span class="tag pri">Primary</span><div class="mklbl">пакет-капельница · везде</div></div>
+    <div class="mark-card cream"><svg class="mk"><use href="#mark-iv"/></svg><span class="tag pri">Primary · cream</span><div class="mklbl">на кремовой подложке</div></div>
+    <div class="mark-card"><svg class="mk" style="color:var(--d-rose);opacity:.55"><use href="#mark-drop"/></svg><span class="tag sec">Secondary</span><div class="mklbl">абстрактная капля · только декор</div></div>
+  </div>
+  <div class="g2" style="margin-bottom:22px">
+    <div class="dcard">
+      <div class="dcard-h">Вордмарк</div>
+      <div style="display:flex;flex-direction:column;gap:14px;margin:6px 0 14px">
+        <div style="font-family:var(--f-display);font-size:40px;font-weight:700;color:var(--d-ink);letter-spacing:-.05em">Над<span style="color:var(--d-blue)">о</span>м</div>
+        <div style="font-family:var(--f-display);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-.05em;background:var(--d-bg-cream);padding:8px 16px;border-radius:10px;align-self:flex-start">Над<span style="color:var(--blue)">о</span>м</div>
+      </div>
+      <p class="note">Пишем «Надом». Подсвечиваем <strong>только букву «о»</strong> цветом сигнала. Не подсвечиваем «дом», не разбиваем на «На»+«дом», не используем «Домой».</p>
+    </div>
+    <div class="dcard">
+      <div class="dcard-h">Лого-локапы</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="lock"><svg class="lm"><use href="#mark-iv"/></svg><span class="lw">Над<span class="o">о</span>м</span></div>
+        <div class="lock cream"><svg class="lm"><use href="#mark-iv"/></svg><span class="lw">Над<span class="o">о</span>м</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Горизонтальный локап: знак + вордмарк, оптический баланс по высоте «о». Отдельный знак — для аватарок, app icon, splash.</p>
+    </div>
+  </div>
+  <div class="dcard">
+    <div class="dcard-h">App icon — артборды</div>
+    <div class="g6">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:#0D0E0A;border:.5px solid var(--d-line)"><svg style="color:var(--d-blue)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">graphite</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:linear-gradient(150deg,#2A251A,#17150F)"><svg style="color:var(--d-teal)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">olive grad</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:var(--d-bg-cream)"><svg style="color:var(--blue)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">cream</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:var(--blue)"><svg style="color:#fff"><use href="#mark-iv"/></svg></div><span class="ico-lbl">blue</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:var(--teal)"><svg style="color:#fff"><use href="#mark-iv"/></svg></div><span class="ico-lbl">teal</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px"><div class="appicon" style="background:#10130C;position:relative"><svg style="color:var(--d-rose);opacity:.4;position:absolute;width:90%;height:90%"><use href="#mark-drop"/></svg><svg style="color:var(--d-blue);position:relative"><use href="#mark-iv"/></svg></div><span class="ico-lbl">decor drop</span></div>
+    </div>
+    <p class="note" style="margin-top:12px">Экспорт: <span class="kbd">512×512</span> BotFather · <span class="kbd">1024</span> store · <span class="kbd">маска squircle 22%</span>. Декоративная капля допускается фоном — но знак всегда поверх.</p>
+  </div>
+</section>
+<!-- ═══ 04 TOKENS ═══ -->
+<section class="sec" id="tokens">
+  <div class="sec-label">04 — Design tokens</div>
+  <h2 class="sec-h">Дизайн-токены</h2>
+  <div class="g3">
+    <div class="dcard"><div class="dcard-h">Радиусы</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div class="tok-row"><span class="tok-n">--r-xs</span><span class="tok-v">4px</span><span style="width:34px;height:18px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:4px;margin-left:auto"></span></div>
+        <div class="tok-row"><span class="tok-n">--r-sm</span><span class="tok-v">8px</span><span style="width:34px;height:18px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:8px;margin-left:auto"></span></div>
+        <div class="tok-row"><span class="tok-n">--r-md</span><span class="tok-v">14px</span><span style="width:34px;height:18px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:14px;margin-left:auto"></span></div>
+        <div class="tok-row"><span class="tok-n">--r-lg</span><span class="tok-v">20px</span><span style="width:34px;height:18px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:18px;margin-left:auto"></span></div>
+        <div class="tok-row" style="border:none"><span class="tok-n">--r-ph</span><span class="tok-v">40px</span><span style="width:34px;height:18px;background:var(--d-bg-3);border:.5px solid var(--d-line);border-radius:18px 18px 0 0;margin-left:auto"></span></div>
+      </div>
+    </div>
+    <div class="dcard"><div class="dcard-h">Шкала отступов · 4px</div>
+      <div style="display:flex;align-items:flex-end;gap:8px;margin-top:8px">
+        <div style="text-align:center"><div style="width:6px;height:6px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">6</span></div>
+        <div style="text-align:center"><div style="width:9px;height:9px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">9</span></div>
+        <div style="text-align:center"><div style="width:14px;height:14px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">14</span></div>
+        <div style="text-align:center"><div style="width:18px;height:18px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">18</span></div>
+        <div style="text-align:center"><div style="width:24px;height:24px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">24</span></div>
+        <div style="text-align:center"><div style="width:40px;height:40px;background:var(--d-teal);margin:0 auto 5px"></div><span class="ico-lbl">40</span></div>
+      </div>
+      <p class="note" style="margin-top:14px">База 4px. Внутри экрана gap 9px между блоками, 13–17px паддинги тела, 18px заголовочная зона.</p>
+    </div>
+    <div class="dcard"><div class="dcard-h">Высоты / тени</div>
+      <p class="note" style="margin-bottom:10px"><strong>--sh-card</strong> 0 18px 42px rgba(0,0,0,.16) — карточки.<br><strong>--sh-phone</strong> 0 36px 90px — телефон.</p>
+      <div style="height:46px;border-radius:12px;background:var(--d-bg-2);border:.5px solid var(--d-line);box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--d-ink-3)">elevation · card</div>
+      <p class="note" style="margin-top:12px">Хит-таргеты ≥ 44px. Кнопки min-height 46px, радиус 14–16px.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 05 PALETTE ═══ -->
+<section class="sec" id="colors">
+  <div class="sec-label">05 — Palette</div>
+  <h2 class="sec-h">Палитра v6.1 — тёплый графит · крем · мягкий синий</h2>
+  <p class="sec-sub">Оболочка пакета — тёплый графит. Мобильные экраны — кремовые/молочные (бенчмарк v1). Основной акцент — мягкий синий; бирюза вторична (прибытие). Доверие — шалфей, рейтинг — тёплый янтарь, приватное — пыльная роза, тёплый клэй — дополнительный акцент.</p>
+  <div class="g2">
+    <div class="dcard">
+      <div class="dcard-h">Тёмная база (PRIMARY)</div>
+      <div class="pal">
+        <div class="sw"><div class="sw-c" style="background:#0D0E0A"></div><span class="sw-l">bg<br>#0D0E0A</span></div>
+        <div class="sw"><div class="sw-c" style="background:#15160F"></div><span class="sw-l">bg-2<br>#15160F</span></div>
+        <div class="sw"><div class="sw-c" style="background:#1F2117"></div><span class="sw-l">bg-3<br>#1F2117</span></div>
+        <div class="sw"><div class="sw-c" style="background:#2C2E20"></div><span class="sw-l">line<br>#2C2E20</span></div>
+        <div class="sw"><div class="sw-c" style="background:#ECE7D8"></div><span class="sw-l">cream<br>#ECE7D8</span></div>
+        <div class="sw"><div class="sw-c" style="background:#ECEADD"></div><span class="sw-l">ink<br>#ECEADD</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Тёплые градиенты допускаются на обложках/баннерах: <span class="kbd">#0D0E0A→#1A1C12</span>. Никакого funeral-black, никакого холодного нави.</p>
+    </div>
+    <div class="dcard">
+      <div class="dcard-h">Светлая база — крем / камень</div>
+      <div class="pal">
+        <div class="sw"><div class="sw-c" style="background:#F4F2EA"></div><span class="sw-l">paper<br>#F4F2EA</span></div>
+        <div class="sw"><div class="sw-c" style="background:#EAE7DB"></div><span class="sw-l">stone<br>#EAE7DB</span></div>
+        <div class="sw"><div class="sw-c" style="background:#D9D6C7"></div><span class="sw-l">border<br>#D9D6C7</span></div>
+        <div class="sw"><div class="sw-c" style="background:#FCFBF6"></div><span class="sw-l">white<br>#FCFBF6</span></div>
+        <div class="sw"><div class="sw-c" style="background:#1A1B15"></div><span class="sw-l">ink<br>#1A1B15</span></div>
+        <div class="sw"><div class="sw-c" style="background:#565748"></div><span class="sw-l">ink-3<br>#565748</span></div>
+      </div>
+      <p class="note" style="margin-top:12px">Кремовые/каменные панели — внутренние карточки и светлая тема. Тёплая, дорогая, спокойная подложка.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 06 SEMANTIC COLORS ═══ -->
+<section class="sec" id="semantic">
+  <div class="sec-label">06 — Semantic accents</div>
+  <h2 class="sec-h">Семантические акценты — цвет несёт смысл</h2>
+  <p class="sec-sub">Не делаем всё бирюзовым и не делаем все карточки одинаково-серыми. Каждый акцент закреплён за смыслом.</p>
+  <div class="g3">
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-blue)">Синий — действие</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#3E84C4"></div><span class="sw-l">#3E84C4</span></div><div class="sw"><div class="sw-c" style="background:#74B2E2"></div><span class="sw-l">#74B2E2</span></div><div class="sw"><div class="sw-c" style="background:#CFE4F4"></div><span class="sw-l">#CFE4F4</span></div></div>
+      <p class="note" style="margin-top:10px">Primary-кнопки, прогресс, выбор, основной сигнал.</p></div>
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-teal)">Бирюза — сигнал</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#1E9E96"></div><span class="sw-l">#1E9E96</span></div><div class="sw"><div class="sw-c" style="background:#46C7BC"></div><span class="sw-l">#46C7BC</span></div><div class="sw"><div class="sw-c" style="background:#C2EBE6"></div><span class="sw-l">#C2EBE6</span></div></div>
+      <p class="note" style="margin-top:10px">Чат, «написать специалисту», прибытие, live-статусы.</p></div>
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-sage)">Шалфей — доверие</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#5C9568"></div><span class="sw-l">#5C9568</span></div><div class="sw"><div class="sw-c" style="background:#82BC8C"></div><span class="sw-l">#82BC8C</span></div><div class="sw"><div class="sw-c" style="background:#CEE3D0"></div><span class="sw-l">#CEE3D0</span></div></div>
+      <p class="note" style="margin-top:10px">Лицензия подтверждена, подтверждено, price-lock, успех.</p></div>
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-amber)">Янтарь — рейтинг</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#C8902E"></div><span class="sw-l">#C8902E</span></div><div class="sw"><div class="sw-c" style="background:#E6B65A"></div><span class="sw-l">#E6B65A</span></div><div class="sw"><div class="sw-c" style="background:#F2DEAC"></div><span class="sw-l">#F2DEAC</span></div></div>
+      <p class="note" style="margin-top:10px">Рейтинг ★ и отзывы. Яркий, тёплый, заметный.</p></div>
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-rose)">Пыльная роза — человечное</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#B57E7E"></div><span class="sw-l">#B57E7E</span></div><div class="sw"><div class="sw-c" style="background:#D2A6A6"></div><span class="sw-l">#D2A6A6</span></div><div class="sw"><div class="sw-c" style="background:#ECDADA"></div><span class="sw-l">#ECDADA</span></div></div>
+      <p class="note" style="margin-top:10px">Приватность, свою ситуацию, забота, декоративная капля.</p></div>
+    <div class="dcard"><div class="dcard-h" style="color:var(--d-err)">Приглушённый красный — только 103/112</div>
+      <div class="pal"><div class="sw"><div class="sw-c" style="background:#B0494A"></div><span class="sw-l">#B0494A</span></div><div class="sw"><div class="sw-c" style="background:#DF8C8C"></div><span class="sw-l">#DF8C8C</span></div><div class="sw"><div class="sw-c" style="background:#EEC9C9"></div><span class="sw-l">#EEC9C9</span></div></div>
+      <p class="note" style="margin-top:10px">Экстренная помощь и ошибки. Никогда — для давления.</p></div>
+  </div>
+</section>
+
+<!-- ═══ 07 TYPOGRAPHY ═══ -->
+<section class="sec" id="type">
+  <div class="sec-label">07 — Typography</div>
+  <h2 class="sec-h">Типографика</h2>
+  <div class="g2">
+    <div class="dcard">
+      <div class="dcard-h">Unbounded — display</div>
+      <div style="font-family:var(--f-display);color:var(--d-ink)">
+        <div style="font-size:44px;font-weight:700;letter-spacing:-.05em;line-height:1">Над<span style="color:var(--d-blue)">о</span>м</div>
+        <div style="font-size:24px;font-weight:600;letter-spacing:-.03em;margin-top:14px">Подходящие варианты</div>
+        <div style="font-size:15px;font-weight:700;letter-spacing:-.03em;margin-top:10px;color:var(--d-amber)">4.8 ★ · от 8 500 ₽</div>
+      </div>
+      <p class="note" style="margin-top:14px">Вордмарк, заголовки экранов, цены, SLA-значения, рейтинг. Вес 600–900. Трекинг −0.03…−0.05em.</p>
+    </div>
+    <div class="dcard">
+      <div class="dcard-h">Onest — body / UI</div>
+      <div style="color:var(--d-ink)">
+        <p style="font-size:16px;font-weight:600">Анонимная помощь на дому</p>
+        <p style="font-size:13px;color:var(--d-ink-2);margin-top:8px;line-height:1.6">Подбор медслужбы с выездом на дом в Москве — без лишних звонков. Детали подтверждает выбранная клиника или медслужба.</p>
+        <p style="font-family:var(--f-mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--d-teal);margin-top:12px">шаг 6 из 6 · подходящие варианты</p>
+      </div>
+      <p class="note" style="margin-top:14px">Весь UI и тело. Вес 400–600. Mono (SF Mono) — eyebrows, токены, коды диагностики, зоны.</p>
+    </div>
+  </div>
+  <div class="dcard" style="margin-top:20px">
+    <div class="dcard-h">Семантическая шкала</div>
+    <table class="spec"><tr><th>Роль</th><th>Семейство</th><th>Размер / вес</th><th>Где</th></tr>
+      <tr><td><b>display</b></td><td class="mono">Unbounded</td><td>78 / 900</td><td>вордмарк обложки</td></tr>
+      <tr><td><b>h1</b></td><td class="mono">Unbounded</td><td>33 / 700 · −.06em</td><td>заголовок экрана</td></tr>
+      <tr><td><b>h2</b></td><td class="mono">Unbounded</td><td>20 / 600</td><td>секция, карточка</td></tr>
+      <tr><td><b>price</b></td><td class="mono">Unbounded</td><td>15 / 700</td><td>цены, SLA-значения</td></tr>
+      <tr><td><b>body</b></td><td class="mono">Onest</td><td>13 / 400</td><td>тело, описания</td></tr>
+      <tr><td><b>label</b></td><td class="mono">SF Mono</td><td>9 / 600 · .14em uc</td><td>eyebrow, токен, код</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ═══ 08 ICONS ═══ -->
+<section class="sec" id="icons">
+  <div class="sec-label">08 — Icon set</div>
+  <h2 class="sec-h">Иконосистема</h2>
+  <p class="sec-sub">Линейные иконки 24-grid, обводка 1.8, скруглённые концы. Цвет несёт смысл. Знак-капельница — над иконками: он бренд, они функция.</p>
+  <div class="g6">
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#mark-iv-sm"/></svg></div><span class="ico-lbl">brand</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-start"/></svg></div><span class="ico-lbl">start</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-rose-dim)"><svg style="color:var(--d-rose)"><use href="#ic-privacy"/></svg></div><span class="ico-lbl">privacy</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-err-dim)"><svg style="color:var(--d-err)"><use href="#ic-emergency"/></svg></div><span class="ico-lbl">103/112</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-district"/></svg></div><span class="ico-lbl">district</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-time"/></svg></div><span class="ico-lbl">time</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-teal-dim)"><svg style="color:var(--d-teal)"><use href="#ic-list"/></svg></div><span class="ico-lbl">list</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--sage-dim)"><svg style="color:var(--d-sage)"><use href="#ic-license"/></svg></div><span class="ico-lbl">license</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-amber-dim)"><svg style="color:var(--d-amber)"><use href="#ic-star"/></svg></div><span class="ico-lbl">rating</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-teal-dim)"><svg style="color:var(--d-teal)"><use href="#ic-chat"/></svg></div><span class="ico-lbl">chat</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--sage-dim)"><svg style="color:var(--d-sage)"><use href="#ic-confirm"/></svg></div><span class="ico-lbl">confirm</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--sage-dim)"><svg style="color:var(--d-sage)"><use href="#ic-pricelock"/></svg></div><span class="ico-lbl">price-lock</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-cost"/></svg></div><span class="ico-lbl">cost</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-rose-dim)"><svg style="color:var(--d-rose)"><use href="#ic-alc"/></svg></div><span class="ico-lbl">after-alc</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-rose-dim)"><svg style="color:var(--d-rose)"><use href="#ic-binge"/></svg></div><span class="ico-lbl">binge</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-amber-dim)"><svg style="color:var(--d-amber)"><use href="#ic-tox"/></svg></div><span class="ico-lbl">tox</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-teal-dim)"><svg style="color:var(--d-teal)"><use href="#ic-urgent"/></svg></div><span class="ico-lbl">urgent</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-planned"/></svg></div><span class="ico-lbl">planned</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-teal-dim)"><svg style="color:var(--d-teal)"><use href="#ic-specialist"/></svg></div><span class="ico-lbl">specialist</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-blue-dim)"><svg style="color:var(--d-blue)"><use href="#ic-repeat"/></svg></div><span class="ico-lbl">repeat</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--sage-dim)"><svg style="color:var(--d-sage)"><use href="#ic-no-call"/></svg></div><span class="ico-lbl">no-call</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-err-dim)"><svg style="color:var(--d-err)"><use href="#ic-error"/></svg></div><span class="ico-lbl">error</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-bg-3)"><svg style="color:var(--d-ink-3)"><use href="#ic-empty"/></svg></div><span class="ico-lbl">empty</span></div>
+    <div class="ico-box"><div class="ico-w" style="background:var(--d-rose-dim)"><svg style="color:var(--d-rose);opacity:.7"><use href="#mark-drop"/></svg></div><span class="ico-lbl">decor</span></div>
+  </div>
+</section>
+<!-- ═══ 09 COMPONENTS ═══ -->
+<section class="sec" id="components">
+  <div class="sec-label">09 — Component library</div>
+  <h2 class="sec-h">Библиотека компонентов</h2>
+  <p class="sec-sub">Кремовые экраны на тёплом графите. Все компоненты работают на обеих подложках; цвет несёт смысл.</p>
+  <div class="g2">
+    <div class="dcard"><div class="dcard-h">Кнопки — иерархия</div>
+      <div class="dark" style="display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-p btn-full">Выбрать услугу</button>
+        <button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Написать специалисту</button>
+        <button class="btn btn-s btn-full">Описать свою ситуацию</button>
+        <div class="btn-row"><button class="btn btn-s" style="flex:1">Сравнить с другими</button><button class="btn btn-err btn-sm">103 / 112</button></div>
+        <button class="btn btn-g">← Назад к списку</button>
+      </div>
+    </div>
+    <div class="dcard"><div class="dcard-h">Пилюли-статусы</div>
+      <div class="pills" style="margin-bottom:10px">
+        <span class="pill pill-sage"><svg><use href="#ic-license"/></svg>Лицензия подтверждена</span>
+        <span class="pill pill-b">24/7</span>
+        <span class="pill pill-t">доступна сейчас</span>
+        <span class="pill pill-rose">анонимно на старте</span>
+      </div>
+      <div class="pills" style="margin-bottom:14px">
+        <span class="pill pill-amber"><svg><use href="#ic-star"/></svg>4.8</span>
+        <span class="pill pill-n">принимает заявки</span>
+        <span class="pill pill-err">экстренно — 103</span>
+      </div>
+      <div class="dcard-h" style="margin-bottom:8px">Рейтинг-бейдж</div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <span class="rate"><svg><use href="#ic-star"/></svg>4.8 <small>· 126 отзывов</small></span>
+        <span class="rate"><svg><use href="#ic-star"/></svg>4.6</span>
+      </div>
+    </div>
+  </div>
+  <div class="g2" style="margin-top:18px">
+    <div class="dcard"><div class="dcard-h">SLA — два раздельных значения</div>
+      <div class="dark"><div class="sla">
+        <div class="sla-c resp"><div class="sla-k"><svg><use href="#ic-chat"/></svg>Ответ медслужбы</div><div class="sla-v">~10–20 мин</div><div class="sla-s">после заявки</div></div>
+        <div class="sla-c arr"><div class="sla-k"><svg><use href="#ic-time"/></svg>Прибытие</div><div class="sla-v">~30–60 мин</div><div class="sla-s">после подтверждения</div></div>
+      </div></div>
+      <p class="note" style="margin-top:10px">Две метрики никогда не сливаются: ответ ≠ прибытие.</p>
+    </div>
+    <div class="dcard"><div class="dcard-h">Выбор · чипы · поля</div>
+      <div class="dark" style="display:flex;flex-direction:column;gap:8px">
+        <div class="ch sel"><div class="ch-dot on"></div><svg class="ch-ico"><use href="#ic-binge"/></svg><div><div class="ch-main">Вывод из запоя</div><div class="ch-sub">помощь при длительном употреблении алкоголя</div></div></div>
+        <div class="ch"><div class="ch-dot"></div><svg class="ch-ico"><use href="#ic-specialist"/></svg><div><div class="ch-main">Нарколог на дом</div></div></div>
+        <div class="chips"><span class="chip sel">Сейчас</span><span class="chip">Сегодня</span><span class="chip">Завтра</span><span class="chip">Выбрать время</span></div>
+        <div class="field"><div class="field-k">Район или округ</div><div class="field-ph">например, ЦАО, САО, Тверской</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="g2" style="margin-top:18px">
+    <div class="dcard"><div class="dcard-h">Чипы доверия</div>
+      <div class="dark"><div class="trust">
+        <span><svg><use href="#ic-license"/></svg>Лицензия подтверждена</span><span>24/7</span>
+        <span><svg><use href="#ic-privacy"/></svg>Анонимно на старте</span>
+        <span><svg><use href="#ic-no-call"/></svg>Без звонков на старте</span>
+        <span>Паспорт не нужен на старте</span><span><svg><use href="#ic-district"/></svg>Точный адрес — после выбора</span>
+      </div></div>
+    </div>
+    <div class="dcard"><div class="dcard-h">Инфо-блоки условий</div>
+      <div class="dark" style="display:flex;flex-direction:column;gap:7px">
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-cost"/></svg>Ориентир по стоимости</div><div class="iblk-t"><b>от 8 500 ₽</b> · финальная сумма — после подтверждения медслужбы</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-license"/></svg>Что уточняет медслужба</div><div class="iblk-t">возможность выезда, формат помощи, состав услуги, безопасность</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ═══ 10 MINI APP FLOW ═══ -->
+<section class="sec" id="screens">
+  <div class="sec-label">10 — Mini App flow ★ product</div>
+  <h2 class="sec-h">Экраны Mini App</h2>
+  <p class="sec-sub">Тёплые кремовые экраны, у каждого свой акцентный ритм. Подбор: приветствие → ситуация → район → время → варианты. «Быстро. Удобно. Анонимно.»</p>
+  <div class="scr-scroll">
+
+    <!-- 1 welcome — colorful brand moment -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body" style="gap:13px">
+        <div style="position:relative;border-radius:22px;padding:30px 18px 24px;background:radial-gradient(120% 100% at 50% 0%,#DCEAF3,#EFE9DC 70%);overflow:hidden;text-align:center">
+          <svg style="position:absolute;right:-26px;bottom:-30px;width:130px;height:130px;color:var(--rose);opacity:.16"><use href="#mark-drop"/></svg>
+          <div style="width:108px;height:124px;margin:0 auto;color:var(--blue);filter:drop-shadow(0 14px 26px rgba(74,127,165,.28))"><svg style="width:100%;height:100%"><use href="#mark-iv"/></svg></div>
+        </div>
+        <div class="s-eyebrow" style="letter-spacing:.16em">быстро · удобно · анонимно</div>
+        <h1 class="s-title" style="font-size:25px">Анонимная помощь на дому</h1>
+        <p class="s-desc">Подберём клинику или медслужбу с выездом на дом. Выберите ситуацию, район и время — покажем варианты по цене и времени приезда.</p>
+        <div class="chips" style="margin-top:2px"><span class="chip sel" style="--ac:var(--blue)">анонимно на старте</span><span class="chip">без лишних звонков</span><span class="chip">цена заранее</span></div>
+        <p class="svc-note" style="margin-top:auto">Если состояние угрожает жизни — 103 или 112.</p>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Получить помощь</button></div>
+    </div></div><div class="scr-lbl">1 · /start · brand moment</div></div>
+
+    <!-- 2 consent -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <div class="s-eyebrow">шаг 1 из 6</div><h1 class="s-title" style="font-size:17px">Пара слов о сервисе</h1></div>
+      <div class="s-body">
+        <p class="s-desc">Надом — это подбор медслужбы. Сами медицинские услуги оказывает выбранная организация.</p>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-privacy"/></svg>Приватность</div><div class="iblk-t">Данные передаются только выбранной медслужбе — для подтверждения заявки и условий выезда.</div></div>
+        <div class="trust" style="margin-top:2px"><span><svg><use href="#ic-no-call"/></svg>без звонков на старте</span><span>без точного адреса</span><span>паспорт не нужен</span></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Согласен, продолжить</button><button class="btn btn-s btn-full">Не сейчас</button></div>
+    </div></div><div class="scr-lbl">2 · consent</div></div>
+
+    <!-- 3 emergency -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div></div></div>
+      <div class="s-body">
+        <div style="width:42px;height:42px;border-radius:12px;background:var(--d-err-dim);display:flex;align-items:center;justify-content:center;color:var(--d-err);margin-bottom:4px"><svg style="width:22px;height:22px"><use href="#ic-emergency"/></svg></div>
+        <div class="s-eyebrow" style="color:var(--d-err)">шаг 2 из 6</div>
+        <h1 class="s-title" style="font-size:17px">Если состояние острое</h1>
+        <p class="s-desc">Надом не заменяет скорую помощь. Если состояние угрожает жизни — звоните 103 или 112.</p>
+        <p class="s-desc">Если всё спокойно — продолжайте подбор. Возможность выезда подтверждает выбранная клиника.</p>
+      </div>
+      <div class="s-foot"><div class="btn-row"><button class="btn btn-err" style="flex:1">Позвонить 103</button><button class="btn btn-err" style="flex:1">112</button></div><button class="btn btn-p btn-full">Продолжить подбор</button></div>
+    </div></div><div class="scr-lbl">3 · 103 / 112</div></div>
+
+    <!-- 4 profile -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div></div>
+        <div class="s-eyebrow">что нужно сейчас?</div><h1 class="s-title" style="font-size:18px">Выберите ситуацию</h1><p class="s-desc">Или опишите своими словами. Медицинские детали сейчас не нужны.</p></div>
+      <div class="s-body" style="gap:8px">
+        <div class="ch sel" style="--ac:var(--rose)"><span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--rose-dim);color:var(--rose)"><svg style="width:18px;height:18px"><use href="#ic-binge"/></svg></span><div style="flex:1"><div class="ch-main">Вывод из запоя</div><div class="ch-sub">помощь при длительном употреблении алкоголя</div></div><div class="ch-dot on"></div></div>
+        <div class="ch"><span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--blue-dim);color:var(--blue)"><svg style="width:18px;height:18px"><use href="#ic-alc"/></svg></span><div style="flex:1"><div class="ch-main">Капельница после алкоголя</div><div class="ch-sub">если плохо после алкоголя или тяжёлое похмелье</div></div><div class="ch-dot"></div></div>
+        <div class="ch"><span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--teal-dim);color:var(--teal)"><svg style="width:18px;height:18px"><use href="#ic-specialist"/></svg></span><div style="flex:1"><div class="ch-main">Нарколог на дом</div><div class="ch-sub">консультация и выезд специалиста</div></div><div class="ch-dot"></div></div>
+        <div class="ch"><span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--sage-dim);color:var(--sage)"><svg style="width:18px;height:18px"><use href="#ic-tox"/></svg></span><div style="flex:1"><div class="ch-main">Детокс</div><div class="ch-sub">восстановление после интоксикации</div></div><div class="ch-dot"></div></div>
+        <div class="ch" style="border-style:dashed;border-color:var(--clay);background:var(--clay-dim)"><span style="width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;color:var(--clay)"><svg style="width:18px;height:18px"><use href="#ic-chat"/></svg></span><div style="flex:1"><div class="ch-main">Описать ситуацию</div><div class="ch-sub">какую услугу ищете</div></div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Продолжить</button></div>
+    </div></div><div class="scr-lbl">4 · выбор ситуации</div></div>
+
+    <!-- 5 district -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+        <div class="s-eyebrow">шаг 4 из 6</div><h1 class="s-title" style="font-size:17px">Где нужен выезд?</h1><p class="s-desc">Достаточно района или округа. Точный адрес сейчас не нужен.</p></div>
+      <div class="s-body">
+        <div class="field"><div class="field-k">Район или округ</div><div class="field-ph">например, ЦАО, САО, Тверской</div></div>
+        <div class="chips"><span class="chip sel">ЦАО</span><span class="chip">САО</span><span class="chip">СВАО</span><span class="chip">ВАО</span><span class="chip">ЮАО</span><span class="chip">ЮЗАО</span><span class="chip">ЗАО</span><span class="chip">Новая Москва</span></div>
+        <div class="iblk" style="margin-top:4px"><div class="iblk-t" style="display:flex;gap:7px;align-items:center"><svg style="width:14px;height:14px;color:var(--d-rose);flex-shrink:0"><use href="#ic-privacy"/></svg>Точный адрес сейчас не нужен — его запросит выбранная медслужба после подтверждения.</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Дальше</button></div>
+    </div></div><div class="scr-lbl">5 · district / zone</div></div>
+
+    <!-- 6 time -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+        <div class="s-eyebrow">шаг 5 из 6</div><h1 class="s-title" style="font-size:17px">Когда нужен выезд?</h1><p class="s-desc">Выберите ориентир. Время прибытия отдельно подтвердит медслужба.</p></div>
+      <div class="s-body">
+        <div class="ch sel"><div class="ch-dot on"></div><svg class="ch-ico"><use href="#ic-time"/></svg><div class="ch-main">Как можно скорее</div></div>
+        <div class="ch"><div class="ch-dot"></div><svg class="ch-ico"><use href="#ic-time"/></svg><div class="ch-main">Сегодня</div></div>
+        <div class="ch"><div class="ch-dot"></div><svg class="ch-ico"><use href="#ic-time"/></svg><div class="ch-main">Завтра</div></div>
+        <div class="ch"><div class="ch-dot"></div><svg class="ch-ico"><use href="#ic-planned"/></svg><div class="ch-main">Выбрать время позже</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Показать варианты</button></div>
+    </div></div><div class="scr-lbl">6 · time / urgency</div></div>
+
+    <!-- 7 list -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><div class="s-prog"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+        <div class="s-eyebrow">шаг 6 из 6 · 3 варианта</div><h1 class="s-title" style="font-size:17px">Подходящие варианты</h1><p class="s-desc">По району, времени и условиям выезда.</p></div>
+      <div class="s-body" style="gap:11px">
+        <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Север»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.8</span></div>
+          <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>САО · СЗАО · рядом</div>
+            <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~10 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~40 мин</div></div></div>
+            <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 8 500 ₽</span></div>
+            <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+        <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Центр»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.7</span></div>
+          <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ЦАО · ЗАО · ЮЗАО</div>
+            <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~15 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~55 мин</div></div></div>
+            <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 9 200 ₽</span></div></div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-g">Изменить параметры подбора</button></div>
+    </div></div><div class="scr-lbl">7 · medservice list</div></div>
+
+  </div>
+</section>
+<!-- ═══ 11 SHORT MEDSERVICE CARDS ═══ -->
+<section class="sec" id="shortcards">
+  <div class="sec-label">11 — Short medservice cards</div>
+  <h2 class="sec-h">Короткие карточки медслужб</h2>
+  <p class="sec-sub">8 реалистичных московских примеров. Каждая карточка: название, статус/лицензия, рейтинг, зона, <b style="color:var(--d-ink)">ответ</b> и <b style="color:var(--d-ink)">прибытие</b> (две раздельные метрики), ориентир цены и два действия. Подзаголовок метрик — «Ответ, прибытие и ориентир цены».</p>
+  <div class="g4 dark">
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Север»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.8</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>САО · СЗАО · рядом</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~10 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~40 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 8 500 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Центр»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.7</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ЦАО · ЗАО · ЮЗАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~15 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~55 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 9 200 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Центр «Восток»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.9</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ВАО · ЮВАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~8 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~35 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 7 900 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Ночь»</div><div class="svc-lic" style="color:var(--d-rose)"><svg><use href="#ic-time"/></svg>принимает заявки 24/7</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.6</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>Москва · по зонам выезда</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~20 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~70 мин</div><div class="sla-s">зависит от зоны</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 10 500 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Клиника «Замоскворечье»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.5</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ЦАО · ЮАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~25 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~60 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 9 800 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медорг. «Юго-Запад»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.7</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ЮЗАО · ЗАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~12 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~50 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 8 200 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Центр «Сокольники»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.6</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>ВАО · СВАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~18 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~65 мин</div><div class="sla-s">после подтв.</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 8 900 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+
+    <div class="svc"><div class="svc-hd"><div><div class="svc-name">Медслужба «Новая Москва»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.4</span></div>
+      <div class="svc-body"><div class="svc-zone"><svg style="width:11px;height:11px"><use href="#ic-district"/></svg>Новая Москва · ЮЗАО</div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~30 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~90 мин</div><div class="sla-s">зависит от зоны</div></div></div>
+        <div class="svc-price-row"><span class="svc-price-k">ориентир</span><span class="svc-price-v">от 11 500 ₽</span></div>
+        <div class="btn-row"><button class="btn btn-p btn-sm" style="flex:1">Открыть</button><button class="btn btn-t btn-sm" style="flex:1">Написать</button></div></div></div>
+  </div>
+  <div class="callout">Подзаголовки списка: «Условия выезда» · «Ответ, прибытие и ориентир цены» · «До подтверждения» · «Время, зона и стоимость». У каждой карточки свой мягкий акцент — список не выглядит как ряд одинаковых серых блоков.</div>
+</section>
+<!-- ═══ 12 EXPANDED CARD — FLAGSHIP ═══ -->
+<section class="sec" id="expanded" data-screen-label="Expanded medservice card">
+  <div class="sec-label">12 — Expanded medservice card ★ FLAGSHIP</div>
+  <h2 class="sec-h">Раскрытая карточка медслужбы</h2>
+  <p class="sec-sub">Главный экран продукта. Блоки A–J: идентичность, SLA, рейтинг, каталог из 5 услуг, отдельная панель «Описать ситуацию», условия и цены, доверие, чат, действия, футнот.</p>
+  <div style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap">
+    <div class="scr-w">
+      <div class="phone xtall"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+        <div class="s-hd" style="padding-bottom:11px"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><button class="btn btn-g" style="margin-left:auto;padding:0">← список</button></div></div>
+        <div class="s-body" style="gap:13px">
+          <!-- A identity -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+              <div><div class="svc-name" style="font-size:17px">Клиника «Север»</div>
+                <div class="svc-lic" style="margin-top:5px"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div>
+              <span class="rate" style="font-size:13px;padding:5px 11px"><svg style="width:14px;height:14px"><use href="#ic-star"/></svg>4.8 <small>· 126 отзывов</small></span>
+            </div>
+            <div class="pills" style="margin-top:9px"><span class="pill pill-b"><svg><use href="#ic-district"/></svg>Москва · выезд по районам</span><span class="pill pill-t">доступна сейчас · 24/7</span></div>
+            <p class="svc-note" style="margin-top:8px">Детали подтверждает выбранная клиника или медслужба.</p>
+          </div>
+          <!-- B SLA -->
+          <div class="sla"><div class="sla-c resp"><div class="sla-k"><svg><use href="#ic-chat"/></svg>Ответ медслужбы</div><div class="sla-v">~10–20 мин</div><div class="sla-s">после заявки</div></div>
+            <div class="sla-c arr"><div class="sla-k"><svg><use href="#ic-time"/></svg>Прибытие</div><div class="sla-v">~30–60 мин</div><div class="sla-s">после подтверждения</div></div></div>
+          <!-- D catalog -->
+          <div><div class="sla-k" style="margin-bottom:7px;color:var(--d-ink-3)">Услуги · выберите вариант</div>
+            <div class="cat">
+              <div class="cat-row sel"><div class="cat-ic" style="background:var(--d-rose-dim);color:var(--d-rose)"><svg><use href="#ic-binge"/></svg></div><div class="cat-main"><div class="cat-name">Вывод из запоя</div><div class="cat-desc">помощь при длительном употреблении алкоголя</div></div><div class="cat-price">от 3 500 ₽</div></div>
+              <div class="cat-row"><div class="cat-ic" style="background:var(--d-blue-dim);color:var(--d-blue)"><svg><use href="#ic-alc"/></svg></div><div class="cat-main"><div class="cat-name">Капельница после алкоголя</div><div class="cat-desc">если плохо после алкоголя или тяжёлое похмелье</div></div><div class="cat-price">от 2 400 ₽</div></div>
+              <div class="cat-row"><div class="cat-ic" style="background:var(--d-teal-dim);color:var(--d-teal)"><svg><use href="#ic-specialist"/></svg></div><div class="cat-main"><div class="cat-name">Нарколог на дом</div><div class="cat-desc">консультация и выезд специалиста</div></div><div class="cat-price">от 3 500 ₽</div></div>
+              <div class="cat-row"><div class="cat-ic" style="background:var(--d-sage-dim,rgba(94,154,102,.15));color:var(--d-sage)"><svg><use href="#ic-tox"/></svg></div><div class="cat-main"><div class="cat-name">Детокс</div><div class="cat-desc">восстановление после интоксикации</div></div><div class="cat-price">по запросу</div></div>
+              <div class="cat-row"><div class="cat-ic" style="background:var(--d-clay-dim);color:var(--d-clay)"><svg><use href="#ic-planned"/></svg></div><div class="cat-main"><div class="cat-name">Плановый выезд на дом</div><div class="cat-desc">процедура или плановый визит специалиста</div></div><div class="cat-price">от 3 500 ₽</div></div>
+            </div>
+          </div>
+          <!-- E custom panel (separate, NOT a row) -->
+          <div class="custom-panel"><div class="custom-h">Описать ситуацию</div>
+            <p class="custom-t">Не знаете, какую услугу ищете? Опишите своими словами — выбранная клиника посмотрит и подтвердит формат, возможность выезда и стоимость.</p>
+            <div class="btn-row"><button class="btn btn-s btn-sm" style="flex:1;border-color:var(--d-rose);color:var(--d-rose)">Описать ситуацию</button><button class="btn btn-s btn-sm" style="flex:1">Написать в чат</button></div></div>
+          <!-- F price / conditions -->
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div class="iblk"><div class="iblk-k"><svg><use href="#ic-cost"/></svg>Ориентир по стоимости</div><div class="iblk-t"><b>от 8 500 ₽</b> · диапазон зависит от услуги и времени</div></div>
+            <div class="iblk"><div class="iblk-k"><svg><use href="#ic-license"/></svg>Что уточняет клиника</div><div class="iblk-t">возможность выезда · формат помощи · состав услуги · назначения</div></div>
+            <div class="iblk"><div class="iblk-k"><svg><use href="#ic-time"/></svg>Что влияет на цену</div><div class="iblk-t">район выезда · время суток · объём и формат помощи</div></div>
+            <div class="iblk" style="border-color:var(--d-sage);background:rgba(130,188,140,.1)"><div class="iblk-k" style="color:var(--d-sage)"><svg style="color:var(--d-sage)"><use href="#ic-confirm"/></svg>Финальная стоимость</div><div class="iblk-t">подтверждается клиникой до выезда</div></div>
+          </div>
+          <!-- G trust -->
+          <div class="trust"><span><svg><use href="#ic-license"/></svg>Лицензия подтверждена</span><span>24/7</span><span><svg><use href="#ic-privacy"/></svg>Анонимно на старте</span><span><svg><use href="#ic-no-call"/></svg>Без звонков на старте</span><span>Паспорт не нужен на старте</span><span><svg><use href="#ic-district"/></svg>Точный адрес — после выбора</span></div>
+          <p class="svc-note">Данные для выезда уточняет выбранная клиника, если это нужно для оказания услуги.</p>
+          <!-- H chat (very visible) -->
+          <div class="chat-ctx" style="border-style:solid"><svg><use href="#ic-chat"/></svg><div><b style="color:var(--d-teal)">Чат со специалистом клиники</b><br>Можно уточнить формат помощи, время, условия или описать ситуацию.</div></div>
+          <!-- footnote -->
+          <p class="svc-note" style="border-top:.5px solid var(--d-line);padding-top:10px">Детали, возможность выезда и стоимость подтверждает выбранная клиника. Надом не оказывает медицинские услуги и не заменяет скорую помощь.</p>
+        </div>
+        <!-- I actions -->
+        <div class="s-foot"><button class="btn btn-p btn-full">Оставить заявку</button>
+          <div class="btn-row"><button class="btn btn-t" style="flex:1"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Написать в чат</button><button class="btn btn-s" style="flex:1">Выбрать другую</button></div></div>
+      </div></div>
+      <div class="scr-lbl">Раскрытая карточка · флагман</div>
+    </div>
+
+    <div style="flex:1;min-width:300px;display:flex;flex-direction:column;gap:10px">
+      <div class="dcard" style="padding:18px 20px"><div class="dcard-h">Структура A–J</div>
+        <table class="spec"><tr><th>Блок</th><th>Что</th></tr>
+          <tr><td class="mono">A</td><td><b>Идентичность:</b> название · лицензия/верификация · яркий рейтинг «4.8 ★ · 126 отзывов» · зона «Москва · выезд по районам» · «доступна сейчас / 24/7» · «Детали подтверждает медслужба»</td></tr>
+          <tr><td class="mono">B</td><td><b>SLA:</b> две раздельные карты — «Ответ медслужбы ~10–20 мин» и «Прибытие после подтверждения ~30–60 мин». Никогда не сливаются.</td></tr>
+          <tr><td class="mono">C</td><td><b>Рейтинг:</b> янтарный, тёплый — виден в короткой и раскрытой карточке.</td></tr>
+          <tr><td class="mono">D</td><td><b>Каталог:</b> ровно 5 фиксированных услуг с иконкой/акцентом/названием/описанием/ценой/состоянием выбора.</td></tr>
+          <tr><td class="mono">E</td><td><b>Описать ситуацию — отдельная панель</b> под 5 услугами. Не шестая платная строка. «Не нашли подходящий вариант?» + 2 кнопки.</td></tr>
+          <tr><td class="mono">F</td><td><b>Цена/условия:</b> ориентир · что уточняет медслужба · что влияет на цену · финальная стоимость после подтверждения.</td></tr>
+          <tr><td class="mono">G</td><td><b>Доверие:</b> чипы лицензии/24-7/анонимности/без звонков/паспорта/адреса + безопасная формулировка.</td></tr>
+          <tr><td class="mono">H</td><td><b>Чат:</b> заметный блок «Написать специалисту» + хелпер.</td></tr>
+          <tr><td class="mono">I</td><td><b>Действия:</b> primary «Выбрать услугу», teal «Написать специалисту», «Описать свою ситуацию», «Сравнить», ghost «Назад», маленькая «103/112».</td></tr>
+          <tr><td class="mono">J</td><td><b>Футнот:</b> «Детали, возможность выезда и стоимость подтверждает выбранная клиника. Надом не оказывает медицинские услуги.»</td></tr>
+        </table>
+      </div>
+      <div class="callout rose"><b>Описать ситуацию — не категория услуги.</b> Он живёт отдельной панелью (блок E), а не шестой ценовой строкой каталога.</div>
+      <div class="callout ok"><b>Сенситивные запросы:</b> пользователь может описать запрос (бензодиазепины, опиаты, седация и т.п.). Возможность, безопасность, состав услуги и решение по препаратам подтверждает специалист выбранной медслужбы.</div>
+    </div>
+  </div>
+</section>
+<!-- ═══ 13 SERVICE SELECT + CUSTOM REQUEST ═══ -->
+<section class="sec" id="select">
+  <div class="sec-label">13 — Service selection & custom request</div>
+  <h2 class="sec-h">Выбор услуги · Описать ситуацию</h2>
+  <p class="sec-sub">«Описать ситуацию» — управляемое продолжение, а не отдельная услуга: контекст выбранной медслужбы сверху, чипы-примеры, бюджет, заметка о приватности.</p>
+  <div class="scr-scroll">
+
+    <!-- service selection -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><button class="btn btn-g" style="margin-left:auto;padding:0">← карточка</button></div>
+        <div class="s-eyebrow">медслужба «Север»</div><h1 class="s-title" style="font-size:17px">Выбор услуги</h1></div>
+      <div class="s-body">
+        <div class="cat-row sel"><div class="cat-ic" style="background:var(--d-rose-dim);color:var(--d-rose)"><svg><use href="#ic-alc"/></svg></div><div class="cat-main"><div class="cat-name">Плохо после алкоголя</div><div class="cat-desc">капельница от похмелья / после алкоголя</div></div><div class="cat-price">от 2 400 ₽</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-cost"/></svg>Ориентир по стоимости</div><div class="iblk-t"><b>2 400–8 500 ₽</b> · финальная сумма — после подтверждения</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-license"/></svg>Что уточнит медслужба</div><div class="iblk-t">формат помощи · состав услуги · безопасность · решение по препаратам</div></div>
+        <div class="trust"><span><svg><use href="#ic-privacy"/></svg>анонимно на старте</span><span><svg><use href="#ic-no-call"/></svg>без звонков</span></div>
+        <p class="svc-note">Решение по препаратам — только специалист медслужбы и в рамках лицензии.</p>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Отправить заявку</button><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Сначала написать</button></div>
+    </div></div><div class="scr-lbl">Выбор услуги</div></div>
+
+    <!-- custom request -->
+    <div class="scr-w"><div class="phone tall"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span><button class="btn btn-g" style="margin-left:auto;padding:0">← карточка</button></div>
+        <h1 class="s-title" style="font-size:16px">Не нашли точную услугу — опишите, что нужно.</h1>
+        <p class="s-desc">Выбранная медслужба посмотрит запрос и подтвердит возможность, формат и стоимость.</p></div>
+      <div class="s-body">
+        <div class="svc" style="border-radius:var(--r-md)"><div class="svc-hd" style="padding:9px 11px"><div><div class="svc-name" style="font-size:11.5px">Медслужба «Север»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.8</span></div></div>
+        <div class="field ta"><div class="field-k">Что нужно?</div><div class="field-ph">Опишите ситуацию нейтрально. Например: «нужна капельница после алкоголя, человек дома, в сознании».</div></div>
+        <div class="chips"><span class="chip sel">после алкоголя</span><span class="chip">длительное употребление</span><span class="chip">интоксикация</span><span class="chip">срочный визит</span><span class="chip">бензодиазепины</span><span class="chip">опиаты</span><span class="chip">седация</span><span class="chip">другое</span></div>
+        <div class="field"><div class="field-k">Что важно знать? <span style="color:var(--d-ink-3);font-weight:400">· необязательно</span></div><div class="field-ph">аллергии, хронические состояния, пожелания по времени</div></div>
+        <div><div class="sla-k" style="margin-bottom:6px;color:var(--d-ink-3)">Бюджет — ориентир</div><div class="chips"><span class="chip">до 8 000</span><span class="chip sel">8–12 000</span><span class="chip">12–18 000</span><span class="chip">не знаю</span></div></div>
+        <div class="iblk" style="border-color:var(--d-rose);background:var(--d-rose-dim)"><div class="iblk-t" style="display:flex;gap:7px;align-items:center"><svg style="width:14px;height:14px;color:var(--d-rose);flex-shrink:0"><use href="#ic-privacy"/></svg>Точный адрес, паспорт и телефон не нужны на старте.</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Отправить запрос и открыть чат</button><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Сначала написать специалисту</button></div>
+    </div></div><div class="scr-lbl">Описать ситуацию — управляемая форма</div></div>
+
+  </div>
+</section>
+
+<!-- ═══ 14 CHAT + CONFIRM ═══ -->
+<section class="sec" id="chat">
+  <div class="sec-label">14 — Chat & request confirmation</div>
+  <h2 class="sec-h">Чат со специалистом · Подтверждение</h2>
+  <p class="sec-sub">Чат с выбранной клиникой и подтверждение заявки — включая ручное подтверждение на стороне клиники.</p>
+  <div class="scr-scroll">
+
+    <!-- chat -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd" style="padding-bottom:11px"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:2px"><div style="width:30px;height:30px;border-radius:50%;background:var(--d-teal-dim);display:flex;align-items:center;justify-content:center;color:var(--d-teal)"><svg style="width:16px;height:16px"><use href="#ic-specialist"/></svg></div><div><div class="svc-name" style="font-size:12.5px">Специалист · «Север»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div></div></div>
+      <div class="s-body">
+        <div class="chat-ctx"><svg><use href="#ic-privacy"/></svg>Анонимно на старте. Точный адрес — после подтверждения.</div>
+        <div class="chat-out">Здравствуйте. Нужна капельница после алкоголя, человек дома. Район САО.<div class="chat-meta">15:30</div></div>
+        <div class="chat-in">Здравствуйте. Возможен выезд по САО. Уточните, были ли реакции на препараты ранее?<div class="chat-meta">15:31</div></div>
+        <div class="chat-out">Реакций не было.<div class="chat-meta">15:32</div></div>
+        <div class="chat-in">Принято. Ориентир — от 8 500 ₽, прибытие ~40 мин после подтверждения. Состав и финальную стоимость подтвердим до выезда.<div class="chat-meta">15:32</div></div>
+        <div class="chat-bar"><div class="chat-inp">Сообщение…</div><button class="chat-send"><svg><use href="#ic-send"/></svg></button></div>
+      </div>
+    </div></div><div class="scr-lbl">Чат со специалистом</div></div>
+
+    <!-- confirm -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <h1 class="s-title" style="font-size:17px">Подтверждение заявки</h1><p class="s-desc">Проверьте параметры. Заявку подтверждает выбранная клиника.</p></div>
+      <div class="s-body">
+        <div class="svc"><div class="svc-hd" style="padding:9px 11px"><div><div class="svc-name" style="font-size:12px">Медслужба «Север»</div><div class="svc-lic"><svg><use href="#ic-license"/></svg>лицензия подтверждена</div></div><span class="rate"><svg><use href="#ic-star"/></svg>4.8</span></div>
+          <div class="svc-body"><div class="svc-line" style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--d-ink-2)">Услуга</span><b style="color:var(--d-ink)">После алкоголя</b></div>
+            <div class="svc-line" style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--d-ink-2)">Зона</span><b style="color:var(--d-ink)">САО</b></div>
+            <div class="svc-line" style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--d-ink-2)">Время</span><b style="color:var(--d-ink)">Как можно скорее</b></div></div></div>
+        <div class="sla"><div class="sla-c resp"><div class="sla-k">ответ медслужбы</div><div class="sla-v">~10 мин</div></div><div class="sla-c arr"><div class="sla-k">прибытие</div><div class="sla-v">~40 мин</div></div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-cost"/></svg>Ориентир</div><div class="iblk-t"><b>от 8 500 ₽</b> · финальная стоимость — после подтверждения медслужбы</div></div>
+        <p class="svc-note">Отправляя заявку, вы соглашаетесь передать данные выбранной медслужбе для подтверждения и выезда.</p>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Подтвердить и отправить</button><button class="btn btn-s btn-full">Изменить</button></div>
+    </div></div><div class="scr-lbl">Подтверждение заявки</div></div>
+
+    <!-- manual confirmation -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div style="width:48px;height:48px;border-radius:14px;background:var(--d-blue-dim);display:flex;align-items:center;justify-content:center;color:var(--d-blue)"><span class="dots" style="color:var(--d-blue)"><i></i><i></i><i></i></span></div></div>
+        <div class="s-eyebrow">заявка отправлена</div>
+        <h1 class="s-title" style="font-size:17px">Ждём ответ клиники</h1>
+        <p class="s-desc">Передали заявку в клинику «Север». Возможность выезда, формат и стоимость клиника подтвердит вручную.</p>
+        <div class="live"><span class="pulse"></span>Обычно отвечают за ~10 минут</div>
+        <div class="track" style="margin-top:6px">
+          <div class="tr"><div class="tr-l"><div class="tr-d done"></div><div class="tr-c done"></div></div><div class="tr-t"><div class="tr-n">Заявка создана</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d done"></div><div class="tr-c"></div></div><div class="tr-t"><div class="tr-n">Передали медслужбе</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d active"></div></div><div class="tr-t"><div class="tr-n">Ждём подтверждение</div><div class="tr-s">медслужба отвечает вручную</div></div></div>
+        </div>
+      </div>
+      <div class="s-foot"><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Открыть чат</button><button class="btn btn-g">Отменить заявку</button></div>
+    </div></div><div class="scr-lbl">Ручное подтверждение медслужбой</div></div>
+
+  </div>
+</section>
+<!-- ═══ 15 STATUS / PRICE-LOCK / ARRIVAL / COMPLETED ═══ -->
+<section class="sec" id="status">
+  <div class="sec-label">15 — Status · price-lock · arrival · completed</div>
+  <h2 class="sec-h">Статус · фиксация цены · прибытие · завершено</h2>
+  <p class="sec-sub">После подтверждения: статус заявки, зафиксированная стоимость, ожидание и прибытие специалиста, завершение.</p>
+  <div class="scr-scroll">
+
+    <!-- status -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <div class="s-eyebrow" style="color:var(--d-sage)">заявка подтверждена</div><h1 class="s-title" style="font-size:17px">Статус заявки</h1></div>
+      <div class="s-body">
+        <div class="track">
+          <div class="tr"><div class="tr-l"><div class="tr-d done"></div><div class="tr-c done"></div></div><div class="tr-t"><div class="tr-n">Заявка создана</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d done"></div><div class="tr-c done"></div></div><div class="tr-t"><div class="tr-n">Передали медслужбе</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d done"></div><div class="tr-c done"></div></div><div class="tr-t"><div class="tr-n">Медслужба подтвердила</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d active"></div><div class="tr-c"></div></div><div class="tr-t"><div class="tr-n">Стоимость подтверждена</div><div class="tr-s">price-lock зафиксирован</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d"></div><div class="tr-c"></div></div><div class="tr-t"><div class="tr-n off">Специалист выехал</div></div></div>
+          <div class="tr"><div class="tr-l"><div class="tr-d"></div></div><div class="tr-t"><div class="tr-n off">Завершено</div></div></div>
+        </div>
+      </div>
+      <div class="s-foot"><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Чат с медслужбой</button></div>
+    </div></div><div class="scr-lbl">Статус заявки</div></div>
+
+    <!-- price lock -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div style="width:48px;height:48px;border-radius:14px;background:rgba(130,188,140,.14);display:flex;align-items:center;justify-content:center;color:var(--d-sage)"><svg style="width:24px;height:24px"><use href="#ic-pricelock"/></svg></div></div>
+        <div class="plock live"><div class="plock-k">цена зафиксирована</div><div class="plock-v">9 200 ₽</div><div class="plock-s">зафиксировано клиникой «Север»</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-confirm"/></svg>Что входит</div><div class="iblk-t">выезд специалиста · процедура по согласованию · в рамках лицензии медслужбы</div></div>
+        <p class="svc-note">Стоимость может измениться только при изменении объёма услуги — по согласованию с вами.</p>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Принять стоимость</button><button class="btn btn-t btn-full">Уточнить в чате</button></div>
+    </div></div><div class="scr-lbl">Price-lock</div></div>
+
+    <!-- waiting / arrival -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div class="s-mark" style="color:var(--d-teal)"><svg><use href="#mark-iv"/></svg></div></div>
+        <div class="s-eyebrow" style="color:var(--d-teal)">специалист выехал</div>
+        <h1 class="s-title" style="font-size:17px">В пути к вам</h1>
+        <p class="s-desc">Специалист медслужбы «Север» выехал. Точное время прибытия подтверждает медслужба.</p>
+        <div class="live"><span class="pulse"></span>Ориентир прибытия · ~25 минут</div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-district"/></svg>Адрес выезда</div><div class="iblk-t">передан выбранной медслужбе · виден только ей</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Связаться со специалистом</button></div>
+    </div></div><div class="scr-lbl">Ожидание / прибытие</div></div>
+
+    <!-- completed -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div style="width:48px;height:48px;border-radius:50%;background:rgba(130,188,140,.16);display:flex;align-items:center;justify-content:center;color:var(--d-sage)"><svg style="width:26px;height:26px"><use href="#ic-confirm"/></svg></div></div>
+        <div class="s-eyebrow" style="color:var(--d-sage)">завершено</div>
+        <h1 class="s-title" style="font-size:17px">Выезд завершён</h1>
+        <p class="s-desc">Спасибо, что выбрали Надом для подбора. Оцените медслужбу — это помогает другим.</p>
+        <div class="svc" style="border-radius:var(--r-md)"><div class="svc-body" style="padding:11px 13px"><div class="svc-line" style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--d-ink-2)">Медслужба</span><b style="color:var(--d-ink)">«Север»</b></div><div class="svc-line" style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--d-ink-2)">Итог</span><b style="color:var(--d-ink)">9 200 ₽</b></div></div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Оценить медслужбу</button><button class="btn btn-g">Повторить подбор</button></div>
+    </div></div><div class="scr-lbl">Завершено</div></div>
+
+  </div>
+</section>
+
+<!-- ═══ 16 FEEDBACK + SUPPORT ═══ -->
+<section class="sec" id="feedback">
+  <div class="sec-label">16 — Rating · feedback · support</div>
+  <h2 class="sec-h">Оценка · отзыв · поддержка</h2>
+  <div class="scr-scroll">
+
+    <!-- rating -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <h1 class="s-title" style="font-size:17px">Как прошёл выезд?</h1><p class="s-desc">Оценка анонимна и помогает другим выбрать медслужбу.</p></div>
+      <div class="s-body">
+        <div style="display:flex;gap:8px;justify-content:center;color:var(--d-amber);margin:6px 0">
+          <svg style="width:34px;height:34px;fill:currentColor"><use href="#ic-star"/></svg><svg style="width:34px;height:34px;fill:currentColor"><use href="#ic-star"/></svg><svg style="width:34px;height:34px;fill:currentColor"><use href="#ic-star"/></svg><svg style="width:34px;height:34px;fill:currentColor"><use href="#ic-star"/></svg><svg style="width:34px;height:34px;fill:var(--d-line-2)"><use href="#ic-star"/></svg>
+        </div>
+        <div class="chips" style="justify-content:center"><span class="chip sel">вежливо</span><span class="chip">вовремя</span><span class="chip sel">понятная цена</span><span class="chip">аккуратно</span></div>
+        <div class="field ta"><div class="field-k">Комментарий <span style="color:var(--d-ink-3);font-weight:400">· необязательно</span></div><div class="field-ph">Что понравилось или что улучшить</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Отправить отзыв</button><button class="btn btn-g">Пропустить</button></div>
+    </div></div><div class="scr-lbl">Оценка / отзыв</div></div>
+
+    <!-- support -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <h1 class="s-title" style="font-size:17px">Поддержка</h1><p class="s-desc">Поможем с подбором и приложением. Это не медицинская консультация.</p></div>
+      <div class="s-body">
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-help"/></svg>Это скорая помощь?</div><div class="iblk-t">Нет. Надом подбирает медслужбу для планового выезда. Если состояние угрожает жизни — 103 или 112.</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-help"/></svg>Кто приедет?</div><div class="iblk-t">Специалист выбранной медслужбы с проверенной лицензией.</div></div>
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-help"/></svg>Какие данные нужны?</div><div class="iblk-t">Для подбора — район и время. Точный адрес медслужба запросит после подтверждения.</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-t btn-full"><svg style="width:14px;height:14px"><use href="#ic-chat"/></svg> Написать в поддержку</button><div class="btn-row"><button class="btn btn-err" style="flex:1">103</button><button class="btn btn-err" style="flex:1">112</button></div></div>
+    </div></div><div class="scr-lbl">Поддержка</div></div>
+
+  </div>
+</section>
+<!-- ═══ 17 STATES ═══ -->
+<section class="sec" id="states">
+  <div class="sec-label">17 — Empty · loading · error · repeat</div>
+  <h2 class="sec-h">Пустые · загрузка · ошибка · повтор</h2>
+  <p class="sec-sub">Спокойные состояния без паники и агрессивных баннеров. Ошибки — приглушённый красный, нейтральная формулировка.</p>
+  <div class="scr-scroll">
+
+    <!-- loading -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <div class="s-eyebrow">подбираем</div><h1 class="s-title" style="font-size:17px">Ищем варианты <span class="dots" style="color:var(--d-blue)"><i></i><i></i><i></i></span></h1></div>
+      <div class="s-body" style="gap:11px">
+        <div class="svc"><div class="svc-hd"><div style="flex:1;display:flex;flex-direction:column;gap:7px"><span class="skel" style="height:13px;width:60%"></span><span class="skel" style="height:9px;width:40%"></span></div><span class="skel" style="height:22px;width:42px;border-radius:100px"></span></div><div class="svc-body"><span class="skel" style="height:9px;width:50%"></span><div class="sla"><span class="skel" style="height:42px;flex:1;border-radius:8px"></span><span class="skel" style="height:42px;flex:1;border-radius:8px"></span></div><span class="skel" style="height:38px;border-radius:8px"></span></div></div>
+        <div class="svc"><div class="svc-hd"><div style="flex:1;display:flex;flex-direction:column;gap:7px"><span class="skel" style="height:13px;width:55%"></span><span class="skel" style="height:9px;width:35%"></span></div><span class="skel" style="height:22px;width:42px;border-radius:100px"></span></div><div class="svc-body"><span class="skel" style="height:9px;width:45%"></span><div class="sla"><span class="skel" style="height:42px;flex:1;border-radius:8px"></span><span class="skel" style="height:42px;flex:1;border-radius:8px"></span></div></div></div>
+      </div>
+    </div></div><div class="scr-lbl">Загрузка · skeleton</div></div>
+
+    <!-- empty -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div style="width:48px;height:48px;border-radius:14px;background:var(--d-bg-3);display:flex;align-items:center;justify-content:center;color:var(--d-ink-3)"><svg style="width:24px;height:24px"><use href="#ic-empty"/></svg></div></div>
+        <div class="s-eyebrow">пока пусто</div>
+        <h1 class="s-title" style="font-size:17px">Под эти параметры вариантов нет</h1>
+        <p class="s-desc">Попробуйте расширить район или изменить время. Или опишите свою ситуацию — медслужбы посмотрят его вручную.</p>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Изменить параметры</button><button class="btn btn-s btn-full">Описать свою ситуацию</button></div>
+    </div></div><div class="scr-lbl">Пусто</div></div>
+
+    <!-- error -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div></div>
+      <div class="s-body">
+        <div class="s-hero"><div style="width:48px;height:48px;border-radius:14px;background:var(--d-err-dim);display:flex;align-items:center;justify-content:center;color:var(--d-err)"><svg style="width:24px;height:24px"><use href="#ic-error"/></svg></div></div>
+        <div class="s-eyebrow" style="color:var(--d-err)">не удалось загрузить</div>
+        <h1 class="s-title" style="font-size:17px">Что-то пошло не так</h1>
+        <p class="s-desc">Не получилось получить варианты. Проверьте соединение и попробуйте ещё раз.</p>
+        <div class="iblk"><div class="iblk-t" style="font-family:var(--f-mono);font-size:9px;color:var(--d-ink-3)">код · NET_OFFERS_TIMEOUT · повтор безопасен</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Повторить</button><button class="btn btn-g">Написать в поддержку</button></div>
+    </div></div><div class="scr-lbl">Ошибка</div></div>
+
+    <!-- repeat -->
+    <div class="scr-w"><div class="phone"><div class="tg-bar"><span>15:31</span><span class="dots">•••</span></div><div class="ph-scr">
+      <div class="s-hd"><div class="s-top"><svg class="s-logo"><use href="#mark-iv-sm"/></svg><span class="s-wm">Над<span class="o">о</span>м</span></div>
+        <div class="s-eyebrow">повторный подбор</div><h1 class="s-title" style="font-size:17px">Повторить как в прошлый раз?</h1></div>
+      <div class="s-body">
+        <div class="iblk"><div class="iblk-k"><svg><use href="#ic-repeat"/></svg>Прошлый подбор</div><div class="iblk-t"><b>После алкоголя</b> · САО · как можно скорее</div></div>
+        <div class="ch sel"><div class="ch-dot on"></div><svg class="ch-ico"><use href="#ic-repeat"/></svg><div class="ch-main">Повторить те же параметры</div></div>
+        <div class="ch"><div class="ch-dot"></div><svg class="ch-ico"><use href="#ic-start"/></svg><div class="ch-main">Начать новый подбор</div></div>
+      </div>
+      <div class="s-foot"><button class="btn btn-p btn-full">Показать варианты</button></div>
+    </div></div><div class="scr-lbl">Повторный подбор</div></div>
+
+  </div>
+</section>
+<!-- ═══ 18 ADMIN DASHBOARD ═══ -->
+<section class="sec" id="dash">
+  <div class="sec-label">18 — Admin dashboard</div>
+  <h2 class="sec-h">Dashboard · администратор платформы</h2>
+  <p class="sec-sub">Контролируемый превью-инструмент: вход по ручному токену, список заявок из БД, контекст заявки, создание медслужбы, ссылка-инвайт.</p>
+  <div class="g2" style="margin-bottom:20px">
+    <div class="dcard" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;text-align:center;padding:34px 28px">
+      <div style="width:46px;height:46px;border-radius:13px;background:var(--d-blue-dim);display:flex;align-items:center;justify-content:center;color:var(--d-blue)"><svg style="width:24px;height:24px"><use href="#ic-key"/></svg></div>
+      <div><div class="svc-name" style="font-size:15px;color:var(--d-ink);font-family:var(--f-display)">Вход в дашборд</div><p class="note" style="margin-top:4px">Только для уполномоченных сотрудников платформы.</p></div>
+      <div class="field" style="width:100%;max-width:300px;text-align:left"><div class="field-k">Admin token</div><div class="field-ph" style="font-family:var(--f-mono)">•••••••••••••••••••• (вставьте вручную)</div></div>
+      <button class="btn btn-p" style="width:100%;max-width:300px">Войти</button>
+      <p class="note" style="font-size:10px;color:var(--d-ink-3);max-width:320px">Admin token хранится только в sessionStorage этого браузера. Не вставляйте его в чат и не коммитьте в репозиторий.</p>
+    </div>
+    <div class="dcard">
+      <div class="dcard-h">Создать медслужбу</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="field"><div class="field-k">Название организации</div><div class="field-ph">напр. Медслужба «Север»</div></div>
+        <div class="field"><div class="field-k">Номер лицензии</div><div class="field-ph">ЛО-77-01-XXXXXX</div></div>
+        <div class="field"><div class="field-k">Зоны выезда</div><div class="field-ph">САО · СЗАО</div></div>
+        <div class="field"><div class="field-k">Канал связи</div><div class="field-ph">TELEGRAM · WHATSAPP · PHONE · EMAIL · DASHBOARD</div></div>
+        <div style="display:flex;gap:8px;align-items:center;margin-top:2px"><button class="btn btn-p btn-sm" style="flex:1">Создать</button><button class="btn btn-s btn-sm" style="flex:1"><svg style="width:13px;height:13px"><use href="#ic-link"/></svg> Ссылка-инвайт</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="dash">
+    <div class="dash-side">
+      <div class="dash-logo"><svg><use href="#mark-iv-sm"/></svg><b>Над<span class="o">о</span>м</b></div>
+      <div class="dash-nav">
+        <a href="#dash" class="on"><svg><use href="#ic-list"/></svg>Заявки</a>
+        <a href="#dash"><svg><use href="#ic-org"/></svg>Медслужбы</a>
+        <a href="#dash"><svg><use href="#ic-link"/></svg>Инвайты</a>
+        <a href="#dash"><svg><use href="#ic-dash"/></svg>Диагностика</a>
+      </div>
+    </div>
+    <div class="dash-main">
+      <div class="dash-h">Заявки</div><div class="dash-sub">Минимизированные записи из БД · без чата, телефонов и точных адресов</div>
+      <div class="drq"><div class="drq-top"><span class="drq-name">req · После алкоголя</span><span class="pill pill-amber">ждёт подтверждения</span></div><div class="drq-meta"><span>зона <b>САО</b></span><span>время <b>сейчас</b></span><span>оффер <b>«Север»</b></span><span class="drq-id">#a91f · 15:30</span></div></div>
+      <div class="drq"><div class="drq-top"><span class="drq-name">req · Срочный выезд</span><span class="pill pill-sage">подтверждена</span></div><div class="drq-meta"><span>зона <b>ЦАО</b></span><span>время <b>сегодня</b></span><span>оффер <b>«Центр»</b></span><span class="drq-id">#a8e2 · 15:12</span></div></div>
+      <div class="drq"><div class="drq-top"><span class="drq-name">req · Плановый выезд</span><span class="pill pill-b">price-lock</span></div><div class="drq-meta"><span>зона <b>ВАО</b></span><span>время <b>завтра</b></span><span>оффер <b>«Восток»</b></span><span class="drq-id">#a8d0 · 14:55</span></div></div>
+    </div>
+  </div>
+  <div class="callout">Превью-дашборд: без продакшн-аутентификации, RBAC и аудита. Доступ ограничивается на уровне платформы. Роль на стороне медслужбы — «уполномоченный сотрудник медслужбы».</div>
+</section>
+
+<!-- ═══ 19 MEDSERVICE CABINET ═══ -->
+<section class="sec" id="cabinet">
+  <div class="sec-label">19 — Medservice cabinet</div>
+  <h2 class="sec-h">Кабинет медслужбы</h2>
+  <p class="sec-sub">Сторона медслужбы (роль <span class="kbd">CLINIC_AUTHORIZED_STAFF</span>): входящая заявка, контекст, ручное подтверждение, статус и стоимость.</p>
+  <div class="dash lt">
+    <div class="dash-side">
+      <div class="dash-logo"><svg><use href="#mark-iv-sm"/></svg><b>Над<span class="o">о</span>м · «Север»</b></div>
+      <div class="dash-nav">
+        <a href="#cabinet" class="on"><svg><use href="#ic-bell"/></svg>Входящие</a>
+        <a href="#cabinet"><svg><use href="#ic-confirm"/></svg>В работе</a>
+        <a href="#cabinet"><svg><use href="#ic-org"/></svg>Профиль</a>
+      </div>
+    </div>
+    <div class="dash-main" style="display:flex;gap:16px">
+      <div style="flex:1">
+        <div class="dash-h">Входящая заявка</div><div class="dash-sub">#a91f · поступила 15:30</div>
+        <div class="drq"><div class="drq-top"><span class="drq-name">После алкоголя</span><span class="pill pill-amber">новая</span></div><div class="drq-meta"><span>зона <b>САО</b></span><span>время <b>сейчас</b></span><span>бюджет <b>8–12 000</b></span></div>
+          <p class="note" style="font-size:10px;margin-top:8px;color:var(--ink-3)">Запрос: «нужна капельница после алкоголя, человек дома, в сознании». Реакций на препараты не было.</p></div>
+        <div style="display:flex;gap:7px;margin-top:4px"><button class="btn btn-p btn-sm" style="flex:1">Подтвердить выезд</button><button class="btn btn-s btn-sm" style="flex:1">Уточнить в чате</button></div>
+      </div>
+      <div style="width:200px;flex-shrink:0">
+        <div class="dash-sub" style="margin-bottom:8px">Управление</div>
+        <div class="iblk" style="background:var(--white);border-color:var(--paper-3);margin-bottom:7px"><div class="iblk-k" style="color:var(--ink-4)">статус</div><div class="iblk-t" style="color:var(--ink-2)"><b style="color:var(--ink)">Ждёт подтверждения</b></div></div>
+        <div class="iblk" style="background:var(--white);border-color:var(--paper-3);margin-bottom:7px"><div class="iblk-k" style="color:var(--ink-4)">стоимость</div><div class="iblk-t"><b style="color:var(--ink)">от 8 500 ₽</b></div></div>
+        <button class="btn btn-t btn-sm btn-full">Зафиксировать цену</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 20 DIAGNOSTICS ═══ -->
+<section class="sec" id="diag">
+  <div class="sec-label">20 — Diagnostics</div>
+  <h2 class="sec-h">Диагностика · без секретов</h2>
+  <p class="sec-sub">Карточки диагностики не показывают значения токенов и заголовки Authorization. Только маршрут, код и нейтральное сообщение.</p>
+  <div class="g3">
+    <div class="diag"><div class="diag-top"><span class="diag-code" style="background:var(--d-bg-3);color:var(--d-ink-3)">disabled</span><span class="diag-route">/mvp/dev/requests</span></div><div class="diag-msg">Dev-API выключен в production. Включается флагом <span class="kbd">ENABLE_MVP_DEV_API</span> только в превью.</div></div>
+    <div class="diag"><div class="diag-top"><span class="diag-code" style="background:var(--d-amber-dim);color:var(--d-amber)">401 / 403</span><span class="diag-route">/mvp/admin/requests</span></div><div class="diag-msg">Нет доступа. Проверьте admin-токен в sessionStorage. Значение токена не отображается.</div></div>
+    <div class="diag"><div class="diag-top"><span class="diag-code" style="background:var(--d-err-dim);color:var(--d-err)">500 / 503</span><span class="diag-route">/mvp/admin/requests</span></div><div class="diag-msg">Сервис недоступен. Повтор безопасен. Сообщение без чувствительных деталей.</div></div>
+    <div class="diag"><div class="diag-top"><span class="diag-code" style="background:var(--d-amber-dim);color:var(--d-amber)">401 / 403</span><span class="diag-route">/mvp/admin/clinics</span></div><div class="diag-msg">Нет доступа к списку медслужб. Ограничьте доступ на уровне платформы.</div></div>
+    <div class="diag"><div class="diag-top"><span class="diag-code" style="background:var(--d-err-dim);color:var(--d-err)">fetch / CORS</span><span class="diag-route">VITE_API_BASE_URL</span></div><div class="diag-msg">Ошибка соединения или CORS. Проверьте API URL и список CORS_ORIGINS.</div></div>
+    <div class="diag" style="border-color:var(--d-line-2);background:var(--d-bg-3)"><div class="diag-top"><span class="diag-code" style="background:rgba(130,188,140,.16);color:var(--d-sage)">health</span><span class="diag-route">/health/ready</span></div><div class="diag-msg">Process-level health OK. Подключение к БД проверяется отдельно.</div></div>
+  </div>
+  <div class="callout warn"><b>Безопасность:</b> диагностика никогда не показывает значения токенов и заголовки Authorization. Логи — без чувствительных данных.</div>
+</section>
+<!-- ═══ 21 BOT / BOTFATHER ═══ -->
+<section class="sec" id="bot">
+  <div class="sec-label">21 — Bot · BotFather · Telegram</div>
+  <h2 class="sec-h">Бот и BotFather</h2>
+  <p class="sec-sub">Тёплый, спокойный, по-телеграмному. Знак-капельница в аватаре и баннере. Копирайт без медицинских обещаний.</p>
+  <div class="tg-bg" style="max-width:560px;margin-bottom:18px">
+    <div class="tg-banner"><svg class="bm"><use href="#mark-iv"/></svg><div><div class="bn-t">Над<span class="o">о</span>м</div><div class="bn-s">анонимный подбор клиники с выездом на дом · Москва</div></div></div>
+  </div>
+  <div class="g2">
+    <div class="tg-bg">
+      <div class="tg-msg"><div class="tg-h"><div class="tg-av"><svg><use href="#mark-iv-sm"/></svg></div><span class="tg-bn">Над<span class="o">о</span>м</span><span class="tg-vf"><svg><use href="#ic-license"/></svg>bot</span></div>
+        <div class="tg-tx">привет, это <b>Надом</b> 🫧<br><br><b>Быстро. Удобно. Анонимно.</b><br><br>помогу анонимно подобрать клинику или медслужбу с выездом на дом. для подбора не нужны документы и точный адрес</div>
+        <div class="tg-kb"><div class="tg-pb primary"><svg><use href="#ic-start"/></svg>Подобрать клинику</div><div class="tg-pb-row"><div class="tg-pb">помощь</div><div class="tg-pb">статус</div><div class="tg-pb">поддержка</div></div></div>
+        <div class="tg-tm">15:31</div></div>
+      <div class="tg-umsg">/help<div class="tg-tm">15:31</div></div>
+      <div class="tg-msg"><div class="tg-h"><div class="tg-av"><svg><use href="#mark-iv-sm"/></svg></div><span class="tg-bn">Над<span class="o">о</span>м</span></div>
+        <div class="tg-tx"><b>что умеет Надом</b><br><br>⋆ помогает выбрать клинику по району, условиям и времени<br>⋆ показывает время ответа и время приезда после подтверждения<br>⋆ открывает заявку и статус в приложении<br><br>если состояние угрожает жизни — 103 или 112</div>
+        <div class="tg-kb"><div class="tg-pb primary"><svg><use href="#ic-start"/></svg>открыть Надом</div></div>
+        <div class="tg-tm">15:31</div></div>
+    </div>
+    <div class="tg-bg">
+      <div class="tg-umsg">/status<div class="tg-tm">15:40</div></div>
+      <div class="tg-msg"><div class="tg-h"><div class="tg-av"><svg><use href="#mark-iv-sm"/></svg></div><span class="tg-bn">Над<span class="o">о</span>м</span></div>
+        <div class="tg-tx">статус заявки — в приложении<br><br>там видно ответ медслужбы и следующие шаги</div>
+        <div class="tg-kb"><div class="tg-pb primary">открыть Надом</div></div><div class="tg-tm">15:40</div></div>
+      <div class="tg-umsg">/support<div class="tg-tm">15:42</div></div>
+      <div class="tg-msg"><div class="tg-h"><div class="tg-av"><svg><use href="#mark-iv-sm"/></svg></div><span class="tg-bn">Над<span class="o">о</span>м</span></div>
+        <div class="tg-tx">поддержка Надом 🩵<br><br>если что-то не открывается, напишите сюда коротко, что случилось</div>
+        <div class="tg-tm">15:42</div></div>
+      <div class="tg-msg"><div class="tg-h"><div class="tg-av"><svg><use href="#mark-iv-sm"/></svg></div><span class="tg-bn">Надом</span></div>
+        <div class="tg-tx">статус заявки обновлён · детали в приложении<div style="font-size:8px;color:#9A9A8A;margin-top:5px">🔒 protect_content · только статус, без симптомов</div></div>
+        <div class="tg-tm">16:05</div></div>
+    </div>
+  </div>
+  <div class="callout">Во всех уведомлениях — только статус и нейтральная формулировка, без симптомов и медицинских деталей. <span class="kbd">protect_content: true</span> для статусов.</div>
+</section>
+
+<!-- ═══ 22 ASSETS — AVATAR · SPLASH · SOCIAL · EXPORT ═══ -->
+<section class="sec" id="assets">
+  <div class="sec-label">22 — Avatar · splash · social · export artboards</div>
+  <h2 class="sec-h">Ассеты Telegram / Mini App</h2>
+  <p class="sec-sub">BotFather аватар, Telegram-профиль, Mini App splash, welcome-баннер, соц-превью, app icon. Первичный знак — везде; декоративная капля — только фоном.</p>
+
+  <div class="g3" style="margin-bottom:18px">
+    <!-- botfather avatar 512 -->
+    <div>
+      <div class="bf-tile" style="background:linear-gradient(150deg,#2A251A,#17150F)"><svg style="width:46%;height:46%;color:var(--d-blue)"><use href="#mark-iv"/></svg></div>
+      <div class="art-meta" style="border:none;padding:8px 2px"><span class="art-fn">botfather-avatar.png</span><span class="art-dim">512×512</span></div>
+    </div>
+    <!-- telegram profile preview -->
+    <div class="art"><div class="art-cv sq" style="background:var(--d-bg-2);flex-direction:column;gap:10px">
+      <div style="width:74px;height:74px;border-radius:50%;background:linear-gradient(150deg,#2A251A,#17150F);display:flex;align-items:center;justify-content:center;color:var(--d-blue);border:2px solid var(--d-line)"><svg style="width:54%;height:54%"><use href="#mark-iv"/></svg></div>
+      <div style="text-align:center"><div style="font-family:var(--f-display);font-size:15px;font-weight:700;color:var(--d-ink)">Над<span style="color:var(--d-blue)">о</span>м</div><div style="font-size:9px;color:var(--d-ink-3);font-family:var(--f-mono);margin-top:3px">@nadom_bot · bot</div></div></div>
+      <div class="art-meta"><span class="art-fn">telegram-profile</span><span class="art-dim">preview</span></div></div>
+    <!-- mini app splash -->
+    <div class="art"><div class="art-cv sq" style="background:radial-gradient(circle at 50% 34%,#2A251A,#17150F);flex-direction:column;gap:14px">
+      <svg style="width:34%;height:34%;color:var(--d-blue)"><use href="#mark-iv"/></svg>
+      <div style="font-family:var(--f-display);font-size:18px;font-weight:700;color:var(--d-ink);letter-spacing:-.04em">Над<span style="color:var(--d-blue)">о</span>м</div>
+      <span class="dots" style="color:var(--d-blue)"><i></i><i></i><i></i></span></div>
+      <div class="art-meta"><span class="art-fn">mini-app-splash</span><span class="art-dim">1080×1080</span></div></div>
+  </div>
+
+  <!-- welcome banner + social -->
+  <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px">
+    <div class="art"><div class="art-cv wide" style="background:linear-gradient(135deg,#17150F,#2A251A 60%,#1B1810);justify-content:flex-start;padding:0 36px;gap:22px;position:relative">
+      <svg style="position:absolute;right:-30px;bottom:-40px;width:200px;height:200px;color:var(--d-rose);opacity:.12"><use href="#mark-drop"/></svg>
+      <svg style="width:58px;height:58px;color:var(--d-blue);flex-shrink:0;position:relative"><use href="#mark-iv"/></svg>
+      <div style="position:relative"><div style="font-family:var(--f-display);font-size:24px;font-weight:700;color:var(--d-ink);letter-spacing:-.04em">Над<span style="color:var(--d-blue)">о</span>м</div><div style="font-size:11px;color:var(--d-ink-2);margin-top:5px">анонимный подбор клиники с выездом на дом — без документов и звонков на старте</div></div></div>
+      <div class="art-meta"><span class="art-fn">welcome-banner.png</span><span class="art-dim">1200×400</span></div></div>
+    <div class="art"><div class="art-cv" style="aspect-ratio:1200/630;background:linear-gradient(150deg,#2A251A,#17150F);flex-direction:column;gap:16px;position:relative">
+      <svg style="position:absolute;left:-20px;top:-30px;width:160px;height:160px;color:var(--d-teal);opacity:.1"><use href="#mark-drop"/></svg>
+      <svg style="width:72px;height:72px;color:var(--d-blue);position:relative"><use href="#mark-iv"/></svg>
+      <div style="text-align:center;position:relative"><div style="font-family:var(--f-display);font-size:30px;font-weight:700;color:var(--d-ink);letter-spacing:-.05em">Над<span style="color:var(--d-blue)">о</span>м</div><div style="font-size:13px;color:var(--d-ink-2);margin-top:8px;max-width:420px">Анонимная помощь на дому</div></div></div>
+      <div class="art-meta"><span class="art-fn">social-preview.png</span><span class="art-dim">1200×630 · og</span></div></div>
+  </div>
+
+  <!-- export artboards -->
+  <div class="dcard"><div class="dcard-h">Export artboards</div>
+    <div class="g6">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:#0D0E0A;border:.5px solid var(--d-line)"><svg style="color:var(--d-blue)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">512 bot</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:linear-gradient(150deg,#2A251A,#17150F)"><svg style="color:var(--d-teal)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">1024 store</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:var(--d-bg-cream)"><svg style="color:var(--blue)"><use href="#mark-iv"/></svg></div><span class="ico-lbl">cream</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:var(--blue)"><svg style="color:#fff"><use href="#mark-iv"/></svg></div><span class="ico-lbl">mono blue</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:#fff"><svg style="color:#0D0E0A"><use href="#mark-iv"/></svg></div><span class="ico-lbl">ink-on-white</span></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="appicon" style="width:100%;background:#0D0E0A;border:.5px solid var(--d-line)"><svg style="color:#fff"><use href="#mark-iv"/></svg></div><span class="ico-lbl">white-on-ink</span></div>
+    </div>
+    <p class="note" style="margin-top:12px">Форматы: <span class="kbd">icon-512</span> <span class="kbd">icon-1024</span> <span class="kbd">splash-1080</span> <span class="kbd">banner-1200×400</span> <span class="kbd">og-1200×630</span>. Маска squircle 22%. Декоративная капля — только фоном, знак всегда поверх.</p>
+  </div>
+</section>
+<!--SECTIONS-->
+</div>
+</body>
+</html>

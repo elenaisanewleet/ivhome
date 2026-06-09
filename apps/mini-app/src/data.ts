@@ -1,4 +1,4 @@
-import type { Offer, OfferService, OfferView, Step, SymbolTone } from "./types";
+import type { Offer, OfferService, OfferView, ProfileOption, Step, SymbolTone } from "./types";
 
 
 export const MVP_SERVICE_CATALOG: OfferService[] = [
@@ -39,8 +39,8 @@ export const MVP_SERVICE_CATALOG: OfferService[] = [
   },
   {
     slug: "custom",
-    label: "Свой запрос",
-    shortLabel: "Свой запрос",
+    label: "Описать ситуацию",
+    shortLabel: "Описать ситуацию",
     priceRange: "по согласованию",
     description: "Опишите нейтрально, что нужно уточнить у выбранной организации.",
   },
@@ -49,11 +49,11 @@ export const MVP_SERVICE_CATALOG: OfferService[] = [
 export const STEPS: Step[] = [
   {
     id: "welcome",
-    eyebrow: "без лишних данных · быстро · удобно",
-    title: "Кто приедет, когда и за сколько",
+    eyebrow: "быстро · удобно · анонимно",
+    title: "Подбор медслужбы с выездом на дом",
     body: [
-      "Подбор медицинской организации с выездом на дом в Москве — без лишних звонков.",
-      "Сравните, кто ответит и приедет, и сколько это стоит. Детали подтверждает выбранная организация.",
+      "Подбираем подходящий вариант среди медицинских организаций с выездом в Москве.",
+      "Ответ медслужбы, прибытие и ориентир цены — до подтверждения. Детали подтверждает выбранная организация.",
     ],
     iconLabel: "welcome",
   },
@@ -80,8 +80,8 @@ export const STEPS: Step[] = [
   {
     id: "profile",
     eyebrow: "шаг 3 из 6",
-    title: "Чем помочь?",
-    body: ["Выберите подходящий формат. Медицинские детали сейчас не нужны."],
+    title: "Что нужно?",
+    body: ["Выберите подходящий вариант. Детали подтвердит выбранная медслужба."],
     iconLabel: "route",
   },
   {
@@ -136,11 +136,33 @@ export const FAQ_ITEMS: { q: string; a: string }[] = [
   },
 ];
 
-export const PROFILE_OPTIONS = [
-  "Найти ближайший вариант",
-  "Сравнить условия выезда",
-  "Сначала задать вопрос специалисту",
-  "Планирую выезд заранее",
+export const PROFILE_OPTIONS: ProfileOption[] = [
+  {
+    id: "binge",
+    label: "Вывод из запоя",
+    sub: "помощь при длительном употреблении алкоголя",
+  },
+  {
+    id: "hangover",
+    label: "Капельница после алкоголя",
+    sub: "если плохо после алкоголя или тяжёлое похмелье",
+  },
+  {
+    id: "narcologist",
+    label: "Нарколог на дом",
+    sub: "консультация и выезд специалиста",
+  },
+  {
+    id: "detox",
+    label: "Детокс",
+    sub: "восстановление после интоксикации",
+  },
+  {
+    id: "custom",
+    label: "Описать ситуацию",
+    sub: "какую услугу ищете",
+    style: "custom",
+  },
 ];
 
 export const DISTRICT_OPTIONS = [

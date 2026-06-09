@@ -126,9 +126,9 @@ The clinic-side role is `CLINIC_AUTHORIZED_STAFF`; UI copy must say `уполн�
 ## Visual style (UI/frontend work)
 
 Before any UI/visual change, inspect available references in this order:
-1. `docs/nadom/references/Выполнение промта по проекту - Claude.html`
-2. `docs/nadom/references/saved_resource*.html`
-3. `docs/nadom/references/visual/` (PNG files)
+1. `docs/nadom/references/design/nadom-design-package-v6.3.html` — current flagship design package (v6.3)
+2. `docs/nadom/references/design/colors_and_type.css` — authoritative design tokens
+3. `docs/nadom/references/design/symbol-iv-bag.svg` — primary brand mark (IV bag drop)
 
 Core style: soft pastel, Telegram-native. Main accent `#7EB8D4`. Rounded cards and buttons. Bubble/chat UI where relevant. Do not introduce a generic SaaS or AI gradient style.
 

@@ -581,18 +581,19 @@ export function App() {
               ) : null}
 
               {isProfileStep ? (
-                <div className="choice-list" aria-label="Формат подбора">
+                <div className="choice-list" aria-label="Что нужно">
                   {PROFILE_OPTIONS.map((option) => (
                     <button
-                      className={`choice-chip ${selectedProfile === option ? "choice-chip--selected" : ""}`}
-                      key={option}
+                      className={`choice-chip${option.style === "custom" ? " choice-chip--custom" : ""}${selectedProfile === option.label ? " choice-chip--selected" : ""}`}
+                      key={option.id}
                       onClick={() => {
                         haptic("soft");
-                        setSelectedProfile(option);
+                        setSelectedProfile(option.label);
                       }}
                       type="button"
                     >
-                      {option}
+                      <span className="choice-chip__label">{option.label}</span>
+                      <span className="choice-chip__sub">{option.sub}</span>
                     </button>
                   ))}
                 </div>

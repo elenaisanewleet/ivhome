@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700&family=Onest:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 /* ── Tokens ─────────────────────────────────────────────────────── */
 
@@ -25,12 +25,16 @@
   --ok-light:     #c8e8d8;
   --warn:         #8a6020;
   --warn-light:   #f0e4c4;
-  --err:          #8a3030;
-  --err-light:    #f0d4d4;
+  --sage:         #5c9568;
+  --sage-light:   #cee3d0;
+  --amber:        #c8902e;
+  --amber-light:  #f2deac;
+  --err:          #b0494a;
+  --err-light:    #eec9c9;
 
   --font-display: "Unbounded", system-ui, sans-serif;
-  --font-body:    "Onest", system-ui, sans-serif;
-  --font-mono:    "SF Mono", "Fira Code", monospace;
+  --font-body:    "Onest", "Manrope", system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", "SF Mono", "Fira Mono", ui-monospace, monospace;
 
   --r-xs:    4px;
   --r-sm:    8px;
@@ -109,8 +113,12 @@
     --dust-light:   rgba(184,144,144,0.16);
     --ok:           #5abf8a;
     --ok-light:     rgba(58,122,90,0.18);
-    --err:          #e07070;
-    --err-light:    rgba(138,48,48,0.18);
+    --sage:         #82bc8c;
+    --sage-light:   rgba(92,149,104,0.18);
+    --amber:        #e6b65a;
+    --amber-light:  rgba(230,182,90,0.18);
+    --err:          #df8c8c;
+    --err-light:    rgba(176,73,74,0.18);
     --warn-light:   rgba(138,96,32,0.18);
     --shadow-card: 0 2px 10px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
     --shadow-lift: 0 8px 28px rgba(0,0,0,0.36), 0 2px 6px rgba(0,0,0,0.2);
@@ -173,8 +181,12 @@
   --dust-light:   rgba(184,144,144,0.16);
   --ok:           #5abf8a;
   --ok-light:     rgba(58,122,90,0.18);
-  --err:          #e07070;
-  --err-light:    rgba(138,48,48,0.18);
+  --sage:         #82bc8c;
+  --sage-light:   rgba(92,149,104,0.18);
+  --amber:        #e6b65a;
+  --amber-light:  rgba(230,182,90,0.18);
+  --err:          #df8c8c;
+  --err-light:    rgba(176,73,74,0.18);
   --warn-light:   rgba(138,96,32,0.18);
   --shadow-card: 0 2px 10px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
   --shadow-lift: 0 8px 28px rgba(0,0,0,0.36), 0 2px 6px rgba(0,0,0,0.2);
@@ -608,6 +620,30 @@ h1 {
   box-shadow: 0 0 0 2px rgba(74,127,165,0.2), var(--shadow-card);
 }
 
+/* ── Choice chip sub-label ───────────────────────────────────────── */
+
+.choice-chip__label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.choice-chip__sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0;
+}
+
+.choice-chip--selected .choice-chip__sub { color: var(--accent); opacity: 0.72; }
+
+.choice-chip--custom {
+  border-style: dashed;
+}
+
 /* ── Location panel ──────────────────────────────────────────────── */
 
 .location-panel { display: grid; gap: 13px; }
@@ -742,8 +778,8 @@ h1 {
   gap: 3px;
   padding: 4px 9px;
   border-radius: 100px;
-  color: var(--dust);
-  background: var(--dust-light);
+  color: var(--amber);
+  background: var(--amber-light);
   font-size: 10px;
   font-weight: 700;
   white-space: nowrap;
