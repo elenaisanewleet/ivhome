@@ -1,26 +1,35 @@
 # Nadom current project instruction
 
-Updated: 2026-06-05.
+Updated: 2026-06-09.
 
-This is the current project instruction for Nadom / Надом AI-agent, Codex, Claude, and Copilot sessions. It overrides older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+This is the current project instruction for Nadom / Надом AI-agent, Codex, Claude, and Copilot sessions. For Tone of Voice and copy, the active source hierarchy now starts with `docs/tone-of-voice/final_tone_of_voice.md`. Older docs are archive/reference only unless explicitly requested.
 
 ## Read order for Nadom tasks
 
-1. `docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md`
-2. `docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md`
-3. `docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md`
+For Tone of Voice, UI-copy, microcopy, Telegram Bot text, Telegram Mini App text, landing copy, medservice cards, CTA, safety/status messages, Claude Design AI prompts, and Codex prompts, read first:
 
-Then use older Nadom docs only as supporting context if they do not conflict with these current files.
+1. `docs/tone-of-voice/final_tone_of_voice.md`
+2. `docs/tone-of-voice/README.md`
+
+For product, legal, safety, UX research, and implementation context, then read:
+
+3. `docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md`
+4. `docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md`
+5. `docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md`
+
+Use older Nadom docs only as supporting context if they do not conflict with the final TOV and this instruction set.
 
 ## Source priority
 
-1. The current source-of-truth files in `docs/nadom/source-of-truth/current/`.
-2. Current task attachments or instructions that explicitly supersede these files.
-3. Current repo docs under `docs/nadom/` for implementation details not covered here.
-4. Design packages and references under `docs/nadom/references/` for visual/layout support only.
-5. Historical Nadom / IVhome docs as archive/reference only.
+1. Primary active TOV source: `docs/tone-of-voice/final_tone_of_voice.md`.
+2. Original source document / export for verification: `Тон оф войс для Claude.docx`.
+3. Supporting TOV, Compass, research, UX, and legacy files only in the hierarchy defined by `docs/tone-of-voice/README.md`.
+4. Current task attachments or instructions that explicitly supersede these files.
+5. Current repo docs under `docs/nadom/` for implementation details not covered here.
+6. Design packages and references under `docs/nadom/references/` for visual/layout support only.
+7. Historical Nadom / IVhome docs as archive/reference only.
 
-Do not treat older blacklists, older first-screen wording, older category names, or older design directions as higher priority if they conflict with this instruction set.
+If any other TOV or research file conflicts with `docs/tone-of-voice/final_tone_of_voice.md`, always follow `docs/tone-of-voice/final_tone_of_voice.md`.
 
 ## Product frame
 
@@ -71,9 +80,9 @@ Only use those terms when clearly internal/operator/admin-facing and not visible
 
 ## Tone of Voice rules
 
-Do not add new hard Tone of Voice bans. Use only the current user-approved TOV review list in `01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md`.
+Do not add new hard Tone of Voice bans beyond the final TOV. Use the Tone of Voice and copy rules in `docs/tone-of-voice/final_tone_of_voice.md` as the primary active source.
 
-Do not expand older blacklists from historical docs. If an old blacklist conflicts with the current review-list approach, follow the current review-list approach.
+Do not expand older blacklists from historical docs. If an old blacklist or review-list approach conflicts with the final TOV, follow `docs/tone-of-voice/final_tone_of_voice.md`.
 
 Medical service wording is allowed when responsibility is framed correctly: Nadom helps the user choose a clinic / medservice, while the selected clinic / medservice confirms the service, procedure format, prescriptions, composition where applicable, final price, and visit possibility. Do not turn this responsibility-framing rule into a broader banned-word list.
 

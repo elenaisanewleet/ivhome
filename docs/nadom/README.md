@@ -1,34 +1,26 @@
 # Nadom documentation and design references
 
-## Current priority — 2026-06-05 Nadom source of truth
+## Current priority — 2026-06-09 Nadom Tone of Voice source hierarchy
 
-For Nadom / Надом tasks, read first:
-
-```text
-docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
-```
-
-Then:
+For Nadom / Надом Tone of Voice, UI-copy, microcopy, Telegram Bot text, Telegram Mini App text, landing copy, medservice cards, CTA, safety/status messages, Claude Design AI prompts, and Codex prompts, use this primary active TOV source first:
 
 ```text
-docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
+docs/tone-of-voice/final_tone_of_voice.md
 ```
 
-Then:
+Original source document / export for verification:
 
 ```text
-docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
+Тон оф войс для Claude.docx
 ```
 
-Then, as the main implementation copy source:
+Then read the hierarchy and supporting-reference rules in:
 
 ```text
-docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md
+docs/tone-of-voice/README.md
 ```
 
-These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
-
-After the 2026-06-05 current files above, use `docs/nadom/design-config.md` and `docs/nadom/current-source-of-truth.md` only for implementation details that do not conflict with the current source-of-truth folder. `docs/nadom/design-config.md` defines the earlier design-source priority, stable file map, palette, product-design formula, and implementation constraints; `docs/nadom/current-source-of-truth.md` contains the earlier product, legal, privacy, terminology, and MVP-flow rules.
+For product, legal, safety, UX research, and implementation context, use the current Nadom docs under `docs/nadom/` only where they do not conflict with the final TOV. In particular, `docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md` is now a supporting archived reference, not the primary active TOV source.
 
 ## Active reference map
 
@@ -54,7 +46,7 @@ The existing Markdown rule documents remain in place for useful historical and r
 * `docs/nadom/privacy-security.md`
 * `docs/nadom/pr-review-checklist.md`
 
-If an older supporting document conflicts with the active references, follow `docs/nadom/design-config.md` and `docs/nadom/current-source-of-truth.md`.
+If an older supporting document conflicts with the active TOV source, follow `docs/tone-of-voice/final_tone_of_voice.md`. For non-TOV implementation details, follow the current Nadom docs under `docs/nadom/` where they do not conflict with the final TOV.
 
 ## Deprecated visual references
 

@@ -1,18 +1,18 @@
+> Supporting / archived reference.
+> This file is a supporting UX/TOV microcopy reference for Nadom / Надом. Use it only in the support area described in `docs/tone-of-voice/README.md` and only where it does not conflict with the final TOV.
+
 # Nadom UX, Tone of Voice, and recommended microcopy
 
 Updated: 2026-06-05.
 
-This file is the current UX/TOV microcopy reference for Nadom / Надом. It overrides older Nadom / IVhome copy guidance when it conflicts.
-
 ## Current priority
 
-For Nadom / Надом tasks, read first:
+For Nadom / Надом Tone of Voice and copy tasks, read first:
 
-1. `docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md`
-2. `docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md`
-3. `docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md`
+1. `docs/tone-of-voice/final_tone_of_voice.md`
+2. `docs/tone-of-voice/README.md`
 
-These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+Then use this file only as a supporting reference in the hierarchy area assigned to it. Older docs are archive/reference only unless explicitly requested.
 
 ## Core feeling
 
@@ -24,7 +24,7 @@ Use it as a product direction: fast selection, convenient flow, privacy-first ex
 
 ## TOV review list
 
-No new hard Tone of Voice bans should be added. Use only the current user-approved TOV review list instead of expanding old blacklists.
+No new hard Tone of Voice bans should be added beyond the final TOV. Use `docs/tone-of-voice/final_tone_of_voice.md` as the primary active TOV source instead of expanding old blacklists.
 
 Public-facing copy should be checked for responsibility framing, not treated as a broad ban on medical wording.
 

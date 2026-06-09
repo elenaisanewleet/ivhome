@@ -6,33 +6,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Internal name: **IVhome**. Public user-facing brand: **Nadom / Надом**. Use IVhome in package names, migrations, and technical contexts only. Nadom is an aggregator and matching service — not a clinic. It does not diagnose, prescribe, recommend IV composition, or promise medical results.
 
-## Current priority — 2026-06-05 Nadom source of truth
+## Current priority — 2026-06-09 Nadom Tone of Voice source hierarchy
 
-For Nadom / Надом tasks, read first:
+For Nadom / Надом Tone of Voice, UI-copy, microcopy, Telegram Bot text, Telegram Mini App text, landing copy, medservice cards, CTA, safety/status messages, Claude Design AI prompts, and Codex prompts, use this primary active TOV source first:
+
+```text
+docs/tone-of-voice/final_tone_of_voice.md
+```
+
+Original source document / export for verification:
+
+```text
+Тон оф войс для Claude.docx
+```
+
+Then read the hierarchy and supporting-reference rules in:
+
+```text
+docs/tone-of-voice/README.md
+```
+
+For Nadom / Надом product, legal, safety, UX research, and implementation context, read:
 
 ```text
 docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
-```
-
-Then:
-
-```text
 docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
-```
-
-Then:
-
-```text
 docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
 ```
 
-Then, as the main implementation copy source:
-
-```text
-docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md
-```
-
-These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+`docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md` is a supporting archived reference. Do not use it as the primary TOV source when it conflicts with `docs/tone-of-voice/final_tone_of_voice.md`. Older Nadom / IVhome docs are archive/reference only unless explicitly requested.
 
 ## Commands
 
