@@ -2,29 +2,27 @@
 
 Updated: May 31, 2026.
 
-## Current priority — 2026-06-05 Nadom source of truth
+## Current priority — 2026-06-09 Nadom Tone of Voice source hierarchy
 
-For Nadom / Надом tasks, read first:
-
-```text
-docs/nadom/source-of-truth/current/00_NADOM_CURRENT_PROJECT_INSTRUCTION_2026_06_05.md
-```
-
-Then:
+For Nadom / Надом Tone of Voice, UI-copy, microcopy, Telegram Bot text, Telegram Mini App text, landing copy, medservice cards, CTA, safety/status messages, Claude Design AI prompts, and Codex prompts, use this primary active TOV source first:
 
 ```text
-docs/nadom/source-of-truth/current/01_NADOM_UX_TOV_RECOMMENDED_MICROCOPY_2026_06_05.md
+docs/tone-of-voice/final_tone_of_voice.md
 ```
 
-Then:
+Original source document / export for verification:
 
 ```text
-docs/nadom/source-of-truth/current/02_DEEP_RESEARCH_REPORT_2026_06_05.md
+Тон оф войс для Claude.docx
 ```
 
-These current files override older Nadom / IVhome instructions when they conflict. Older docs are archive/reference only unless explicitly requested.
+Then read the hierarchy and supporting-reference rules in:
 
-This May 31 file remains useful for product, legal, privacy, terminology, and MVP-flow details only where it does not conflict with the 2026-06-05 current source-of-truth files above. For design implementation details that are not superseded, also read `docs/nadom/design-config.md`.
+```text
+docs/tone-of-voice/README.md
+```
+
+For product, legal, safety, UX research, and implementation context, use the current Nadom docs under `docs/nadom/` only where they do not conflict with the final TOV. In particular, `docs/nadom/source-of-truth/current/03_NADOM_FINAL_TOV_COPY_SYSTEM_2026_06_05.md` is now a supporting archived reference, not the primary active TOV source.
 
 ## Product frame
 
