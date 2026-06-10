@@ -8,10 +8,11 @@
 /* ── Desktop shell: dark bg + subtle grid ────────────────────────── */
 
 body {
+  /* v8 warm graphite shell */
   background:
-    radial-gradient(circle at 78% 8%, rgba(74,127,165,0.1), transparent 24rem),
-    radial-gradient(circle at 12% 92%, rgba(184,144,144,0.08), transparent 20rem),
-    linear-gradient(135deg, #0f0f0e 0%, #181816 45%, #0f0f0e 100%);
+    radial-gradient(circle at 78% 8%, rgba(62,132,196,0.16), transparent 24rem),
+    radial-gradient(circle at 12% 92%, rgba(199,115,63,0.10), transparent 20rem),
+    linear-gradient(135deg, #17150F 0%, #211E16 45%, #17150F 100%);
 }
 
 .app-shell {
@@ -184,19 +185,19 @@ body {
   .app-shell { background: var(--surface-base); }
 }
 
-/* Dark mode: desktop shell adapts */
+/* Dark mode: keep v8 warm graphite shell in all contexts */
 @media (prefers-color-scheme: dark) {
   :root:not([data-preview-theme="light"]) body {
     background:
-      radial-gradient(circle at 78% 8%, rgba(74,127,165,0.12), transparent 24rem),
-      radial-gradient(circle at 12% 92%, rgba(74,127,165,0.06), transparent 20rem),
-      linear-gradient(135deg, #0f161e 0%, #131f2a 45%, #0f161e 100%);
+      radial-gradient(circle at 78% 8%, rgba(62,132,196,0.16), transparent 24rem),
+      radial-gradient(circle at 12% 92%, rgba(199,115,63,0.10), transparent 20rem),
+      linear-gradient(135deg, #0D0E0A 0%, #15160F 45%, #0D0E0A 100%);
   }
 }
 
 [data-preview-theme="dark"] body {
   background:
-    radial-gradient(circle at 78% 8%, rgba(74,127,165,0.12), transparent 24rem),
-    radial-gradient(circle at 12% 92%, rgba(74,127,165,0.06), transparent 20rem),
-    linear-gradient(135deg, #0f161e 0%, #131f2a 45%, #0f161e 100%);
+    radial-gradient(circle at 78% 8%, rgba(62,132,196,0.16), transparent 24rem),
+    radial-gradient(circle at 12% 92%, rgba(199,115,63,0.10), transparent 20rem),
+    linear-gradient(135deg, #0D0E0A 0%, #15160F 45%, #0D0E0A 100%);
 }

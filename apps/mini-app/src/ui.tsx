@@ -1,8 +1,11 @@
+import "./ui.css";
 import { useState } from "react";
 import { SYMBOL_TONES } from "./data";
 import { STATUS_ITEMS } from "./data";
 import { FAQ_ITEMS } from "./data";
 import type { Offer, StatusStage, Step, SymbolTone } from "./types";
+import type { NadomRequestStatus, SlaMetrics } from "@ivhome/shared";
+import { NADOM_REQUEST_STATUS_LABELS } from "@ivhome/shared";
 
 /**
  * Nadom brand symbol — the IV / drip chamber (капельница-мешок): hang loop,
@@ -194,6 +197,178 @@ export function FaqAccordion() {
           ) : null}
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── Nadom Design System v8 components ──────────────────────────────────────
+
+/** Two-cell SLA block — ALWAYS shows responseMinutes and arrivalMinutes separately. */
+export function SlaBlock({ sla }: { sla: SlaMetrics }) {
+  const fmtRange = ([min, max]: [number, number]) =>
+    min === max ? `${min} мин` : `${min}–${max} мин`;
+
+  return (
+    <div className="sla-block" aria-label="Время ответа и прибытия">
+      <div className="sla-cell sla-cell--response">
+        <div className="sla-key">Ответ медслужбы</div>
+        <div className="sla-value">{fmtRange(sla.responseMinutes)}</div>
+        <div className="sla-sub">после заявки</div>
+      </div>
+      <div className="sla-cell sla-cell--arrival">
+        <div className="sla-key">Прибытие</div>
+        <div className="sla-value">{fmtRange(sla.arrivalMinutes)}</div>
+        <div className="sla-sub">после подтверждения</div>
+      </div>
+    </div>
+  );
+}
+
+/** Rating badge — amber, Unbounded font. */
+export function RatingBadge({ value }: { value: number | string }) {
+  return (
+    <span className="rating-badge">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M8 1.5l1.85 3.75 4.15.6-3 2.92.71 4.13L8 10.77l-3.71 1.95.71-4.13L2 5.85l4.15-.6z" fill="currentColor" />
+      </svg>
+      {value}
+    </span>
+  );
+}
+
+/** Status track using NadomRequestStatus — matches design v8 step states. */
+export function StatusTrackV8({ status }: { status: NadomRequestStatus }) {
+  const order: NadomRequestStatus[] = [
+    "submitted",
+    "confirming",
+    "dispatched",
+    "en_route",
+    "arrived",
+    "completed",
+  ];
+  const activeIdx = order.indexOf(status);
+
+  return (
+    <div className="status-track-v8" aria-label="Статус заявки">
+      {order.map((s, i) => {
+        const done = i < activeIdx;
+        const active = i === activeIdx;
+        const off = i > activeIdx;
+        const isLast = i === order.length - 1;
+        const info = NADOM_REQUEST_STATUS_LABELS[s];
+
+        return (
+          <div className="status-track-v8__item" key={s}>
+            <div className="status-track-v8__left">
+              <div
+                className={`status-track-v8__dot ${done ? "status-track-v8__dot--done" : ""} ${active ? "status-track-v8__dot--active" : ""}`}
+                aria-hidden="true"
+              />
+              {!isLast && (
+                <div className={`status-track-v8__line ${done ? "status-track-v8__line--done" : ""}`} aria-hidden="true" />
+              )}
+            </div>
+            <div className="status-track-v8__text">
+              <div className={`status-track-v8__name ${off ? "status-track-v8__name--off" : ""}`}>{info.label}</div>
+              {active ? <div className="status-track-v8__sub">{info.sub}</div> : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Loading dots — three bouncing dots for pending states. */
+export function LoadingDots() {
+  return (
+    <span className="loading-dots" aria-label="Загружается">
+      <span />
+      <span />
+      <span />
+    </span>
+  );
+}
+
+/** Live badge — teal pulsing dot for en-route / live status. */
+export function LiveBadge({ label = "Специалист в пути" }: { label?: string }) {
+  return (
+    <span className="live-badge">
+      <span className="live-badge__dot" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+/** Privacy / info banner strip. */
+export function Banner({
+  variant = "priv",
+  children,
+}: {
+  variant?: "priv" | "info" | "sage" | "err";
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`banner banner-${variant}`} role="note">
+      {children}
+    </div>
+  );
+}
+
+/** Empty state block. */
+export function EmptyState({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+  return (
+    <div className="empty-state">
+      <div className="empty-state__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
+        </svg>
+      </div>
+      <div className="empty-state__title">{title}</div>
+      {sub ? <div className="empty-state__sub">{sub}</div> : null}
+      {action}
+    </div>
+  );
+}
+
+/** Error state block. */
+export function ErrorState({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
+  return (
+    <div className="error-state">
+      <div className="error-state__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M12 9v4M12 17h.01" /><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        </svg>
+      </div>
+      <div className="error-state__title">{title}</div>
+      {sub ? <div className="error-state__sub">{sub}</div> : null}
+      {action}
+    </div>
+  );
+}
+
+/** Price block with confirm footnote. */
+export function PriceBlock({
+  label = "Ориентир по стоимости",
+  value,
+  sub,
+  locked = false,
+}: {
+  label?: string;
+  value: string;
+  sub?: string;
+  locked?: boolean;
+}) {
+  return (
+    <div className={`price-block ${locked ? "live" : ""}`}>
+      <div className="price-block__key">{label}</div>
+      <div className="price-block__value">{value}</div>
+      {sub ? <div className="price-block__sub">{sub}</div> : null}
+      {!locked ? (
+        <p className="price-confirm-note">
+          Финальная стоимость подтверждается клиникой до выезда
+        </p>
+      ) : null}
     </div>
   );
 }
