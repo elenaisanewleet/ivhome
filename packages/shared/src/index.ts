@@ -30,7 +30,7 @@ export const MVP_SERVICE_CATALOG = [
   { slug: "intoxication", label: "Похоже на интоксикацию", price: "от 9 500 ₽" },
   { slug: "urgent_visit", label: "Нужен выезд сегодня", price: "от 9 900 ₽" },
   { slug: "planned_visit", label: "Плановый выезд", price: "от 7 500 ₽" },
-  { slug: "custom", label: "Свой запрос", price: "по описанию запроса" },
+  { slug: "custom", label: "Описать ситуацию", price: "по описанию ситуации" },
 ] as const satisfies readonly MvpServiceCatalogItem[];
 
 export type MvpServiceSlug = (typeof MVP_SERVICE_CATALOG)[number]["slug"];
