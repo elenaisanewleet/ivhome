@@ -185,9 +185,9 @@ export type MvpOnboardingResponse = {
   updatedAt: string;
 };
 
-// ─── Nadom Design System v6 — shared domain types ───────────────────────────
+// ─── Nadom Design System v8 — shared domain types ────────────────────────────
 
-/** Fixed first-screen service categories (ToV §8). Never add VIP/Премиум/Свой запрос. */
+/** Fixed first-screen service categories (ToV). Never add VIP/Премиум/Свой запрос. */
 export type NadomServiceCategory =
   | "binge_withdrawal"
   | "alcohol_drip"
@@ -204,10 +204,10 @@ export const NADOM_SERVICE_CATEGORIES: ReadonlyArray<{
   { slug: "alcohol_drip",       label: "Капельница после алкоголя", sub: "если плохо после алкоголя или тяжёлое похмелье" },
   { slug: "narcologist_home",   label: "Нарколог на дом",           sub: "консультация и выезд специалиста" },
   { slug: "detox",              label: "Детокс",                    sub: "восстановление после интоксикации" },
-  { slug: "describe_situation", label: "Описать ситуацию",          sub: "если не знаете, что выбрать" },
+  { slug: "describe_situation", label: "Описать ситуацию",          sub: "какую услугу ищете" },
 ] as const;
 
-/** Allowed clinic package names (ToV §11). VIP / Премиум / Элитный are forbidden. */
+/** Allowed clinic package names. VIP / Премиум / Элитный are forbidden. */
 export type ClinicPackageName =
   | "Лайт"
   | "Стандарт"
@@ -227,7 +227,7 @@ export type SlaMetrics = {
   arrivalMinutes:  [min: number, max: number];
 };
 
-/** Request lifecycle statuses (ToV §20). */
+/** Request lifecycle statuses. */
 export type NadomRequestStatus =
   | "submitted"
   | "confirming"

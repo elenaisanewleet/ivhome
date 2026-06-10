@@ -4,10 +4,8 @@ import { SYMBOL_TONES } from "./data";
 import { STATUS_ITEMS } from "./data";
 import { FAQ_ITEMS } from "./data";
 import type { Offer, StatusStage, Step, SymbolTone } from "./types";
-import type { ClinicPackageName, NadomTrustBadge } from "@ivhome/shared";
-
-// re-export so consumers don't need a second import
-export type { ClinicPackageName, NadomTrustBadge };
+import type { NadomRequestStatus, SlaMetrics } from "@ivhome/shared";
+import { NADOM_REQUEST_STATUS_LABELS } from "@ivhome/shared";
 
 /**
  * Nadom brand symbol — the IV / drip chamber (капельница-мешок): hang loop,
@@ -203,354 +201,174 @@ export function FaqAccordion() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Nadom UI Components v6
-// All components use CSS custom properties from App.css / nadom-tokens.css.
-// ─────────────────────────────────────────────────────────────────────────────
+// ─── Nadom Design System v8 components ──────────────────────────────────────
 
-// ── Button ───────────────────────────────────────────────────────────────────
-
-export type ButtonVariant = "primary" | "teal" | "secondary" | "ghost" | "error";
-
-export function Button({
-  variant = "primary",
-  fullWidth = false,
-  small = false,
-  loading = false,
-  disabled = false,
-  icon,
-  children,
-  onClick,
-  type = "button",
-  className = "",
-}: {
-  variant?: ButtonVariant;
-  fullWidth?: boolean;
-  small?: boolean;
-  loading?: boolean;
-  disabled?: boolean;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-  onClick?: () => void;
-  type?: "button" | "submit" | "reset";
-  className?: string;
-}) {
-  const cls = [
-    "nd-btn",
-    `nd-btn--${variant}`,
-    fullWidth && "nd-btn--full",
-    small && "nd-btn--sm",
-    loading && "nd-btn--loading",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ");
+/** Two-cell SLA block — ALWAYS shows responseMinutes and arrivalMinutes separately. */
+export function SlaBlock({ sla }: { sla: SlaMetrics }) {
+  const fmtRange = ([min, max]: [number, number]) =>
+    min === max ? `${min} мин` : `${min}–${max} мин`;
 
   return (
-    <button className={cls} disabled={disabled || loading} onClick={onClick} type={type}>
-      {loading ? <span className="nd-btn__spinner" aria-hidden="true" /> : icon}
-      {children}
-    </button>
+    <div className="sla-block" aria-label="Время ответа и прибытия">
+      <div className="sla-cell sla-cell--response">
+        <div className="sla-key">Ответ медслужбы</div>
+        <div className="sla-value">{fmtRange(sla.responseMinutes)}</div>
+        <div className="sla-sub">после заявки</div>
+      </div>
+      <div className="sla-cell sla-cell--arrival">
+        <div className="sla-key">Прибытие</div>
+        <div className="sla-value">{fmtRange(sla.arrivalMinutes)}</div>
+        <div className="sla-sub">после подтверждения</div>
+      </div>
+    </div>
   );
 }
 
-export function ButtonRow({ children }: { children: React.ReactNode }) {
-  return <div className="nd-btn-row">{children}</div>;
-}
-
-// ── Pill ─────────────────────────────────────────────────────────────────────
-
-export type PillVariant = "blue" | "teal" | "sage" | "amber" | "rose" | "error" | "neutral";
-
-export function Pill({
-  variant = "neutral",
-  icon,
-  children,
-}: {
-  variant?: PillVariant;
-  icon?: React.ReactNode;
-  children: React.ReactNode;
-}) {
+/** Rating badge — amber, Unbounded font. */
+export function RatingBadge({ value }: { value: number | string }) {
   return (
-    <span className={`nd-pill nd-pill--${variant}`}>
-      {icon}
-      {children}
-    </span>
-  );
-}
-
-export function PillRow({ children }: { children: React.ReactNode }) {
-  return <div className="nd-pills">{children}</div>;
-}
-
-// ── Rating badge ─────────────────────────────────────────────────────────────
-
-export function RatingBadge({ score, reviewCount }: { score: string | number; reviewCount?: number }) {
-  return (
-    <span className="nd-rating">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 4l2.3 4.7 5.2.8-3.8 3.7.9 5.2L12 16.7 7.4 19l.9-5.2L4.5 10l5.2-.8Z" />
+    <span className="rating-badge">
+      <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M8 1.5l1.85 3.75 4.15.6-3 2.92.71 4.13L8 10.77l-3.71 1.95.71-4.13L2 5.85l4.15-.6z" fill="currentColor" />
       </svg>
-      {score}
-      {reviewCount != null && <small>· {reviewCount} отзывов</small>}
+      {value}
     </span>
   );
 }
 
-// ── SLA block ────────────────────────────────────────────────────────────────
-// ALWAYS two separate values. Never merge into a single ETA.
+/** Status track using NadomRequestStatus — matches design v8 step states. */
+export function StatusTrackV8({ status }: { status: NadomRequestStatus }) {
+  const order: NadomRequestStatus[] = [
+    "submitted",
+    "confirming",
+    "dispatched",
+    "en_route",
+    "arrived",
+    "completed",
+  ];
+  const activeIdx = order.indexOf(status);
 
-export function SlaBlock({
-  responseLabel = "Ответ медслужбы",
-  responseValue,
-  responseSub = "после заявки",
-  arrivalLabel = "Прибытие",
-  arrivalValue,
-  arrivalSub = "после подтверждения",
-}: {
-  responseLabel?: string;
-  responseValue: string;
-  responseSub?: string;
-  arrivalLabel?: string;
-  arrivalValue: string;
-  arrivalSub?: string;
-}) {
   return (
-    <div className="nd-sla" aria-label="Время ответа и прибытия">
-      <div className="nd-sla__cell nd-sla__cell--response">
-        <div className="nd-sla__label">{responseLabel}</div>
-        <div className="nd-sla__value">{responseValue}</div>
-        <div className="nd-sla__sub">{responseSub}</div>
-      </div>
-      <div className="nd-sla__cell nd-sla__cell--arrival">
-        <div className="nd-sla__label">{arrivalLabel}</div>
-        <div className="nd-sla__value">{arrivalValue}</div>
-        <div className="nd-sla__sub">{arrivalSub}</div>
-      </div>
+    <div className="status-track-v8" aria-label="Статус заявки">
+      {order.map((s, i) => {
+        const done = i < activeIdx;
+        const active = i === activeIdx;
+        const off = i > activeIdx;
+        const isLast = i === order.length - 1;
+        const info = NADOM_REQUEST_STATUS_LABELS[s];
+
+        return (
+          <div className="status-track-v8__item" key={s}>
+            <div className="status-track-v8__left">
+              <div
+                className={`status-track-v8__dot ${done ? "status-track-v8__dot--done" : ""} ${active ? "status-track-v8__dot--active" : ""}`}
+                aria-hidden="true"
+              />
+              {!isLast && (
+                <div className={`status-track-v8__line ${done ? "status-track-v8__line--done" : ""}`} aria-hidden="true" />
+              )}
+            </div>
+            <div className="status-track-v8__text">
+              <div className={`status-track-v8__name ${off ? "status-track-v8__name--off" : ""}`}>{info.label}</div>
+              {active ? <div className="status-track-v8__sub">{info.sub}</div> : null}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-// ── Trust strip ──────────────────────────────────────────────────────────────
-
-const TRUST_LABELS: Record<NadomTrustBadge, string> = {
-  license_verified:      "Лицензия подтверждена",
-  available_24_7:        "24/7",
-  anonymous_start:       "Анонимно на старте",
-  no_docs_at_start:      "Без документов на старте",
-  no_extra_data:         "Без лишних данных",
-  address_after_confirm: "Точный адрес — после выбора клиники",
-};
-
-export function TrustStrip({ badges }: { badges: NadomTrustBadge[] }) {
+/** Loading dots — three bouncing dots for pending states. */
+export function LoadingDots() {
   return (
-    <div className="nd-trust">
-      {badges.map((b) => (
-        <span className="nd-trust__item" key={b}>
-          {TRUST_LABELS[b]}
-        </span>
-      ))}
-    </div>
+    <span className="loading-dots" aria-label="Загружается">
+      <span />
+      <span />
+      <span />
+    </span>
   );
 }
 
-// ── Service choice row ───────────────────────────────────────────────────────
-
-export function ServiceChoice({
-  label,
-  sub,
-  selected = false,
-  icon,
-  onClick,
-}: {
-  label: string;
-  sub?: string;
-  selected?: boolean;
-  icon?: React.ReactNode;
-  onClick?: () => void;
-}) {
+/** Live badge — teal pulsing dot for en-route / live status. */
+export function LiveBadge({ label = "Специалист в пути" }: { label?: string }) {
   return (
-    <button
-      className={`nd-choice${selected ? " nd-choice--selected" : ""}`}
-      onClick={onClick}
-      type="button"
-      aria-pressed={selected}
-    >
-      <span className="nd-choice__dot" aria-hidden="true" />
-      {icon && <span className="nd-choice__icon" aria-hidden="true">{icon}</span>}
-      <span className="nd-choice__body">
-        <span className="nd-choice__main">{label}</span>
-        {sub && <span className="nd-choice__sub">{sub}</span>}
-      </span>
-    </button>
+    <span className="live-badge">
+      <span className="live-badge__dot" aria-hidden="true" />
+      {label}
+    </span>
   );
 }
 
-// ── Chip ─────────────────────────────────────────────────────────────────────
-
-export function Chip({
-  selected = false,
-  onClick,
+/** Privacy / info banner strip. */
+export function Banner({
+  variant = "priv",
   children,
 }: {
-  selected?: boolean;
-  onClick?: () => void;
+  variant?: "priv" | "info" | "sage" | "err";
   children: React.ReactNode;
 }) {
   return (
-    <button
-      className={`nd-chip${selected ? " nd-chip--selected" : ""}`}
-      onClick={onClick}
-      type="button"
-      aria-pressed={selected}
-    >
+    <div className={`banner banner-${variant}`} role="note">
       {children}
-    </button>
-  );
-}
-
-export function ChipGroup({ children }: { children: React.ReactNode }) {
-  return <div className="nd-chips">{children}</div>;
-}
-
-// ── Package chip ─────────────────────────────────────────────────────────────
-
-export function PackageChip({
-  name,
-  selected = false,
-  onClick,
-}: {
-  name: ClinicPackageName;
-  selected?: boolean;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      className={`nd-package-chip${selected ? " nd-package-chip--selected" : ""}`}
-      onClick={onClick}
-      type="button"
-      aria-pressed={selected}
-    >
-      {name}
-    </button>
-  );
-}
-
-// ── Info block ───────────────────────────────────────────────────────────────
-
-export function InfoBlock({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="nd-iblk">
-      <div className="nd-iblk__key">{label}</div>
-      <div className="nd-iblk__text">{children}</div>
     </div>
   );
 }
 
-// ── Price block ──────────────────────────────────────────────────────────────
-
-export function PriceBlock({
-  estimate,
-  locked = false,
-  note,
-}: {
-  estimate: string;
-  locked?: boolean;
-  note?: string;
-}) {
+/** Empty state block. */
+export function EmptyState({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
   return (
-    <div className={`nd-price${locked ? " nd-price--locked" : ""}`}>
-      <span className="nd-price__estimate">
-        {locked ? "Стоимость зафиксирована" : "Ориентир по стоимости"}
-      </span>
-      <span className="nd-price__value">{estimate}</span>
-      {locked && (
-        <span className="nd-price__lock-badge">
-          Цена подтверждена
-        </span>
-      )}
-      {note && <span className="nd-price__note">{note}</span>}
-    </div>
-  );
-}
-
-// ── Empty state ───────────────────────────────────────────────────────────────
-
-export function EmptyState({
-  title,
-  sub,
-  action,
-}: {
-  title: string;
-  sub?: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="nd-empty" role="status">
-      <span className="nd-empty__icon" aria-hidden="true">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3">
-          <circle cx="12" cy="12" r="8" />
+    <div className="empty-state">
+      <div className="empty-state__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16h.01" />
         </svg>
-      </span>
-      <span className="nd-empty__title">{title}</span>
-      {sub && <span className="nd-empty__sub">{sub}</span>}
+      </div>
+      <div className="empty-state__title">{title}</div>
+      {sub ? <div className="empty-state__sub">{sub}</div> : null}
       {action}
     </div>
   );
 }
 
-// ── Error state ───────────────────────────────────────────────────────────────
-
-export function ErrorState({
-  title = "Не удалось загрузить",
-  sub,
-  onRetry,
-}: {
-  title?: string;
-  sub?: string;
-  onRetry?: () => void;
-}) {
+/** Error state block. */
+export function ErrorState({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
   return (
-    <div className="nd-error" role="alert">
-      <span className="nd-error__icon" aria-hidden="true">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 3.5 L21 19 H3 Z" />
-          <path d="M12 10 V14" />
-          <circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none" />
+    <div className="error-state">
+      <div className="error-state__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+          <path d="M12 9v4M12 17h.01" /><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
         </svg>
-      </span>
-      <span className="nd-error__title">{title}</span>
-      {sub && <span className="nd-error__sub">{sub}</span>}
-      {onRetry && (
-        <Button variant="secondary" small onClick={onRetry}>Повторить</Button>
-      )}
+      </div>
+      <div className="error-state__title">{title}</div>
+      {sub ? <div className="error-state__sub">{sub}</div> : null}
+      {action}
     </div>
   );
 }
 
-// ── Loading dots (v6 variant) ─────────────────────────────────────────────────
-
-export function LoadingDots({ label }: { label?: string }) {
+/** Price block with confirm footnote. */
+export function PriceBlock({
+  label = "Ориентир по стоимости",
+  value,
+  sub,
+  locked = false,
+}: {
+  label?: string;
+  value: string;
+  sub?: string;
+  locked?: boolean;
+}) {
   return (
-    <span className="nadom-dots-wrap">
-      {label && <span>{label}</span>}
-      <span className="nd-dots" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </span>
-    </span>
+    <div className={`price-block ${locked ? "live" : ""}`}>
+      <div className="price-block__key">{label}</div>
+      <div className="price-block__value">{value}</div>
+      {sub ? <div className="price-block__sub">{sub}</div> : null}
+      {!locked ? (
+        <p className="price-confirm-note">
+          Финальная стоимость подтверждается клиникой до выезда
+        </p>
+      ) : null}
+    </div>
   );
-}
-
-// ── Footnote ─────────────────────────────────────────────────────────────────
-
-export function Footnote({ children }: { children: React.ReactNode }) {
-  return <p className="nd-footnote">{children}</p>;
 }

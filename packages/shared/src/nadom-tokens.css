@@ -1,12 +1,11 @@
 /* ============================================================
-   Надом / Nadom — Design Tokens v6
-   Single source of truth for colors, typography, radii, elevation.
-   Import this file in any app after a CSS reset.
-
-   Google Fonts (Unbounded + Onest + JetBrains Mono) must be loaded
-   separately — add the @import to the app's entry CSS, NOT here,
-   to allow offline/self-hosted substitution.
+   Надом / Nadom — Design Tokens v8
+   Source: Nadom Design System 8 / colors_and_type.css
+   This is the canonical CSS variable source of truth.
+   Import this file before any component styles.
    ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
   /* ---- Type families ---- */
@@ -24,7 +23,7 @@
   --t-body-sm: 400 11.5px/1.55 var(--f-body);
   --t-label:   600 9px/1.2    var(--f-mono);     /* uppercase eyebrows, tokens */
   --letter-tight: -0.04em;
-  --letter-label:  0.14em;
+  --letter-label: 0.14em;
 
   /* ============ LIGHT — cream / stone ============ */
   --ink:     #1A1B15;   /* olive-ink, primary text */
@@ -81,29 +80,103 @@
   --d-err:    #DF8C8C;  --d-err-dim: rgba(223,140,140,.18);
 
   /* ---- Radii ---- */
-  --r-xs: 4px;
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 20px;
-  --r-xl: 28px;
-  --r-ph: 40px;  /* phone frame */
+  --r-xs: 4px; --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-ph: 40px;
 
-  /* ---- Elevation / shadow ---- */
+  /* ---- Elevation ---- */
+  --sh-1: 0 1px 2px rgba(40,34,20,.05), 0 4px 14px rgba(40,34,20,.05);
+  --sh-2: 0 6px 22px rgba(40,34,20,.10);
+  --sh-3: 0 16px 44px rgba(40,34,20,.16);
   --sh-card:  0 18px 42px rgba(0,0,0,.16);
   --sh-phone: 0 36px 90px rgba(0,0,0,.62), inset 0 0 0 .5px rgba(255,255,255,.05);
 
-  /* ---- Backwards-compat aliases (maps old names → v6) ---- */
+  /* ============ v8 mini-app screen tokens (warm cream) ============ */
+  /* These override the dark-first base when used in the .ph-scr context */
+  --app-paper:   #F4F0E7;
+  --app-paper-2: #ECE5D7;
+  --app-paper-3: #DBD3C3;
+  --app-white:   #FFFEFA;
+
+  /* ---- Backward-compat aliases (existing mini-app + dashboard code) ---- */
   --accent:       var(--blue);
-  --accent-mid:   var(--blue-m);
+  --accent-mid:   #7EB8D4;
   --accent-light: var(--blue-l);
   --teal-light:   var(--teal-l);
-  --dust:         var(--rose);
-  --dust-light:   var(--rose-l);
   --ok:           var(--sage);
   --ok-light:     var(--sage-l);
+  --sage-light:   var(--sage-l);
+  --amber-light:  var(--amber-l);
   --err-light:    var(--err-l);
+  --rose-light:   var(--rose-l);
+  --dust:         var(--rose);
+  --dust-light:   var(--rose-l);
+  --warn:         #8A6020;
+  --warn-light:   #F0E4C4;
+
+  /* ---- Surface / semantic aliases ---- */
+  --surface-base:     var(--paper);
+  --surface-card:     var(--white);
+  --surface-elevated: var(--white);
+  --surface-muted:    var(--paper-2);
+  --surface-input:    var(--white);
+  --text-primary:     var(--ink);
+  --text-secondary:   var(--ink-2);
+  --text-muted:       var(--ink-3);
+  --text-subtle:      var(--ink-4);
+  --text-on-accent:   #FFFEFA;
+  --border-soft:      rgba(40,34,20,.08);
+  --border-muted:     var(--paper-3);
+  --focus-ring:       rgba(62,132,196,.22);
+
+  /* font-body / font-display / font-mono compat */
   --font-display: var(--f-display);
   --font-body:    var(--f-body);
   --font-mono:    var(--f-mono);
-  --r-phone:      var(--r-ph);
+}
+
+/* ============================================================
+   Dark theme — warm graphite shell (dashboard, dark Mini App)
+   ============================================================ */
+[data-theme="dark"],
+body.dark,
+[data-tg-scheme="dark"],
+[data-preview-theme="dark"] {
+  --ink:     #ECEADD;
+  --ink-2:   #A9A998;
+  --ink-3:   #6E6F5C;
+  --ink-4:   #4A4B3D;
+  --ink-5:   #34352A;
+  --paper:   var(--d-bg-2);
+  --paper-2: var(--d-bg-3);
+  --paper-3: var(--d-line-2);
+  --white:   var(--d-bg-3);
+
+  --blue:    var(--d-blue);
+  --blue-dim: var(--d-blue-dim);
+  --teal:    var(--d-teal);
+  --teal-dim: var(--d-teal-dim);
+  --sage:    var(--d-sage);
+  --sage-dim: rgba(130,188,140,.17);
+  --amber:   var(--d-amber);
+  --amber-dim: var(--d-amber-dim);
+  --rose:    var(--d-rose);
+  --rose-dim: var(--d-rose-dim);
+  --err:     var(--d-err);
+  --err-dim:  var(--d-err-dim);
+
+  --surface-base:     var(--d-bg-2);
+  --surface-card:     var(--d-bg-3);
+  --surface-elevated: var(--d-bg-3);
+  --surface-muted:    var(--d-bg);
+  --surface-input:    var(--d-bg);
+  --text-primary:     #ECEADD;
+  --text-secondary:   #A9A998;
+  --text-muted:       #6E6F5C;
+  --text-subtle:      #4A4B3D;
+  --border-soft:      rgba(236,234,221,.10);
+  --border-muted:     var(--d-line-2);
+  --focus-ring:       rgba(116,178,226,.28);
+
+  --sh-1: 0 1px 2px rgba(0,0,0,.3),  0 4px 14px rgba(0,0,0,.34);
+  --sh-2: 0 8px 26px rgba(0,0,0,.46);
+  --sh-3: 0 18px 46px rgba(0,0,0,.6);
 }

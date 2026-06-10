@@ -86,10 +86,10 @@ export function createStartMessage() {
   return withOpenAppButton(
     [
       "привет, я Надом 🫧",
-      "если нужен медицинский выезд на дом — помогу найти подходящий вариант",
-      "детали, стоимость и возможность выезда подтверждает медицинская организация",
+      "Надом помогает анонимно подобрать клинику или медслужбу с выездом на дом — без лишних данных на старте.",
+      "детали, стоимость и возможность выезда подтверждает выбранная медицинская организация",
     ].join("\n\n"),
-    "подобрать вариант",
+    "подобрать клинику",
   );
 }
 
@@ -149,8 +149,8 @@ export function createStatusUpdateMessage(kind: StatusNotificationKind = "update
 
 export function createNeutralRequestNotification(kind: NeutralNotificationKind) {
   const texts: Record<NeutralNotificationKind, string> = {
-    status_updated: "Статус заявки обновлён. Откройте Надом.",
-    chat_message: "Новое сообщение по заявке. Откройте Надом.",
+    status_updated: "Статус заявки обновлён. Откройте Надом, чтобы посмотреть детали.",
+    chat_message: "Новое сообщение по заявке. Откройте Надом, чтобы ответить.",
   };
 
   return {

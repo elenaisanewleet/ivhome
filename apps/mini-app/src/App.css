@@ -1,4 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;600;700;900&family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+/* ── Nadom Design System v8 tokens (source of truth) ────────────── */
+/* Tokens are defined in packages/shared/src/nadom-tokens.css.
+   The Google Fonts import is included there, so the line below is
+   removed to avoid double-loading. Local overrides follow. */
 
 /* ── Tokens v6 (shared source of truth) ─────────────────────────── */
 /* nadom-tokens.css sets: --f-*, --t-*, --d-bg*, --d-ink*, --blue, --teal,
@@ -7,35 +10,54 @@
 
 /* ── Tokens ─────────────────────────────────────────────────────── */
 
+/* ── Nadom v8 canonical cream tokens (overrides base) ─── */
 :root {
-  --ink:   #0f0f0e;
-  --ink-2: #2a2a28;
-  --ink-3: #5a5a56;
-  --ink-4: #8a8a84;
-  --ink-5: #c4c4bc;
+  --ink:   #1A1B15;
+  --ink-2: #34352B;
+  --ink-3: #565748;
+  --ink-4: #84856F;
+  --ink-5: #B6B7A4;
 
-  --paper:   #f5f4f0;
-  --paper-2: #eeede8;
-  --paper-3: #e4e3dc;
-  --white:   #fafaf8;
+  --paper:   #F4F0E7;
+  --paper-2: #ECE5D7;
+  --paper-3: #DBD3C3;
+  --white:   #FFFEFA;
 
-  --accent:       #4a7fa5;
-  --accent-mid:   #7eb8d4;
-  --accent-light: #d4e8f5;
-  --teal:         #3a8a82;
-  --teal-light:   #c8e8e4;
-  --dust:         #b89090;
-  --dust-light:   #ede0dc;
-  --ok:           #3a7a5a;
-  --ok-light:     #c8e8d8;
-  --warn:         #8a6020;
-  --warn-light:   #f0e4c4;
-  --sage:         #5c9568;
-  --sage-light:   #cee3d0;
-  --amber:        #c8902e;
-  --amber-light:  #f2deac;
-  --err:          #b0494a;
-  --err-light:    #eec9c9;
+  /* v8 signal palette */
+  --blue:         #3E84C4;
+  --blue-d:       #2E6EA8;
+  --blue-m:       #74B2E2;
+  --blue-l:       #CFE4F4;
+  --blue-dim:     rgba(62,132,196,.14);
+  --accent:       #3E84C4;
+  --accent-mid:   #74B2E2;
+  --accent-light: #CFE4F4;
+  --teal:         #1E9E96;
+  --teal-d:       #157E78;
+  --teal-l:       #C2EBE6;
+  --teal-dim:     rgba(30,158,150,.14);
+  --teal-light:   #C2EBE6;
+  --sage:         #5C9568;
+  --sage-l:       #CEE3D0;
+  --sage-dim:     rgba(92,149,104,.15);
+  --sage-light:   #CEE3D0;
+  --amber:        #C8902E;
+  --amber-l:      #F2DEAC;
+  --amber-dim:    rgba(200,144,46,.16);
+  --amber-light:  #F2DEAC;
+  --rose:         #B57E7E;
+  --rose-l:       #ECDADA;
+  --rose-dim:     rgba(181,126,126,.15);
+  --dust:         #B57E7E;
+  --dust-light:   #ECDADA;
+  --ok:           #5C9568;
+  --ok-light:     #CEE3D0;
+  --warn:         #8A6020;
+  --warn-light:   #F0E4C4;
+  --err:          #B0494A;
+  --err-l:        #EEC9C9;
+  --err-dim:      rgba(176,73,74,.14);
+  --err-light:    #EEC9C9;
 
   --font-display: "Unbounded", system-ui, sans-serif;
   --font-body:    "Onest", "Manrope", system-ui, sans-serif;
