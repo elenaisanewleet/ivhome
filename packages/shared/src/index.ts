@@ -30,7 +30,7 @@ export const MVP_SERVICE_CATALOG = [
   { slug: "intoxication", label: "Похоже на интоксикацию", price: "от 9 500 ₽" },
   { slug: "urgent_visit", label: "Нужен выезд сегодня", price: "от 9 900 ₽" },
   { slug: "planned_visit", label: "Плановый выезд", price: "от 7 500 ₽" },
-  { slug: "custom", label: "Свой запрос", price: "по описанию запроса" },
+  { slug: "custom", label: "Описать ситуацию", price: "по описанию ситуации" },
 ] as const satisfies readonly MvpServiceCatalogItem[];
 
 export type MvpServiceSlug = (typeof MVP_SERVICE_CATALOG)[number]["slug"];
@@ -183,4 +183,86 @@ export type MvpOnboardingResponse = {
   status: MvpOnboardingStatus;
   submittedAt: string | null;
   updatedAt: string;
+};
+
+// ─── Nadom Design System v6 — shared domain types ───────────────────────────
+
+/** Fixed first-screen service categories (ToV §8). Never add VIP/Премиум/Свой запрос. */
+export type NadomServiceCategory =
+  | "binge_withdrawal"      // Вывод из запоя
+  | "alcohol_drip"          // Капельница после алкоголя
+  | "narcologist_home"      // Нарколог на дом
+  | "detox"                 // Детокс
+  | "describe_situation";   // Описать ситуацию
+
+export const NADOM_SERVICE_CATEGORIES: ReadonlyArray<{
+  slug: NadomServiceCategory;
+  label: string;
+  sub: string;
+}> = [
+  { slug: "binge_withdrawal",   label: "Вывод из запоя",              sub: "помощь при длительном употреблении алкоголя" },
+  { slug: "alcohol_drip",       label: "Капельница после алкоголя",   sub: "если плохо после алкоголя или тяжёлое похмелье" },
+  { slug: "narcologist_home",   label: "Нарколог на дом",             sub: "консультация и выезд специалиста" },
+  { slug: "detox",              label: "Детокс",                      sub: "восстановление после интоксикации" },
+  { slug: "describe_situation", label: "Описать ситуацию",            sub: "если не знаете, что выбрать" },
+] as const;
+
+/** Allowed clinic package names (ToV §11). VIP / Премиум / Элитный are forbidden. */
+export type ClinicPackageName =
+  | "Лайт"
+  | "Стандарт"
+  | "Расширенный"
+  | "Интенсив"
+  | "Максимум"
+  | "Комплексный"
+  | "Детокс"
+  | "Детокс+"
+  | "Двойное очищение"
+  | "Двойное очищение+"
+  | "Тройное очищение";
+
+/**
+ * SLA is always two separate values — never a merged single ETA.
+ * responseMinutes: time from request to medservice first response.
+ * arrivalMinutes:  time from confirmation to specialist arrival.
+ */
+export type SlaMetrics = {
+  responseMinutes: [min: number, max: number];
+  arrivalMinutes:  [min: number, max: number];
+};
+
+/** Request lifecycle statuses (ToV §20). */
+export type NadomRequestStatus =
+  | "submitted"    // Заявка отправлена
+  | "confirming"   // Клиника подтверждает детали
+  | "dispatched"   // Бригада выезжает
+  | "en_route"     // Специалист в пути
+  | "arrived"      // На месте
+  | "completed";   // Завершено
+
+export const NADOM_REQUEST_STATUS_LABELS: Record<NadomRequestStatus, { label: string; sub: string }> = {
+  submitted:  { label: "Заявка отправлена",            sub: "Мы передали запрос выбранной клинике." },
+  confirming: { label: "Клиника подтверждает детали",  sub: "Специалист проверяет возможность выезда и уточняет условия." },
+  dispatched: { label: "Бригада выезжает",             sub: "Выезд подтверждён. Ожидаемое время приезда указано ниже." },
+  en_route:   { label: "Специалист в пути",            sub: "Бригада едет к вам." },
+  arrived:    { label: "На месте",                     sub: "Специалист прибыл." },
+  completed:  { label: "Завершено",                    sub: "Заявка закрыта. Можно оставить анонимную оценку." },
+};
+
+/** Trust badge values used on clinic cards and trust strips. */
+export type NadomTrustBadge =
+  | "license_verified"   // Лицензия подтверждена
+  | "available_24_7"     // 24/7
+  | "anonymous_start"    // Анонимно на старте
+  | "no_docs_at_start"   // Без документов на старте
+  | "no_extra_data"      // Без лишних данных
+  | "address_after_confirm"; // Точный адрес — после выбора клиники
+
+export const NADOM_TRUST_BADGE_LABELS: Record<NadomTrustBadge, string> = {
+  license_verified:      "Лицензия подтверждена",
+  available_24_7:        "24/7",
+  anonymous_start:       "Анонимно на старте",
+  no_docs_at_start:      "Без документов на старте",
+  no_extra_data:         "Без лишних данных",
+  address_after_confirm: "Точный адрес — после выбора клиники",
 };
