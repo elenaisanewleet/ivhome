@@ -479,6 +479,10 @@ function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequ
 
 const emptyClinicForm = { id: "", publicName: "", legalName: "", inn: "", status: "ACTIVE" as MvpClinicRecord["status"] };
 
+function StatusBadge({ status }: { status: string }) {
+  return <strong className={`status-pill status-pill--${status.toLowerCase()}`}>{status}</strong>;
+}
+
 function AdminView() {
   const storageKey = "nadom_admin_token";
   const [token, setToken] = useState(() => readStoredToken(storageKey));
@@ -690,127 +694,151 @@ function AdminView() {
   if (!token) return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={handleAuth} />;
 
   return (
-    <section className="dashboard-card">
-      <div className="dashboard-toolbar">
+    <div className="d-card">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", gap: "12px" }}>
         <div>
-          <p className="meta-label">Операционная панель</p>
-          <h2>DB-заявки и организации</h2>
-          <p>Все данные ниже перезагружаются из API/Postgres. После refresh созданные организации должны оставаться в списке.</p>
+          <p className="d-page-title">DB-заявки и организации</p>
+          <p className="d-page-sub">Все данные перезагружаются из API/Postgres.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
-          <button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); }} type="button">Выйти</button>
+          <button className="d-btn d-btn-secondary d-btn-sm" disabled={isLoading} onClick={() => void refreshRequests(token)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
+          <button className="d-btn d-btn-danger d-btn-sm" onClick={() => { writeStoredToken(storageKey, ""); setToken(""); setRequests([]); setDbRequests([]); setClinics([]); }} type="button">Выйти</button>
         </div>
       </div>
 
-      {message ? <p className={`dashboard-message dashboard-message--${lastAction}`}>{message}</p> : null}
+      {message ? <div className={lastAction === "error" ? "d-error-box" : "d-success-box"}>{message}</div> : null}
 
-      <section className="clinic-access-panel">
-        <div className="dashboard-toolbar">
-          <div>
-            <p className="meta-label">Организации</p>
-            <h2>Кабинет организации и ссылки доступа</h2>
-            <p>Создайте организацию, затем сгенерируйте ссылку доступа. Токен не отображается и не хранится в списке.</p>
-          </div>
-          <label className="inline-field">
-            <span>Метка нового токена доступа</span>
-            <input onChange={(event) => setTokenLabel(event.target.value)} type="text" value={tokenLabel} />
-          </label>
+      <div className="d-card-elevated" style={{ marginBottom: "20px" }}>
+        <p className="d-card-title">Организации и ссылки доступа</p>
+        <div className="d-form-row">
+          <label className="d-label" htmlFor="token-label-input">Метка нового токена доступа</label>
+          <input className="d-input" id="token-label-input" onChange={(event) => setTokenLabel(event.target.value)} type="text" value={tokenLabel} />
         </div>
 
-        <form className="clinic-form" onSubmit={(event) => void saveClinicForm(event)}>
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, id: event.target.value }))} placeholder="pilot-east" type="text" value={clinicForm.id} />
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, publicName: event.target.value }))} placeholder="Организация «Восток»" type="text" value={clinicForm.publicName} />
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, legalName: event.target.value }))} placeholder="ООО «Организация Восток»" type="text" value={clinicForm.legalName} />
-          <input onChange={(event) => setClinicForm((current) => ({ ...current, inn: event.target.value }))} placeholder="ИНН" type="text" value={clinicForm.inn} />
-          <select onChange={(event) => setClinicForm((current) => ({ ...current, status: event.target.value as MvpClinicRecord["status"] }))} value={clinicForm.status}>
+        <form onSubmit={(event) => void saveClinicForm(event)} style={{ display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", marginBottom: "14px" }}>
+          <input className="d-input" onChange={(event) => setClinicForm((current) => ({ ...current, id: event.target.value }))} placeholder="pilot-east" type="text" value={clinicForm.id} />
+          <input className="d-input" onChange={(event) => setClinicForm((current) => ({ ...current, publicName: event.target.value }))} placeholder="Организация «Восток»" type="text" value={clinicForm.publicName} />
+          <input className="d-input" onChange={(event) => setClinicForm((current) => ({ ...current, legalName: event.target.value }))} placeholder="ООО «Организация Восток»" type="text" value={clinicForm.legalName} />
+          <input className="d-input" onChange={(event) => setClinicForm((current) => ({ ...current, inn: event.target.value }))} placeholder="ИНН" type="text" value={clinicForm.inn} />
+          <select className="d-select" onChange={(event) => setClinicForm((current) => ({ ...current, status: event.target.value as MvpClinicRecord["status"] }))} value={clinicForm.status}>
             <option value="ACTIVE">ACTIVE</option>
             <option value="PENDING_REVIEW">PENDING_REVIEW</option>
             <option value="SUSPENDED">SUSPENDED</option>
             <option value="DRAFT">DRAFT</option>
           </select>
-          <button disabled={isLoading} type="submit">{clinics.some((clinic) => clinic.id === clinicForm.id) ? "Обновить организацию" : "Создать организацию"}</button>
+          <button className="d-btn d-btn-primary" disabled={isLoading} type="submit">{clinics.some((clinic) => clinic.id === clinicForm.id) ? "Обновить организацию" : "Создать организацию"}</button>
         </form>
 
         {oneTimeLink ? (
-          <div className="invite-link-box">
-            <p className="meta-label">Ссылка доступа · {oneTimeLink.clinicId}</p>
-            <p>Скопируйте сейчас. Токен не отображается и не будет доступен после обновления страницы.</p>
-            <code>{oneTimeLink.displayLink}</code>
-            <button onClick={() => void copyOneTimeLink()} type="button">Скопировать ссылку доступа</button>
+          <div className="d-success-box" style={{ marginBottom: "12px" }}>
+            <p style={{ margin: "0 0 6px", fontWeight: 600 }}>Ссылка доступа · {oneTimeLink.clinicId}</p>
+            <p style={{ margin: "0 0 8px", fontSize: "12px" }}>Скопируйте сейчас. Токен не отображается после обновления страницы.</p>
+            <code style={{ display: "block", wordBreak: "break-all", fontSize: "11px", marginBottom: "8px" }}>{oneTimeLink.displayLink}</code>
+            <button className="d-btn d-btn-secondary d-btn-sm" onClick={() => void copyOneTimeLink()} type="button">Скопировать ссылку доступа</button>
           </div>
         ) : null}
 
-        {clinics.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Организаций пока нет</h3><p>Создайте первую организацию через форму выше.</p></div> : null}
+        {clinics.length === 0 && !isLoading ? (
+          <div className="d-empty">
+            <p className="d-empty-title">Организаций пока нет</p>
+            <p className="d-empty-sub">Создайте первую организацию через форму выше.</p>
+          </div>
+        ) : null}
 
-        <div className="request-list">
+        <div className="d-request-list">
           {clinics.map((clinic) => (
-            <article className="request-card clinic-card" key={clinic.id}>
-              <div className="request-card__head">
-                <div>
-                  <span className="request-id">{clinic.id}</span>
-                  <h3>{clinic.publicName}</h3>
-                  <p>{clinic.legalName} · ИНН {clinic.inn}</p>
+            <div className="d-request-row" key={clinic.id} style={{ gridTemplateColumns: "1fr auto" }}>
+              <div>
+                <div className="d-request-id">{clinic.id}</div>
+                <div className="d-request-service">{clinic.publicName}</div>
+                <div className="d-request-meta"><span>{clinic.legalName}</span><span>ИНН {clinic.inn}</span></div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+                <StatusBadge status={clinic.status} />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", justifyContent: "flex-end" }}>
+                  <button className="d-btn d-btn-secondary d-btn-sm" onClick={() => setClinicForm({ id: clinic.id, publicName: clinic.publicName, legalName: clinic.legalName, inn: clinic.inn, status: clinic.status })} type="button">Редактировать</button>
+                  <button className="d-btn d-btn-primary d-btn-sm" disabled={clinic.status !== "ACTIVE"} onClick={() => void generateClinicLink(clinic.id)} type="button">Ссылка доступа</button>
+                  <button className="d-btn d-btn-ghost d-btn-sm" onClick={() => void refreshClinicTokens(clinic.id)} type="button">Токены</button>
+                  <a className="d-btn d-btn-ghost d-btn-sm" href={`/admin/onboarding/${encodeURIComponent(clinic.id)}`}>Анкета</a>
+                  <a className="d-btn d-btn-ghost d-btn-sm" href={`/clinic?clinic=${encodeURIComponent(clinic.id)}`}>Кабинет</a>
                 </div>
-                <strong className={`status-pill status-pill--${clinic.status.toLowerCase()}`}>{clinic.status}</strong>
+                {(clinicTokens[clinic.id] ?? []).length > 0 ? (
+                  <div style={{ width: "100%", marginTop: "4px" }}>
+                    {(clinicTokens[clinic.id] ?? []).map((accessToken) => (
+                      <div key={accessToken.id} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--d-ink-3)", padding: "4px 0" }}>
+                        <span style={{ flex: 1 }}>{accessToken.label} · {accessToken.status} · {accessToken.role} · last used: {formatDate(accessToken.lastUsedAt)}</span>
+                        {accessToken.status === "ACTIVE" ? <button className="d-btn d-btn-danger d-btn-sm" onClick={() => void revokeAccess(clinic.id, accessToken.id)} type="button">Отозвать</button> : null}
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-              <dl className="request-fields">
-                <div><dt>ID</dt><dd>{clinic.id}</dd></div>
-                <div><dt>Публично</dt><dd>{clinic.publicName}</dd></div>
-                <div><dt>Статус</dt><dd>{clinic.status}</dd></div>
-                <div><dt>Токен доступа</dt><dd>{clinic.hasActiveAccessToken ? `есть · ${clinic.activeAccessTokenCount ?? 1}` : "нет"}</dd></div>
-                <div><dt>Обновлено</dt><dd>{formatDate(clinic.updatedAt)}</dd></div>
-              </dl>
-              <div className="status-actions">
-                <button onClick={() => setClinicForm({ id: clinic.id, publicName: clinic.publicName, legalName: clinic.legalName, inn: clinic.inn, status: clinic.status })} type="button">Редактировать</button>
-                <button disabled={clinic.status !== "ACTIVE"} onClick={() => void generateClinicLink(clinic.id)} type="button">Создать ссылку доступа</button>
-                <button onClick={() => void refreshClinicTokens(clinic.id)} type="button">Показать токены</button>
-                <a className="action-link" href={`/admin/onboarding/${encodeURIComponent(clinic.id)}`}>Анкета</a>
-                <a className="action-link" href={`/clinic?clinic=${encodeURIComponent(clinic.id)}`}>Открыть кабинет</a>
-              </div>
-              {(clinicTokens[clinic.id] ?? []).length > 0 ? (
-                <dl className="request-fields token-fields">
-                  {(clinicTokens[clinic.id] ?? []).map((accessToken) => (
-                    <div key={accessToken.id}>
-                      <dt>{accessToken.label}</dt>
-                      <dd>
-                        {accessToken.status} · {accessToken.role} · last used: {formatDate(accessToken.lastUsedAt)}
-                        {accessToken.status === "ACTIVE" ? <button onClick={() => void revokeAccess(clinic.id, accessToken.id)} type="button">Отозвать</button> : null}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              ) : null}
-            </article>
+            </div>
           ))}
         </div>
-      </section>
+      </div>
 
-      {dbRequests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Postgres-заявок пока нет</h3><p>Создайте заявку в Mini App, затем обновите список.</p></div> : null}
+      <p className="d-card-title">Postgres-заявки</p>
+      {dbRequests.length === 0 && !isLoading ? (
+        <div className="d-empty">
+          <p className="d-empty-title">Postgres-заявок пока нет</p>
+          <p className="d-empty-sub">Создайте заявку в Mini App, затем обновите список.</p>
+        </div>
+      ) : null}
 
-      <div className="request-list">
+      <div className="d-request-list">
         {dbRequests.map((req) => (
-          <article className="request-card" key={req.id}>
-            <div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div>
-            <dl className="request-fields">
-              <div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>
-              {req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}
-              {req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}
-              <div><dt>Обновлено</dt><dd>{formatDate(req.updatedAt)}</dd></div>
-            </dl>
-            <RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
-            <div className="status-actions" aria-label="Изменить статус заявки">
-              {dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeDbStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}
-              <button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button>
-              <a className="action-link" href={`/admin/onboarding/${encodeURIComponent(req.clinicId ?? req.offerId)}`}>Анкета</a>
+          <article className="d-card" key={req.id} style={{ marginBottom: "8px" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", marginBottom: "12px" }}>
+              <div>
+                <div className="d-request-id">{req.id}</div>
+                <div className="d-request-service">{offerName(req.offerId)}</div>
+                <div className="d-request-meta">
+                  <span className="d-request-district">{req.district}</span>
+                  <span className="d-request-time">{req.desiredTime}</span>
+                  <span>{req.profile}</span>
+                </div>
+              </div>
+              <StatusBadge status={req.status} />
+            </div>
+            <RequestContext req={req} />
+            <RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveDbQuote(req, patch)} request={req} />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
+              {dbStatusOrder.map((status) => <button className="d-btn d-btn-secondary d-btn-sm" disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeDbStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}
+              <button className="d-btn d-btn-ghost d-btn-sm" onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button>
+              <a className="d-btn d-btn-ghost d-btn-sm" href={`/admin/onboarding/${encodeURIComponent(req.clinicId ?? req.offerId)}`}>Анкета</a>
             </div>
             {openChatId === req.id ? <RequestChat actorType="ADMIN" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}
           </article>
         ))}
       </div>
 
-      {requests.length > 0 ? <><div className="dashboard-toolbar" style={{ marginTop: "24px" }}><div><p className="meta-label">Dev-заявки (в памяти)</p><h2>In-memory заявки</h2><p>Сбрасываются при перезапуске API. Для совместимости с предыдущей версией.</p></div></div><div className="request-list">{requests.map((request) => <article className="request-card" key={request.requestId}><div className="request-card__head"><div><span className="request-id">{request.requestId}</span><h3>{offerName(request.offerId)}</h3></div><strong className={`status-pill status-pill--${request.status}`}>{statusLabels[request.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{request.district}</dd></div><div><dt>Время</dt><dd>{request.desiredTime}</dd></div><div><dt>Формат</dt><dd>{request.profile}</dd></div><div><dt>Обновлено</dt><dd>{formatDate(request.updatedAt)}</dd></div></dl><div className="status-actions" aria-label="Изменить статус заявки">{statusOrder.map((status) => <button disabled={updatingId === request.requestId || request.status === status} key={status} onClick={() => void changeStatus(request, status)} type="button">{statusLabels[status]}</button>)}</div></article>)}</div></> : null}
-    </section>
+      {requests.length > 0 ? (
+        <>
+          <div className="d-section-label" style={{ marginTop: "24px" }}>Dev-заявки (в памяти)</div>
+          <div className="d-request-list">
+            {requests.map((request) => (
+              <article className="d-card" key={request.requestId} style={{ marginBottom: "8px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", marginBottom: "10px" }}>
+                  <div>
+                    <div className="d-request-id">{request.requestId}</div>
+                    <div className="d-request-service">{offerName(request.offerId)}</div>
+                    <div className="d-request-meta">
+                      <span>{request.district}</span>
+                      <span>{request.desiredTime}</span>
+                    </div>
+                  </div>
+                  <StatusBadge status={request.status} />
+                </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                  {statusOrder.map((status) => <button className="d-btn d-btn-secondary d-btn-sm" disabled={updatingId === request.requestId || request.status === status} key={status} onClick={() => void changeStatus(request, status)} type="button">{statusLabels[status]}</button>)}
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
+      ) : null}
+    </div>
   );
 }
 
@@ -821,10 +849,13 @@ function AdminOnboardingView({ clinicId }: { clinicId: string }) {
   if (!token) return <AuthGate storageKey={storageKey} label="Вход в Надом Admin" onAuth={setToken} />;
 
   return (
-    <section className="dashboard-card">
-      <div className="dashboard-toolbar"><div><p className="meta-label">Анкета</p><h2>{offerName(clinicId)}</h2><p>Черновик и отправка сохраняются через Postgres API.</p></div><div style={{ display: "flex", gap: "8px" }}><a className="action-link" href="/admin">К заявкам</a><button onClick={() => { writeStoredToken(storageKey, ""); setToken(""); }} type="button">Выйти</button></div></div>
+    <div className="d-card">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", gap: "12px" }}>
+        <div><p className="d-page-title">{offerName(clinicId)}</p><p className="d-page-sub">Черновик и отправка сохраняются через Postgres API.</p></div>
+        <div style={{ display: "flex", gap: "8px" }}><a className="d-btn d-btn-ghost d-btn-sm" href="/admin">К заявкам</a><button className="d-btn d-btn-danger d-btn-sm" onClick={() => { writeStoredToken(storageKey, ""); setToken(""); }} type="button">Выйти</button></div>
+      </div>
       <OnboardingForm adminToken={token} apiBaseUrl={apiBaseUrl} clinicId={clinicId} />
-    </section>
+    </div>
   );
 }
 
@@ -872,17 +903,23 @@ function ClinicLogin({ onAuth }: { onAuth: (auth: MvpClinicAuthContext) => void 
   }, []);
 
   return (
-    <div className="auth-gate">
+    <div className="d-onboarding-wrap"><div className="d-onboarding-card">
       <BrandMark />
-      <h2>Кабинет организации — вход</h2>
+      <h2 className="d-onboarding-title">Кабинет организации — вход</h2>
       <p>Откройте ссылку доступа от Надом или введите ID организации и токен доступа вручную.</p>
       <form onSubmit={(event) => { event.preventDefault(); void submit(); }}>
-        <label><span>ID организации</span><input autoComplete="off" onChange={(event) => setClinicId(event.target.value)} placeholder="org-north" type="text" value={clinicId} /></label>
-        <label><span>Токен доступа</span><input autoComplete="current-password" onChange={(event) => setToken(event.target.value)} placeholder="nadom_msvc_…" type="password" value={token} /></label>
-        {error ? <p className="auth-error">{error}</p> : null}
-        <button disabled={isLoading} type="submit">{isLoading ? "Проверяем…" : "Войти"}</button>
+        <div className="d-form-row">
+          <label className="d-label" htmlFor="clinic-id-input">ID организации</label>
+          <input className="d-input" id="clinic-id-input" autoComplete="off" onChange={(event) => setClinicId(event.target.value)} placeholder="org-north" type="text" value={clinicId} />
+        </div>
+        <div className="d-form-row">
+          <label className="d-label" htmlFor="clinic-token-input">Токен доступа</label>
+          <input className="d-input" id="clinic-token-input" autoComplete="current-password" onChange={(event) => setToken(event.target.value)} placeholder="nadom_msvc_…" type="password" value={token} />
+        </div>
+        {error ? <p className="d-error-box" style={{ marginTop: "8px" }}>{error}</p> : null}
+        <button className="d-btn d-btn-primary d-btn-full" disabled={isLoading} type="submit">{isLoading ? "Проверяем…" : "Войти"}</button>
       </form>
-    </div>
+    </div></div>
   );
 }
 
@@ -997,12 +1034,44 @@ function ClinicView() {
   if (!auth) return <ClinicLogin onAuth={setAuth} />;
 
   return (
-    <section className="dashboard-card">
-      <div className="dashboard-toolbar"><div><p className="meta-label">Организация: {auth.publicName}</p><h2>Заявки вашей организации</h2><p>Доступ хранится в sessionStorage. После выхода ссылка с отозванным токеном доступа должна перестать открываться.</p></div><div style={{ display: "flex", gap: "8px" }}><button disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button><button onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button></div></div>
-      {message ? <p className="dashboard-message">{message}</p> : null}
-      {requests.length === 0 && !isLoading ? <div className="dashboard-empty-list"><p className="meta-label">Пусто</p><h3>Заявок для этой организации пока нет</h3><p>Создайте заявку в Mini App с выбором этой организации.</p></div> : null}
-      <div className="request-list">{requests.map((req) => <article className="request-card" key={req.id}><div className="request-card__head"><div><span className="request-id">{req.id}</span><h3>{offerName(req.offerId)}</h3></div><strong className={`status-pill status-pill--${req.status.toLowerCase()}`}>{dbStatusLabels[req.status]}</strong></div><dl className="request-fields"><div><dt>Район</dt><dd>{req.district}</dd></div><div><dt>Время</dt><dd>{req.desiredTime}</dd></div><div><dt>Формат</dt><dd>{req.profile}</dd></div>{req.priceMin !== null ? <div><dt>Стоимость</dt><dd>{req.priceMin} – {req.priceMax} {req.priceCurrency}</dd></div> : null}{req.etaMinutes !== null ? <div><dt>Прибытие</dt><dd>{req.etaMinutes} мин</dd></div> : null}<div><dt>Создана</dt><dd>{formatDate(req.createdAt)}</dd></div></dl><RequestContext req={req} /><RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} /><div className="status-actions" aria-label="Изменить статус заявки">{dbStatusOrder.map((status) => <button disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}<button onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button></div>{openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}</article>)}</div>
-    </section>
+    <div className="d-card">
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px", gap: "12px" }}>
+        <div>
+          <p className="d-page-title">Заявки вашей организации</p>
+          <p className="d-page-sub">Организация: {auth.publicName}</p>
+        </div>
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button className="d-btn d-btn-secondary d-btn-sm" disabled={isLoading} onClick={() => void refreshRequests(auth)} type="button">{isLoading ? "Обновляем…" : "Обновить"}</button>
+          <button className="d-btn d-btn-danger d-btn-sm" onClick={() => { writeStoredClinicAuth(null); setAuth(null); setRequests([]); setChatMessages({}); setOpenChatId(null); }} type="button">Выйти</button>
+        </div>
+      </div>
+      {message ? <div className="d-error-box">{message}</div> : null}
+      {requests.length === 0 && !isLoading ? (
+        <div className="d-empty">
+          <p className="d-empty-title">Заявок для этой организации пока нет</p>
+          <p className="d-empty-sub">Создайте заявку в Mini App с выбором этой организации.</p>
+        </div>
+      ) : null}
+      <div className="d-request-list">{requests.map((req) => (
+        <article className="d-card" key={req.id} style={{ marginBottom: "8px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "12px", marginBottom: "10px" }}>
+            <div>
+              <div className="d-request-id">{req.id}</div>
+              <div className="d-request-service">{offerName(req.offerId)}</div>
+              <div className="d-request-meta"><span>{req.district}</span><span>{req.desiredTime}</span><span>{req.profile}</span></div>
+            </div>
+            <StatusBadge status={req.status} />
+          </div>
+          <RequestContext req={req} />
+          <RequestQuotePanel isUpdating={updatingId === req.id} onSave={(patch) => void saveQuote(req, patch)} request={req} />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "10px" }}>
+            {dbStatusOrder.map((status) => <button className="d-btn d-btn-secondary d-btn-sm" disabled={updatingId === req.id || req.status === status} key={status} onClick={() => void changeStatus(req, status)} type="button">{dbStatusLabels[status]}</button>)}
+            <button className="d-btn d-btn-ghost d-btn-sm" onClick={() => void toggleChat(req.id)} type="button">{openChatId === req.id ? "Скрыть чат" : "Открыть чат"}</button>
+          </div>
+          {openChatId === req.id ? <RequestChat actorType="CLINIC" draft={chatDrafts[req.id] ?? ""} error={chatError} isLoading={chatLoadingId === req.id} messages={chatMessages[req.id] ?? []} onDraftChange={(value) => setChatDrafts((current) => ({ ...current, [req.id]: value }))} onRefresh={() => void refreshChat(req.id)} onSend={() => void sendChat(req.id)} /> : null}
+        </article>
+      ))}</div>
+    </div>
   );
 }
 
