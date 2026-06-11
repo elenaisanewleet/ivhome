@@ -137,9 +137,6 @@ function BrandMark() {
   return <img className="brand-mark" src="/symbol-iv-bag.svg" alt="Надом" width={36} height={36} />;
 }
 
-function StatusBadge({ status }: { status: string }) {
-  return <strong className={`status-pill status-pill--${status.toLowerCase()}`}>{status}</strong>;
-}
 
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
