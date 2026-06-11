@@ -15,12 +15,12 @@ type MvpServiceCategorySlug =
   | "custom";
 
 const MVP_SERVICE_CATALOG: Array<{ slug: MvpServiceCategorySlug; label: string; priceRange: string }> = [
-  { slug: "alcohol_hangover", label: "Плохо после алкоголя", priceRange: "8 500–12 000 ₽" },
-  { slug: "binge_or_near_binge", label: "Запойная или около-запойная ситуация", priceRange: "от 11 000 ₽" },
-  { slug: "intoxication", label: "Интоксикация / отравление веществами", priceRange: "от 10 000 ₽" },
-  { slug: "urgent_visit", label: "Срочный неэкстренный выезд специалиста", priceRange: "от 6 000 ₽" },
-  { slug: "planned_visit", label: "Плановый выезд специалиста", priceRange: "от 5 500 ₽" },
-  { slug: "custom", label: "Свой запрос", priceRange: "по согласованию" },
+  { slug: "alcohol_hangover",    label: "Капельница после алкоголя",        priceRange: "ориентир 8 500–12 000 ₽" },
+  { slug: "binge_or_near_binge", label: "Вывод из запоя",                   priceRange: "ориентир от 11 000 ₽" },
+  { slug: "intoxication",        label: "Детокс / помощь при интоксикации", priceRange: "ориентир от 10 000 ₽" },
+  { slug: "urgent_visit",        label: "Нарколог на дом",                  priceRange: "ориентир от 6 000 ₽" },
+  { slug: "planned_visit",       label: "Плановый визит специалиста",       priceRange: "ориентир от 5 500 ₽" },
+  { slug: "custom",              label: "Описать ситуацию",                 priceRange: "по согласованию" },
 ];
 
 type MvpRequestStatus = "waiting" | "price-lock" | "dispatched" | "completed";
@@ -134,15 +134,13 @@ function offerName(offerId: string) {
 }
 
 function BrandMark() {
-  return (
-    <svg className="brand-mark" viewBox="0 0 64 64" role="img" aria-label="Надом">
-      <circle cx="18" cy="18" r="5" fill="none" stroke="var(--accent-mid)" strokeWidth="3.2" />
-      <circle cx="46" cy="18" r="5" fill="none" stroke="var(--accent-mid)" strokeWidth="3.2" />
-      <circle cx="32" cy="46" r="5" fill="none" stroke="var(--accent-mid)" strokeWidth="3.2" />
-      <path d="M22.2 20.9 29 39.7M41.8 20.9 35 39.7M24 18h16" stroke="var(--accent-mid)" strokeWidth="3.2" strokeLinecap="round" />
-    </svg>
-  );
+  return <img className="brand-mark" src="/symbol-iv-bag.svg" alt="Надом" width={36} height={36} />;
 }
+
+function StatusBadge({ status }: { status: string }) {
+  return <strong className={`status-pill status-pill--${status.toLowerCase()}`}>{status}</strong>;
+}
+
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/+$/u, "");
 const configuredAdminToken = import.meta.env.VITE_ADMIN_TOKEN ?? "";
@@ -341,20 +339,25 @@ function AuthGate({ storageKey, label, onAuth }: AuthGateProps) {
   }
 
   return (
-    <div className="auth-gate">
-      <BrandMark />
-      <h2>{label}</h2>
-      <form onSubmit={handleSubmit}>
-        <label>
-          <span>Токен доступа</span>
-          <input autoComplete="current-password" onChange={(e) => { setInput(e.target.value); setError(false); }} placeholder="Введите токен" ref={inputRef} type="password" value={input} />
-        </label>
-        {error ? <p className="auth-error">Укажите токен доступа</p> : null}
-        {storageKey === "nadom_admin_token" ? (
-          <p className="auth-helper">Admin token хранится только в sessionStorage этого браузера. Не вставляйте его в чат и не коммитьте в репозиторий.</p>
-        ) : null}
-        <button type="submit">Войти</button>
-      </form>
+    <div className="d-onboarding-wrap">
+      <div className="d-onboarding-card">
+        <div className="d-onboarding-brand">
+          <BrandMark />
+          <div className="d-onboarding-brand-name">Над<span>о</span>м</div>
+        </div>
+        <h2 className="d-onboarding-title">{label}</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="d-form-row">
+            <label className="d-label" htmlFor="auth-token-input">Токен доступа</label>
+            <input className="d-input" id="auth-token-input" autoComplete="current-password" onChange={(e) => { setInput(e.target.value); setError(false); }} placeholder="Введите токен" ref={inputRef} type="password" value={input} />
+          </div>
+          {error ? <div className="d-error-box">Укажите токен доступа</div> : null}
+          {storageKey === "nadom_admin_token" ? (
+            <p style={{ fontSize: "12px", color: "var(--d-ink-3)", margin: "0 0 14px" }}>Admin token хранится только в sessionStorage этого браузера. Не вставляйте его в чат и не коммитьте в репозиторий.</p>
+          ) : null}
+          <button className="d-btn d-btn-primary d-btn-full" type="submit">Войти</button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -365,11 +368,6 @@ function routeTitle(pathname: string) {
   return "Надом Dashboard";
 }
 
-function routeDescription(pathname: string) {
-  if (pathname.startsWith("/clinic")) return "Экран для уполномоченных сотрудников выбранной организации.";
-  if (pathname.startsWith("/admin")) return "Внутренний экран для заявок, медицинских организаций и ссылок доступа.";
-  return "Выберите маршрут /admin или /clinic.";
-}
 
 function formatDate(value: string | null) {
   if (!value) return "нет";
@@ -402,14 +400,14 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
     <div className="request-chat">
       <div className="request-chat__head">
         <div>
-          <p className="meta-label">Чат заявки</p>
-          <p>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.</p>
+          <p className="d-section-label">Чат заявки</p>
+          <p style={{ fontSize: "12px", color: "var(--d-ink-3)", margin: 0 }}>Не отправляйте лишние персональные данные. Медицинские детали уточняет выбранная организация.</p>
         </div>
-        <button disabled={isLoading} onClick={onRefresh} type="button">{isLoading ? "Загружаем…" : "Обновить чат"}</button>
+        <button className="d-btn d-btn-secondary d-btn-sm" disabled={isLoading} onClick={onRefresh} type="button">{isLoading ? "Загружаем…" : "Обновить чат"}</button>
       </div>
-      {error ? <p className="dashboard-message">{error}</p> : null}
+      {error ? <div className="d-error-box">{error}</div> : null}
       <div className="request-chat__messages" aria-live="polite">
-        {messages.length === 0 ? <p className="request-chat__empty">Сообщений пока нет.</p> : messages.map((message) => (
+        {messages.length === 0 ? <p className="request-chat__empty" style={{ color: "var(--d-ink-3)", fontSize: "13px", margin: 0 }}>Сообщений пока нет.</p> : messages.map((message) => (
           <div className={`request-chat__bubble request-chat__bubble--${message.actorType.toLowerCase()}`} key={message.id}>
             <span>{chatActorLabel(message.actorType)} · {formatDate(message.createdAt)}</span>
             <p>{message.body}</p>
@@ -417,8 +415,8 @@ function RequestChat({ messages, isLoading, error, draft, actorType, onDraftChan
         ))}
       </div>
       <form className="request-chat__form" onSubmit={(event) => { event.preventDefault(); onSend(); }}>
-        <input autoComplete="off" onChange={(event) => onDraftChange(event.target.value)} placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной организации…"} type="text" value={draft} />
-        <button disabled={!draft.trim() || isLoading} type="submit">Отправить</button>
+        <input className="d-input" autoComplete="off" onChange={(event) => onDraftChange(event.target.value)} placeholder={actorType === "ADMIN" ? "Ответ admin…" : "Ответ выбранной организации…"} type="text" value={draft} />
+        <button className="d-btn d-btn-primary d-btn-sm" disabled={!draft.trim() || isLoading} type="submit">Отправить</button>
       </form>
     </div>
   );
@@ -436,9 +434,9 @@ function requestContextFields(req: MvpDbRequestRecord) {
 function RequestContext({ req }: { req: MvpDbRequestRecord }) {
   const context = requestContextFields(req);
   return (
-    <div className="request-context-panel">
-      <p className="meta-label">Контекст заявки</p>
-      <dl className="request-fields">
+    <div className="d-card" style={{ borderLeft: "3px solid var(--d-teal)", marginBottom: "12px" }}>
+      <p className="d-section-label">Контекст заявки</p>
+      <dl className="d-field-group">
         <div><dt>Услуга</dt><dd>{context.service}</dd></div>
         <div><dt>Ориентир</dt><dd>{context.price}</dd></div>
         {req.customRequest ? <div><dt>Свой запрос</dt><dd>{req.customRequest}</dd></div> : null}
@@ -472,12 +470,12 @@ function RequestQuotePanel({ request, isUpdating, onSave }: { request: MvpDbRequ
 
   return (
     <form className="quote-panel" onSubmit={(event) => { event.preventDefault(); onSave({ status, priceMin: optionalNumber(priceMin), priceMax: optionalNumber(priceMax), etaMinutes: optionalNumber(etaMinutes), notes: notes.trim() || undefined }); }}>
-      <label><span>Статус</span><select onChange={(event) => setStatus(event.target.value as MvpDbStatus)} value={status}>{dbStatusOrder.map((item) => <option key={item} value={item}>{dbStatusLabels[item]}</option>)}</select></label>
-      <label><span>Цена от</span><input inputMode="numeric" min={0} onChange={(event) => setPriceMin(event.target.value)} type="number" value={priceMin} /></label>
-      <label><span>Цена до</span><input inputMode="numeric" min={0} onChange={(event) => setPriceMax(event.target.value)} type="number" value={priceMax} /></label>
-      <label><span>Прибытие, мин</span><input inputMode="numeric" min={0} onChange={(event) => setEtaMinutes(event.target.value)} type="number" value={etaMinutes} /></label>
-      <label className="quote-panel__notes"><span>Операционная заметка</span><input onChange={(event) => setNotes(event.target.value)} placeholder="Без персональных и медицинских деталей" type="text" value={notes} /></label>
-      <button disabled={isUpdating} type="submit">{isUpdating ? "Сохраняем…" : "Сохранить статус и условия"}</button>
+      <label><span>Статус</span><select className="d-select" onChange={(event) => setStatus(event.target.value as MvpDbStatus)} value={status}>{dbStatusOrder.map((item) => <option key={item} value={item}>{dbStatusLabels[item]}</option>)}</select></label>
+      <label><span>Цена от</span><input className="d-input" inputMode="numeric" min={0} onChange={(event) => setPriceMin(event.target.value)} type="number" value={priceMin} /></label>
+      <label><span>Цена до</span><input className="d-input" inputMode="numeric" min={0} onChange={(event) => setPriceMax(event.target.value)} type="number" value={priceMax} /></label>
+      <label><span>Прибытие, мин</span><input className="d-input" inputMode="numeric" min={0} onChange={(event) => setEtaMinutes(event.target.value)} type="number" value={etaMinutes} /></label>
+      <label className="quote-panel__notes"><span>Операционная заметка</span><input className="d-input" onChange={(event) => setNotes(event.target.value)} placeholder="Без персональных и медицинских деталей" type="text" value={notes} /></label>
+      <button className="d-btn d-btn-primary d-btn-sm" disabled={isUpdating} type="submit">{isUpdating ? "Сохраняем…" : "Сохранить"}</button>
     </form>
   );
 }
@@ -1015,17 +1013,46 @@ export function App() {
   const pathname = window.location.pathname;
   const isConfigured = Boolean(apiBaseUrl);
   const title = useMemo(() => routeTitle(pathname), [pathname]);
-  const description = useMemo(() => routeDescription(pathname), [pathname]);
   const isAdmin = pathname.startsWith("/admin");
   const isClinic = pathname.startsWith("/clinic");
   const onboardingMatch = /^\/admin\/onboarding\/([^/]+)$/u.exec(pathname);
 
   return (
-    <main className="dashboard-shell">
-      <section className="dashboard-frame" aria-labelledby="dashboard-title">
-        <header className="dashboard-header"><BrandMark /><p className="dashboard-kicker">Надом · операционная панель</p><h1 id="dashboard-title">{title}</h1><p>{description}</p><nav aria-label="Маршруты dashboard"><a href="/admin">/admin</a><a href="/clinic">/clinic</a></nav></header>
-        {!isConfigured ? <section className="dashboard-card dashboard-card--empty"><p className="meta-label">Настройка</p><h2>API не подключён</h2><p>Укажите VITE_API_BASE_URL, чтобы подключить API.</p></section> : isAdmin ? (onboardingMatch ? <AdminOnboardingView clinicId={decodeURIComponent(onboardingMatch[1] ?? "")} /> : <AdminView />) : isClinic ? <ClinicView /> : <section className="dashboard-card dashboard-card--empty"><p className="meta-label">Маршрут</p><h2>Выберите маршрут</h2><p>Перейдите на <a href="/admin">/admin</a> или <a href="/clinic">/clinic</a>.</p></section>}
-      </section>
-    </main>
+    <div className="d-shell">
+      <nav className="d-sidebar">
+        <div className="d-sidebar-brand">
+          <BrandMark />
+          <div className="d-sidebar-brand-name">Над<span>о</span>м</div>
+        </div>
+        <div className="d-sidebar-nav">
+          <div className="d-nav-section">Маршруты</div>
+          <a className={`d-nav-link${isAdmin ? " active" : ""}`} href="/admin">Admin</a>
+          <a className={`d-nav-link${isClinic ? " active" : ""}`} href="/clinic">Организация</a>
+        </div>
+        <div className="d-sidebar-footer">Надом · операционная панель</div>
+      </nav>
+      <main className="d-main">
+        <div className="d-topbar">
+          <div className="d-topbar-title">{title}</div>
+        </div>
+        <div className="d-content">
+          {!isConfigured ? (
+            <div className="d-card">
+              <p className="d-page-title">API не подключён</p>
+              <p className="d-page-sub">Укажите VITE_API_BASE_URL, чтобы подключить API.</p>
+            </div>
+          ) : isAdmin ? (
+            onboardingMatch ? <AdminOnboardingView clinicId={decodeURIComponent(onboardingMatch[1] ?? "")} /> : <AdminView />
+          ) : isClinic ? (
+            <ClinicView />
+          ) : (
+            <div className="d-card">
+              <p className="d-page-title">Выберите маршрут</p>
+              <p className="d-page-sub">Перейдите на <a href="/admin">/admin</a> или <a href="/clinic">/clinic</a>.</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
