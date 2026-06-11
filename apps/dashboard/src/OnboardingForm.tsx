@@ -110,10 +110,15 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
   const isSaving = status === "saving";
 
   return (
-    <div className="onboarding-form">
-      <header className="onboarding-form__header">
-        <h2>Анкета медицинской организации</h2>
-        <p className="meta-label">ID: {clinicId}</p>
+    <div className="d-onboarding-wrap">
+      <div className="d-onboarding-card">
+        <div className="d-onboarding-brand">
+          <div className="d-onboarding-brand-name">Над<span>о</span>м</div>
+          <div className="d-onboarding-sub">Анкета медицинской организации</div>
+        </div>
+      <header>
+        <h2 className="d-onboarding-title">Анкета медицинской организации</h2>
+        <p className="d-section-label">ID: {clinicId}</p>
         <p>
           Заполните все разделы и нажмите «Отправить на проверку». Надом — агрегатор, а не медицинская
           организация. Все медицинские решения принимает выбранная организация.
@@ -122,7 +127,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
 
       {sections.map((section) => (
         <details
-          className="onboarding-section"
+          className="d-card"
           key={section}
           open={openSection === section}
           onToggle={(e) => {
@@ -133,10 +138,10 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
         >
           <summary className="onboarding-section__title">{sectionLabels[section]}</summary>
 
-          <div className="onboarding-section__body">
+          <div className="d-field-group">
             {section === "identity" && (
               <>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Публичное наименование медицинской организации</span>
                   <input
                     onChange={(e) => update("publicName", e.target.value)}
@@ -145,7 +150,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.publicName ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Полное юридическое наименование</span>
                   <input
                     onChange={(e) => update("legalName", e.target.value)}
@@ -154,7 +159,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.legalName ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>ИНН (для проверки; не публикуется)</span>
                   <input
                     onChange={(e) => update("innPlaceholder", e.target.value)}
@@ -163,7 +168,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.innPlaceholder ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Зоны работы / районы выезда</span>
                   <textarea
                     onChange={(e) => update("operatingAreas", e.target.value)}
@@ -177,7 +182,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
 
             {section === "license" && (
               <>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Номер лицензии</span>
                   <input
                     onChange={(e) => update("licenseNumber", e.target.value)}
@@ -186,7 +191,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.licenseNumber ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Выдана органом</span>
                   <input
                     onChange={(e) => update("issuingAuthority", e.target.value)}
@@ -195,7 +200,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.issuingAuthority ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Дата выдачи</span>
                   <input
                     onChange={(e) => update("issueDate", e.target.value)}
@@ -203,7 +208,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.issueDate ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Ссылка в реестре Росздравнадзора</span>
                   <input
                     onChange={(e) => update("registryUrl", e.target.value)}
@@ -213,13 +218,13 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   />
                 </label>
                 {/* TODO: add file upload for license scan when storage is ready */}
-                <p className="field-hint">Загрузка скана лицензии будет добавлена в следующей версии.</p>
+                <p style={{ fontSize: "13px", color: "var(--d-ink-3)", margin: "0" }}>Загрузка скана лицензии будет добавлена в следующей версии.</p>
               </>
             )}
 
             {section === "capabilities" && (
               <>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Часы работы</span>
                   <input
                     onChange={(e) => update("operatingHours", e.target.value)}
@@ -228,7 +233,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.operatingHours ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Время ответа на заявку (минут)</span>
                   <input
                     min={0}
@@ -238,7 +243,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.responseTimeMinutes ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Время прибытия после подтверждения (минут)</span>
                   <input
                     min={0}
@@ -248,7 +253,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.arrivalTimeMinutes ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Минимальная стоимость выезда (руб.)</span>
                   <input
                     min={0}
@@ -258,7 +263,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.priceRangeMin ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Максимальная стоимость выезда (руб.)</span>
                   <input
                     min={0}
@@ -268,7 +273,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.priceRangeMax ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Условия отмены заявки</span>
                   <textarea
                     onChange={(e) => update("cancellationTerms", e.target.value)}
@@ -282,11 +287,11 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
 
             {section === "categories" && (
               <>
-                <p className="field-hint">
+                <p style={{ fontSize: "13px", color: "var(--d-ink-3)", margin: "0" }}>
                   Отметьте виды заявок, которые медицинская организация способна рассмотреть. Надом передаёт
                   заявку — медицинское решение о возможности и составе выезда принимает выбранная организация.
                 </p>
-                <label className="field field--checkbox">
+                <label className="d-form-row" style={{ display: "flex", gap: "8px", alignItems: "start" }}>
                   <input
                     checked={data.acceptsHomeVisits ?? false}
                     onChange={(e) => update("acceptsHomeVisits", e.target.checked)}
@@ -294,7 +299,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   />
                   <span>Выездной медицинский осмотр на дому</span>
                 </label>
-                <label className="field field--checkbox">
+                <label className="d-form-row" style={{ display: "flex", gap: "8px", alignItems: "start" }}>
                   <input
                     checked={data.acceptsNurseVisits ?? false}
                     onChange={(e) => update("acceptsNurseVisits", e.target.checked)}
@@ -302,7 +307,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   />
                   <span>Выезд медицинской сестры / медицинского специалиста</span>
                 </label>
-                <label className="field field--checkbox">
+                <label className="d-form-row" style={{ display: "flex", gap: "8px", alignItems: "start" }}>
                   <input
                     checked={data.acceptsIvReview ?? false}
                     onChange={(e) => update("acceptsIvReview", e.target.checked)}
@@ -310,7 +315,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                   />
                   <span>Рассмотрение заявок на капельное введение препаратов на дому</span>
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Другие возможности (описание)</span>
                   <textarea
                     onChange={(e) => update("otherCapabilities", e.target.value)}
@@ -324,11 +329,11 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
 
             {section === "safety" && (
               <>
-                <p className="field-hint">
+                <p style={{ fontSize: "13px", color: "var(--d-ink-3)", margin: "0" }}>
                   Эти сведения используются только для операционного контроля. Надом не предоставляет
                   медицинских консультаций и не выдаёт клинических рекомендаций.
                 </p>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Критерии отказа в выезде / красные флаги</span>
                   <textarea
                     onChange={(e) => update("redFlagCriteria", e.target.value)}
@@ -337,7 +342,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.redFlagCriteria ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Порядок эскалации (103 / 112)</span>
                   <textarea
                     onChange={(e) => update("escalationPolicy", e.target.value)}
@@ -346,7 +351,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     value={data.escalationPolicy ?? ""}
                   />
                 </label>
-                <label className="field">
+                <label className="d-form-row">
                   <span>Политика по рецептурным, контролируемым и седативным препаратам</span>
                   <textarea
                     onChange={(e) => update("controlledMedicationPolicy", e.target.value)}
@@ -360,11 +365,11 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
 
             {section === "privacy" && (
               <>
-                <p className="field-hint">
+                <p style={{ fontSize: "13px", color: "var(--d-ink-3)", margin: "0" }}>
                   Надом — агрегатор. Платформа передаёт выбранной организации только необходимые для
                   подтверждения выезда данные. Организация не вправе передавать эти данные третьим лицам.
                 </p>
-                <label className="field field--checkbox">
+                <label className="d-form-row" style={{ display: "flex", gap: "8px", alignItems: "start" }}>
                   <input
                     checked={data.agreeNoUserDataSharing ?? false}
                     onChange={(e) => update("agreeNoUserDataSharing", e.target.checked)}
@@ -375,7 +380,7 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
                     без явного согласия пользователя.
                   </span>
                 </label>
-                <label className="field field--checkbox">
+                <label className="d-form-row" style={{ display: "flex", gap: "8px", alignItems: "start" }}>
                   <input
                     checked={data.agreeNeutralNotificationsOnly ?? false}
                     onChange={(e) => update("agreeNeutralNotificationsOnly", e.target.checked)}
@@ -392,20 +397,21 @@ export function OnboardingForm({ clinicId, adminToken, apiBaseUrl }: OnboardingF
         </details>
       ))}
 
-      {message ? <p className={`onboarding-message onboarding-message--${status}`}>{message}</p> : null}
+      {message ? <p className={status === "saved" ? "d-success-box" : "d-error-box"}>{message}</p> : null}
 
-      <div className="onboarding-form__actions">
-        <button disabled={isSaving} onClick={() => void handleSave("DRAFT")} type="button">
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+        <button className="d-btn d-btn-secondary" disabled={isSaving} onClick={() => void handleSave("DRAFT")} type="button">
           {isSaving ? "Сохраняем…" : "Сохранить черновик"}
         </button>
         <button
-          className="button--primary"
+          className="d-btn d-btn-primary"
           disabled={isSaving || !(data.agreeNoUserDataSharing && data.agreeNeutralNotificationsOnly)}
           onClick={() => void handleSave("SUBMITTED")}
           type="button"
         >
           Отправить на проверку
         </button>
+      </div>
       </div>
     </div>
   );
